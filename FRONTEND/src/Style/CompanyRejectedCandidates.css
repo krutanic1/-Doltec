@@ -1,0 +1,153 @@
+#companyRejectedCandidates {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: #FFFFFF;
+    padding: 60px 10px;
+  
+  .job-table {
+    min-width: 100%;
+    border-collapse: collapse;
+    display: block;
+    border: 1px solid #FFFFFF; 
+  }
+  
+  @media (min-width: 768px) {
+    .job-table {
+      display: table;
+    }
+  }
+  
+  .table-header {
+    display: block;
+  }
+  
+  @media (min-width: 768px) {
+    .table-header {
+      display: table-header-group;
+    }
+  }
+  
+  .header-row {
+    border: 1px solid #FFFFFF;
+    text-transform: capitalize;
+    display: block;
+    position: absolute;
+    top: -9999px;
+    left: -9999px;
+  }
+  
+  @media (min-width: 768px) {
+    .header-row {
+      border: #FFFFFF;
+      display: table-row;
+      position: relative;
+      top: auto;
+      left: auto;
+    }
+  }
+  
+  .header-cell {
+    background-color: #0000;
+    padding: 0.5rem;
+    color: #FFFFFF;
+    font-weight: 700;
+    text-align: left;
+    display: block;
+    border: 1px solid #FFFFFF; 
+  }
+  
+  @media (min-width: 768px) {
+    .header-cell {
+      border: 1px solid #FFFFFF; 
+      display: table-cell;
+    }
+  }
+  
+  .table-body {
+    display: block;
+
+  }
+  
+  @media (min-width: 768px) {
+    .table-body {
+      display: table-row-group;
+    }
+  }
+
+  @media (min-width: 768px) {
+    .no-jobs-row,
+    .job-row {
+      border: none;
+      display: table-row;
+    }
+  }
+  
+  .no-jobs-cell {
+    padding: 0.5rem;
+    text-align: center;
+    display: block;
+    color: #FFFFFF ;
+    border: 1px solid #FFFFFF; 
+  }
+  
+  .job-cell {
+    padding: 0.5rem;
+    text-align: left;
+    display: block;
+    color: #FFFFFF ;
+    border: 1px solid #FFFFFF; 
+  }
+  
+  @media (min-width: 768px) {
+    .no-jobs-cell,
+    .job-cell {
+      border: 1px solid #FFFFFF; 
+      display: table-cell;
+    }
+  }
+  
+  .action-button {
+    padding: 10px 16px;
+    background: linear-gradient(to right, #000000, #00000059);
+    box-shadow: 0 10px 25px rgba(63, 63, 63, 0.5);
+    transition: background 0.3s ease;
+    color: #FFFFFF;
+    border: none;
+    border-radius: 5px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  
+  .action-button:hover {
+    background: linear-gradient(to right, #333333, #555555);
+  }
+  
+  .heading {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 1rem;
+  }
+  
+  .job-list-title {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #FFFFFF;
+  }
+  
+  .add-button {
+    padding: 10px 16px;
+    background: linear-gradient(to right, #000000, #00000059);
+    box-shadow: 0 10px 25px rgba(63, 63, 63, 0.5);
+    transition: background 0.3s ease;
+    color: #FFFFFF;
+    border: none;
+    border-radius: 5px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+}

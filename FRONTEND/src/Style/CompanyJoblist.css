@@ -1,0 +1,78 @@
+#hrcompanyjoblist{
+  background-color: rgba(14, 14, 15, 0.8);
+      min-height: 100vh;
+
+  .job-container {
+      display: flex;
+      flex-direction: column;
+      padding: 60px 10px;
+    }
+    
+    .job-title {
+      font-size: 1.75rem;
+      font-weight: bold;
+      color: white;
+      margin-bottom: 1rem;
+      text-align: center;
+    }
+    
+    .job-table {
+      width: 100%;
+      border-collapse: collapse;
+      background-color: rgb(0, 0, 0);
+      overflow-x: auto;
+    }
+    
+    .job-table th,
+    .job-table td {
+      border: 1px solid #ccc;
+      padding: 0.75rem;
+      /* text-align: left; */
+      font-size: 1rem;
+    }
+    
+    .job-table th {
+      background-color: #000;
+      color: white;
+    }
+    
+    /* .job-table tr:nth-child(even) {
+      background-color: #f9f9f9;
+    } */
+    
+    /* .job-table tr:hover {
+      background-color: #efefef;
+    } */
+    
+    .company-logo {
+      width: 50px;
+      height: auto;
+      object-fit: contain;
+    }
+    
+    .no-jobs {
+      text-align: center;
+      padding: 1rem;
+      color: #777;
+    }
+    
+    /* Responsive Styles */
+    @media screen and (max-width: 768px) {
+      .job-table {
+        display: block;
+        overflow-x: auto;
+        white-space: nowrap;
+      }
+    
+      .job-title {
+        font-size: 1.4rem;
+      }
+    
+      .job-table th,
+      .job-table td {
+        font-size: 0.9rem;
+        padding: 0.5rem;
+      }
+    }
+    
+  }

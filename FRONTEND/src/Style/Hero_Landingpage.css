@@ -1,0 +1,162 @@
+#hero_landingpage{
+.hero {
+  background: #000000;
+  color: white;
+  padding: 3rem 0 2.5rem 0;
+}
+.check_price{
+  text-align: center;
+  button{
+    background-color: #000000;
+    color: white;
+    border: none;
+    padding: 0.6rem 1rem;
+    border-radius: 0.4rem;
+    font-size: 0.9rem;
+    cursor: pointer;
+     box-shadow: 0px 0px 4px 3px rgba(255, 255, 255, 0.199);
+  }
+}
+
+.hero-container {
+  max-width: 1500px;
+  margin: 0 auto;
+  padding: 0 1.5rem;
+}
+
+.hero-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2.5rem;
+  align-items: center;
+}
+
+@media (min-width: 1024px) {
+  .hero-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+/* Titles */
+.hero-title {
+  font-size: 2rem;
+  font-weight: 600;
+  color: #ffffff;
+  line-height: 1.3;
+}
+
+@media (min-width: 640px) {
+  .hero-title {
+    font-size: 2.5rem;
+  }
+}
+
+@media (min-width: 768px) {
+  .hero-title {
+    font-size: 3rem;
+  }
+}
+
+.hero-subtitle {
+  margin-top: 1rem;
+  color: #ffffff;
+  line-height: 1.6;
+}
+
+/* Tabs */
+.hero-tabs {
+  margin-top: 1.5rem;
+  display: inline-flex;
+  gap: 0.5rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 0.5rem;
+  padding: 0.25rem;
+}
+
+.hero-tab {
+  padding: 0.4rem 0.8rem;
+  font-size: 0.9rem;
+  border-radius: 0.4rem;
+  color: #ffffff;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+}
+
+.hero-tab:hover {
+  color: #004cff;
+}
+
+.hero-tab:focus-visible {
+  outline: 2px solid #2563eb;
+}
+
+.hero-tab.active {
+  background: #ffffff;
+  color: #0f172a;
+  border: 1px solid #e2e8f0;
+}
+
+/* Panels */
+.hero-panel {
+  margin-top: 1.5rem;
+}
+
+.panel-text {
+  color: #ededee;
+}
+
+.panel-buttons {
+  margin-top: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+@media (min-width: 640px) {
+  .panel-buttons {
+    flex-direction: row;
+  }
+}
+
+/* Buttons */
+.btn-primary {
+  background: #2563eb;
+  color: #ffffff;
+  border: none;
+  padding: 0.6rem 1rem;
+  border-radius: 0.4rem;
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+
+.btn-primary:hover {
+  background: #1d4ed8;
+}
+
+.btn-outline {
+  background: transparent;
+  border: 1px solid #e2e8f0;
+  color: #ffffff;
+  padding: 0.6rem 1rem;
+  border-radius: 0.4rem;
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+
+.btn-outline:hover {
+  background: #000000;
+}
+
+/* Image */
+.hero-image-wrapper {
+  justify-self: end;
+}
+
+.hero-image {
+  width: 100%;
+  border-radius: 0.5rem;
+  /* border: 1px solid #e2e8f0; */
+}
+
+}

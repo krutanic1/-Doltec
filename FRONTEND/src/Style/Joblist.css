@@ -1,0 +1,236 @@
+#joblist {
+  background-color: rgba(14, 14, 15, 0.8);
+  padding: 60px 10px 0 10px;
+  position: relative;
+
+  .filterandsearchbar {
+    padding: 10px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+
+    .searchbar {
+      display: flex;
+      align-items: center;
+      /* flex-wrap: wrap; */
+      gap: 5px;
+
+      input {
+        padding: 5px 10px;
+        border: 1px solid gray;
+        border-radius: 5px;
+        outline: none;
+        width: 100%;
+      }
+      button {
+        width: 100%;
+        background: #eee;
+        color: black;
+        padding: 5px 10px;
+        border-radius: 5px;
+        cursor: pointer;
+        font-weight: 600;
+        transition: all 0.3s;
+        &:active {
+          background: #ccc;
+          transform: scale(0.9);
+        }
+      }
+    }
+  }
+
+ 
+
+  .joblist__container {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  min-height: 100vh;
+  background: #fff;
+  color: #222;
+  gap: 1rem;
+  padding: 0.5rem;
+  /* background-color: blue; */
+}
+
+/* Sidebar - Mobile: horizontal scroll */
+.joblist__sidebar {
+  display: flex;
+  overflow-x: auto;
+  gap: 0.75rem;
+  border-radius: 10px;
+  padding-bottom: 0.5rem;
+  /* background-color: red; */
+  padding: 5px;
+}
+
+.job__titleandlocation {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  background: #f9fafb;
+  box-shadow: 0 1px 1px rgb(175, 173, 173);
+  padding: 0.75rem 1rem;
+  border-radius: 10px;
+  min-width: 180px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.job__titleandlocation:hover {
+  background: #eef4ff;
+  transform: translateY(-2px);
+}
+
+.company__logo img {
+  width: 40px;
+  height: 40px;
+  object-fit: contain;
+  margin-right: 0.75rem;
+}
+
+.job__name strong {
+  font-size: 0.95rem;
+}
+
+.job__name p {
+  font-size: 0.8rem;
+  color: #666;
+}
+
+/* Job details section */
+.joblist__content {
+  flex: 1;
+  border-radius: 10px;
+  /* background-color: #007bff; */
+}
+
+.job__details {
+  background: #fff;
+  /* background-color: red/ ; */
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  padding: 1rem;
+}
+
+.job__apply {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.75rem;
+}
+
+.job__apply .job__title {
+  font-size: 1.4rem;
+  font-weight: 600;
+}
+
+.apply__button, .subscribe__button {
+  background: #007bff;
+  color: white;
+  border: none;
+  padding: 0.6rem 1.2rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background 0.3s ease;
+}
+
+.apply__button.applied {
+  background: #4caf50;
+}
+
+.apply__button:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+}
+
+.apply__button:hover:not(:disabled),
+.subscribe__button:hover {
+  background: #005fcc;
+}
+
+/* Job details text */
+.job__overview p,
+.job__requirements ul,
+.job__description ul {
+  margin: 0.5rem 0;
+  line-height: 1.5;
+  font-size: 0.9rem;
+}
+
+.job__requirements ul li,
+.job__description ul li {
+  list-style-type: disc;
+  margin-left: 1.2rem;
+}
+
+/* Medium screens - tablets */
+@media (min-width: 768px) {
+  .joblist__container {
+    flex-direction: row;
+  }
+
+  .joblist__sidebar {
+    flex-direction: column;
+    width: 35%;
+    max-height: 100vh;
+    overflow-y: auto;
+     border: 1px solid #eee;
+    /* border-right: 1px solid #eee; */
+  }
+
+  .job__titleandlocation {
+    min-width: auto;
+    width: 100%;
+  }
+
+  .joblist__content {
+    width: 65%;
+    max-height: 100vh;
+    overflow-y: auto;
+    border: 1px solid #eee;
+    /* padding-left: 1.5rem; */
+  }
+}
+
+/* Large screens - desktops */
+@media (min-width: 1024px) {
+  .joblist__container {
+    padding: 1rem 2rem;
+  }
+
+  .job__apply {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .job__apply .job__title {
+    font-size: 1.8rem;
+  }
+
+  .job__details {
+    padding: 2rem;
+  }
+
+  .job__overview p {
+    font-size: 1rem;
+  }
+}
+
+
+
+}
+
+@keyframes fadeSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

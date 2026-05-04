@@ -1,0 +1,45 @@
+/* #mainpage{
+    padding: 10px;
+    margin-bottom: 50px;
+
+}
+#mainpage h1{
+    font-size: 30px;
+    text-align: center;
+
+}
+
+#mainpage .list h2{
+    text-align: center;
+    margin-bottom: 10px;
+}
+#mainpage .list{
+    margin: 20px 10px;
+    padding: 10px;
+    border-radius: 20px;
+    border: 1px solid white;
+    overflow: hidden;
+    text-align: center;
+    
+}
+#mainpage .list img{
+    width: 500px;
+  border-radius: 20px;
+  padding:10px;
+    float: left;
+    transform: translateX(-100px);
+    animation: fadeInUp 2s forwards; 
+}
+#mainpage .list p{
+    text-align: justify;
+    transform: translateX(100px);
+    animation: fadeInUp 2s forwards; 
+}
+#mainpage .list a{
+    text-align: center;
+    background-color: orange;
+    border-radius: 10px;
+    padding: 5px 30px;
+    
+}
+ */

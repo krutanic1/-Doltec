@@ -1,0 +1,128 @@
+#HRLogin{
+.hr-login-container {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+  }
+  
+  @media (min-width: 768px) {
+    .hr-login-container {
+      flex-direction: row;
+    }
+  }
+  
+  /* Left background image */
+  .hr-login-image-side {
+    display: none;
+    background-image: url('https://img.freepik.com/free-photo/side-view-woman-wheelchair-showing-something-colleagues-tablet_23-2148496216.jpg?t=st=1745059444~exp=1745063044~hmac=296c2b0dc63cc422473f666bc1d9ef8bd91c9a884aa4ac59b213b4bb910522ec&w=996'); /* Replace with your image path */
+    background-size: cover;
+    background-position: center;
+    width: 50%;
+  }
+  
+  @media (min-width: 768px) {
+    .hr-login-image-side {
+      display: block;
+    }
+  }
+
+  
+  
+  .hr-login-form-side {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #000000dc;
+    width: 100%;
+    padding: 2rem;
+  }
+  
+  @media (min-width: 768px) {
+    .hr-login-form-side {
+      width: 50%;
+    }
+  }
+  
+  .hr-login-form-wrapper {
+    width: 100%;
+    max-width: 400px;
+    backdrop-filter: blur(8px);
+    border-radius: 1rem;
+    padding: 2rem;
+    background: #080808;
+    box-shadow: 0 10px 25px rgba(56, 56, 56, 0.5);
+    position: relative;
+    color: white;
+
+  }
+  
+  .hr-login-back {
+    float: right;
+    margin-bottom: 1rem;
+    color: white;
+  }
+  
+  .hr-login-title {
+    text-align: center;
+    font-size: 1.8rem;
+    font-weight: bold;
+    margin-bottom: 2rem;
+    text-transform: uppercase;
+  }
+  
+  .hr-login-input {
+    width: 100%;
+    padding: 0.75rem;
+    margin-bottom: 1rem;
+    border-bottom: 2px solid #d1d5db;
+    outline: none;
+    background: transparent;
+    color: #ffffff;
+    font-size: 0.95rem;
+  }
+  
+  .hr-login-password-wrapper {
+    position: relative;
+    
+    span{
+      position: absolute;
+      right: 0.5rem;
+      top: 30%;
+      transform: translateY(-50%);
+      cursor: pointer;
+    }
+  }
+  .hr-login-button {
+    width: 100%;
+    padding: 0.75rem;
+    border-radius: 0.75rem;
+    font-size: 1rem;
+    font-weight: 600;
+    background: linear-gradient(to right, #000000, #00000059);
+    color: white;
+    border: none;
+    cursor: pointer;
+    transition: background 0.3s ease;
+    box-shadow: 0 10px 25px rgba(56, 56, 56, 0.5);
+
+  }
+
+  .continuewithgoogle{
+    margin-top: 1rem;
+    text-align: center;
+
+    .hr-login-divline{
+      margin-bottom: 1rem;
+      color: #ffffff;
+    }
+  }
+  
+  
+  .hr-login-error {
+    color: #ff6b6b;
+    font-size: 0.875rem;
+    margin-bottom: 1rem;
+    text-align: center;
+  }
+  
+}

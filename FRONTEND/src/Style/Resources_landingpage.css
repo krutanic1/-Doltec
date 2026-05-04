@@ -1,0 +1,152 @@
+#resources_landingpage{
+  .resources {
+  background: #000000;
+  color: white;
+  border-top: 1px solid #f1f5f91f;
+  padding: 3rem 1rem;
+}
+
+.resources-container {
+  max-width: 1500px;
+  margin: 0 auto;
+  /* background-color: red; */
+}
+
+.resources-header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1rem;
+  /* background-color: #2563eb; */
+}
+
+.resources-title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  /* color: #0f172a; */
+}
+
+@media (min-width: 768px) {
+  .resources-title {
+    font-size: 1.875rem;
+  }
+}
+
+.resources-subtitle {
+  margin-top: 0.5rem;
+  /* color: #475569; */
+  line-height: 1.6;
+}
+
+.resources-link {
+  color: #2563eb;
+  text-decoration: none;
+  font-size: 0.95rem;
+  /* text-align: center; */
+}
+
+.resources-link:hover {
+  text-decoration: underline;
+}
+
+.resources-grid {
+  margin-top: 2rem;
+  display: grid;
+  /* background-color: green; */
+  grid-template-columns: 1fr;
+  gap: 1.5rem;
+  min-width: 100%;
+}
+
+@media (min-width: 640px) {
+  .resources-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1024px) {
+  .resources-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.resource-card {
+  background: #000000;
+  border: 1px solid #e2e8f033;
+  padding: 1.25rem;
+  border-radius: 0.5rem;
+  box-shadow: 0 1px 3px rgba(235, 229, 229, 0.2);
+  transition: box-shadow 0.2s ease-in-out;
+}
+
+.resource-card:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+}
+
+.resource-tag {
+  display: inline-flex;
+  align-items: center;
+  border-bottom: 1px solid #e2e8f033;
+  font-size: 0.75rem;
+  color: #ffffff;
+}
+
+.resource-title {
+  margin-top: 0.75rem;
+  font-weight: 500;
+  color: #ffffff;
+}
+
+.resource-excerpt {
+  margin-top: 0.5rem;
+  color: #ffffff;
+  line-height: 1.5;
+  font-size: 0.9rem;
+}
+
+.resource-readmore {
+  margin-top: 0.75rem;
+  display: inline-block;
+  font-size: 0.9rem;
+  background-color: #ffffff;
+  width: 2rem;
+  height: 2rem;
+  text-align: center;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+
+  i{
+    color: #000000;
+    font-size: 1rem;
+    rotate: -40deg;
+      transition: transform 0.2s ease-in-out;
+  }
+  &:hover i{ 
+    scale: 1.1;
+
+
+  }
+}
+
+.resource-readmore:hover {
+  text-decoration: underline;
+}
+
+.desktop-only {
+  display: none;
+}
+
+@media (min-width: 640px) {
+  .desktop-only {
+    display: inline;
+  }
+  .mobile-only {
+    display: none;
+  }
+}
+
+}

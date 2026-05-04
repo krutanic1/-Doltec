@@ -1,0 +1,79 @@
+#HRHeader{
+    .HR-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background-color: #080808;
+        color: white;
+        padding: 10px 20px;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        z-index: 1000;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        transition: background-color 0.3s ease-in-out;
+        
+      }
+      
+      .logo {
+        font-size: 1.5rem;
+        font-weight: bold;
+      }
+      
+      .menu-icon {
+        font-size: 1.8rem;
+        cursor: pointer;
+        user-select: none;
+      }
+      
+      /* Sidebar Styling */
+      .sidebar {
+        position: fixed;
+        top: 0;
+        right: -260px;
+        width: 250px;
+        height: 100%;
+        background-color: #080808;
+        color: white;
+        box-shadow: -2px 0 5px rgba(17, 17, 17, 0.4);
+        transition: right 0.5s ease-in-out;
+        z-index: 1000;
+        padding: 20px;
+      }
+      
+      .sidebar.open {
+        right: 0;
+      }
+      
+      .close-btn {
+        background: none;
+        border: none;
+        font-size: 1.6rem;
+        position: absolute;
+        right: 15px;
+        top: 15px;
+        cursor: pointer;
+      }
+      
+      .sidebar ul {
+        list-style: none;
+        margin-top: 50px;
+        padding: 0;
+      }
+      
+      .sidebar ul li {
+        padding: 10px 0;
+        font-size: 1.1rem;
+        border-bottom: 1px solid #ccc;
+      }
+      .sidebar ul li a {
+        color: white;
+        text-decoration: none;
+        display: block;
+      }
+      .sidebar ul li i{
+        margin-right: 8px;
+      }
+      
+    }

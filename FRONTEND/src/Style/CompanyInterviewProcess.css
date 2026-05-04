@@ -1,0 +1,578 @@
+#CompanyInterviewProcess {
+  padding: 60px 10px;
+     background-color: rgba(14, 14, 15, 0.8);
+  min-height: 100vh;
+  
+.heading {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  padding: 10px 0;
+}
+
+.job-list-title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #fff;
+}
+
+.job-table {
+   min-width: 100%;
+  border-collapse: collapse;
+  border: 1px solid #fff;
+  /* background-color: #1a1a1a; */
+}
+
+.table-header {
+  background-color: #000;
+}
+
+.header-row {
+  display: table-row;
+}
+
+.header-cell {
+  padding: 12px 15px;
+  color: #fff;
+  font-weight: 700;
+  font-size: 0.9rem;
+  text-align: center;
+  text-transform: capitalize;
+  border: 1px solid #fff;
+  vertical-align: middle;
+}
+
+.table-body {
+  display: table-row-group;
+  text-align: center;
+}
+
+.job-row {
+  display: table-row;
+  border-bottom: 1px solid #444;
+}
+
+.job-cell {
+  padding: 12px 15px;
+  color: #fff;
+  font-size: 0.9rem;
+  border: 1px solid #fff;
+  vertical-align: middle;
+}
+
+.no-jobs-row {
+  display: table-row;
+}
+
+.no-jobs-cell {
+  padding: 20px;
+  text-align: center;
+  color: #ccc;
+  font-size: 1rem;
+  border: 1px solid #fff;
+}
+
+.action-button {
+  padding: 10px 12px;
+  /* background: linear-gradient(to right, #000, #00000059); */
+  /* box-shadow: 0 10px 25px rgba(63, 63, 63, 0.5);  */
+  color: #fff;
+  border: 1px solid gray;
+  border-radius: 5px;
+  font-weight: 600;
+  cursor: pointer;
+  /* transition: background 0.3s ease, transform 0.2s ease; */
+  margin: 5px;
+}
+
+.action-button:hover {
+  background: linear-gradient(to right, #333, #555);
+  transform: scale(1.05);
+}
+
+.schedule-button {
+  border: none;
+  background: linear-gradient(to right, #17a2b8, #117a8b);
+}
+
+.schedule-button:hover {
+  background: linear-gradient(to right, #138496, #0d6d7e);
+}
+
+.update-button {
+  background: linear-gradient(to right, #28a745, #218838);
+}
+
+.update-button:hover {
+  background: linear-gradient(to right, #239b3e, #1d7733);
+}
+
+.job-cell input,
+.job-cell select,
+.job-cell textarea {
+  padding: 8px;
+  border: 1px solid #444;
+  border-radius: 4px;
+  font-size: 0.85rem;
+  background-color: #333;
+  color: #fff;
+  margin: 5px 8px 5px 0;
+  width: 120px;
+}
+
+.job-cell select {
+  width: 100px;
+}
+
+.job-cell textarea.feedback-input {
+  width: 200px;
+  height: 60px;
+  resize: vertical;
+}
+
+.interview-rounds-icon {
+  margin-left: 6px;
+  font-size: 15px;
+  color: #17a2b8;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.interview-rounds-icon:hover {
+  transform: scale(1.1);
+  color: #117a8b;
+}
+
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background-color: #1a1a1a;
+  padding: 30px;
+  border-radius: 8px;
+  max-width: 600px;
+  width: 90%;
+  max-height: 80vh;
+  overflow-y: auto;
+  position: relative;
+  border: 1px solid #444;
+}
+
+.close-button {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  font-size: 1.2rem;
+  color: #fff;
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.close-button:hover {
+  color: #dc3545;
+}
+
+.modal-content h2 {
+  font-size: 1.5rem;
+  color: #fff;
+  margin-bottom: 20px;
+  border-bottom: 1px solid #444;
+  padding-bottom: 10px;
+}
+
+.modal-content h3 {
+  font-size: 1.2rem;
+  color: #17a2b8;
+  margin: 15px 0 10px;
+}
+
+.modal-content p {
+  font-size: 0.9rem;
+  color: #ccc;
+  margin: 5px 0;
+  line-height: 1.5;
+}
+
+.interview-round {
+  margin-bottom: 20px;
+  padding: 15px;
+  border: 1px solid #444;
+  border-radius: 5px;
+  background-color: #222;
+}
+
+.interview-round h3 {
+  font-size: 1.1rem;
+  color: #17a2b8;
+  margin-bottom: 10px;
+}
+
+.interview-round p {
+  font-size: 0.85rem;
+  color: #ccc;
+  margin: 5px 0;
+}
+
+.interview-round p strong {
+  color: #fff;
+  font-weight: 600;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .job-table {
+    display: block;
+    overflow-x: auto;
+  }
+
+  .header-row,
+  .job-row,
+  .no-jobs-row {
+    display: block;
+  }
+
+  .header-cell,
+  .job-cell,
+  .no-jobs-cell {
+    display: block;
+    border: 1px solid #fff;
+    padding: 10px;
+  }
+
+  .header-cell::before,
+  .job-cell::before {
+    content: attr(data-label);
+    font-weight: 600;
+    display: block;
+    color: #17a2b8;
+    margin-bottom: 5px;
+  }
+
+  .job-cell input,
+  .job-cell select,
+  .job-cell textarea {
+    width: 100%;
+    margin: 5px 0;
+  }
+
+  .action-button {
+    width: 100%;
+    margin: 5px 0;
+  }
+}
+
+@media (max-width: 576px) {
+  #CompanyInterviewProcess {
+    padding: 30px 10px;
+  }
+
+  .job-list-title {
+    font-size: 1.25rem;
+  }
+
+  .modal-content {
+    padding: 20px;
+  }
+}
+}
+#CompanyInterviewProcess {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 60px 10px;
+  /* background-color: #000; */
+  color: #fff;
+  min-height: 100vh;
+
+
+.heading {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  max-width: 1200px;
+  margin-bottom: 1rem;
+}
+
+.job-list-title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #fff;
+}
+
+.job-table {
+  min-width: 100%;
+  border-collapse: collapse;
+  border: 1px solid #fff;
+  background-color: #1a1a1a;
+}
+
+.table-header {
+  background-color: #000;
+}
+
+.header-row {
+  display: table-row;
+}
+
+.header-cell {
+  padding: 12px 15px;
+  color: #fff;
+  font-weight: 700;
+  font-size: 0.9rem;
+  text-align: left;
+  text-transform: capitalize;
+  border: 1px solid #fff;
+  vertical-align: middle;
+}
+
+.table-body {
+  display: table-row-group;
+}
+
+.job-row {
+  display: table-row;
+  border-bottom: 1px solid #444;
+}
+
+.job-cell {
+  padding: 12px 15px;
+  color: #fff;
+  font-size: 0.9rem;
+  border: 1px solid #fff;
+  vertical-align: middle;
+}
+
+.no-jobs-row {
+  display: table-row;
+}
+
+.no-jobs-cell {
+  padding: 20px;
+  text-align: center;
+  color: #ccc;
+  font-size: 1rem;
+  border: 1px solid #fff;
+}
+
+.action-button {
+  padding: 10px 16px;
+  background: linear-gradient(to right, #000, #00000059);
+  box-shadow: 0 10px 25px rgba(63, 63, 63, 0.5);
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.3s ease, transform 0.2s ease;
+  margin: 5px;
+}
+
+.action-button:hover {
+  background: linear-gradient(to right, #333, #555);
+  transform: scale(1.05);
+}
+
+.schedule-button {
+  background: linear-gradient(to right, #17a2b8, #117a8b);
+}
+
+.schedule-button:hover {
+  background: linear-gradient(to right, #138496, #0d6d7e);
+}
+
+.update-button {
+  background: linear-gradient(to right, #28a745, #218838);
+}
+
+.update-button:hover {
+  background: linear-gradient(to right, #239b3e, #1d7733);
+}
+
+.job-cell input,
+.job-cell select,
+.job-cell textarea {
+  padding: 8px;
+  border: 1px solid #444;
+  border-radius: 4px;
+  font-size: 0.85rem;
+  background-color: #333;
+  color: #fff;
+  margin: 5px 8px 5px 0;
+  width: 120px;
+}
+
+.job-cell select {
+  width: 100px;
+}
+
+.job-cell textarea.feedback-input {
+  width: 200px;
+  height: 60px;
+  resize: vertical;
+}
+
+.interview-rounds-icon {
+  margin-left: 6px;
+  font-size: 15px;
+  color: #17a2b8;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.interview-rounds-icon:hover {
+  transform: scale(1.1);
+  color: #117a8b;
+}
+
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background-color: #1a1a1a;
+  padding: 30px;
+  border-radius: 8px;
+  max-width: 600px;
+  width: 90%;
+  max-height: 80vh;
+  overflow-y: auto;
+  position: relative;
+  border: 1px solid #444;
+}
+
+.close-button {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  font-size: 1.2rem;
+  color: #fff;
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.close-button:hover {
+  color: #dc3545;
+}
+
+.modal-content h2 {
+  font-size: 1.5rem;
+  color: #fff;
+  margin-bottom: 20px;
+  border-bottom: 1px solid #444;
+  padding-bottom: 10px;
+}
+
+.modal-content h3 {
+  font-size: 1.2rem;
+  color: #17a2b8;
+  margin: 15px 0 10px;
+}
+
+.modal-content p {
+  font-size: 0.9rem;
+  color: #ccc;
+  margin: 5px 0;
+  line-height: 1.5;
+}
+
+.interview-round {
+  margin-bottom: 20px;
+  padding: 15px;
+  border: 1px solid #444;
+  border-radius: 5px;
+  background-color: #222;
+}
+
+.interview-round h3 {
+  font-size: 1.1rem;
+  color: #17a2b8;
+  margin-bottom: 10px;
+}
+
+.interview-round p {
+  font-size: 0.85rem;
+  color: #ccc;
+  margin: 5px 0;
+}
+
+.interview-round p strong {
+  color: #fff;
+  font-weight: 600;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .job-table {
+    display: block;
+    overflow-x: auto;
+  }
+
+  .header-row,
+  .job-row,
+  .no-jobs-row {
+    display: block;
+  }
+
+  .header-cell,
+  .job-cell,
+  .no-jobs-cell {
+    display: block;
+    border: 1px solid #fff;
+    padding: 10px;
+  }
+
+  .header-cell::before,
+  .job-cell::before {
+    content: attr(data-label);
+    font-weight: 600;
+    display: block;
+    color: #17a2b8;
+    margin-bottom: 5px;
+  }
+
+  .job-cell input,
+  .job-cell select,
+  .job-cell textarea {
+    width: 100%;
+    margin: 5px 0;
+  }
+
+  .action-button {
+    width: 100%;
+    margin: 5px 0;
+  }
+}
+
+@media (max-width: 576px) {
+  #CompanyInterviewProcess {
+    padding: 30px 10px;
+  }
+
+  .job-list-title {
+    font-size: 1.25rem;
+  }
+
+  .modal-content {
+    padding: 20px;
+  }
+}
+}

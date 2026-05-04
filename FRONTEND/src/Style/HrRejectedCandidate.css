@@ -1,0 +1,222 @@
+#rejected-candidates {
+      background-color: rgba(14, 14, 15, 0.8);
+      min-height: 100vh;
+
+   padding: 70px 10px;
+  .container {
+   
+    display: flex;
+    min-width: 100%;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+
+  .title {
+    font-size: 1.75rem;
+    font-weight: bold;
+    text-align: center;
+    margin-bottom: 1rem;
+    color: white;
+    max-width: 90%;
+  }
+
+  .table {
+    min-width: 100%;
+    border-collapse: collapse;
+    color: #ffff;
+    overflow-x: auto;
+    white-space: nowrap;
+
+   
+  }
+
+  .table th,
+  .table td {
+    border: 1px solid #ccc;
+    padding: 0.75rem;
+    text-align: left;
+    font-size: 1rem;
+  }
+
+  .table th {
+    background-color: #000;
+    color: white;
+  }
+
+  .resume-details {
+    margin-top: 20px;
+    padding: 20px;
+    border: 1px solid #ccc;
+    background-color: white;
+    width: 100%;
+    max-width: 800px;
+    border-radius: 5px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  }
+
+  .resume-details h3 {
+    font-size: 1.5rem;
+    color: #000;
+    margin-bottom: 15px;
+    border-bottom: 2px solid #007bff;
+    padding-bottom: 5px;
+  }
+
+  .resume-section {
+    margin-bottom: 20px;
+  }
+
+  .resume-section h4 {
+    font-size: 1.2rem;
+    color: #000;
+    margin-bottom: 10px;
+    background-color: #f8f9fa;
+    padding: 5px 10px;
+    border-left: 4px solid #007bff;
+  }
+
+  .resume-section p {
+    margin: 5px 0;
+    font-size: 1rem;
+    color: #333;
+    line-height: 1.5;
+  }
+
+  .education-entry,
+  .experience-entry,
+  .interview-entry {
+    padding: 10px;
+    border-bottom: 1px solid #eee;
+  }
+
+  .education-entry:last-child,
+  .experience-entry:last-child,
+  .interview-entry:last-child {
+    border-bottom: none;
+  }
+
+  .modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+  }
+
+  .modal-content {
+    background-color: white;
+    padding: 20px;
+    border-radius: 5px;
+    max-width: 600px;
+    width: 90%;
+    max-height: 80vh;
+    overflow-y: auto;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    position: relative;
+  }
+
+  .close-button {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    font-size: 1.2rem;
+    cursor: pointer;
+    color: #333;
+  }
+
+  .close-button:hover {
+    color: #007bff;
+  }
+
+  .job-description-dialog {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    padding: 20px;
+    border: 1px solid #ccc;
+    background-color: white;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    z-index: 1000;
+    max-width: 500px;
+    width: 90%;
+    border-radius: 5px;
+  }
+
+  .job-description-dialog h3 {
+    font-size: 1.5rem;
+    color: #000;
+    margin-bottom: 10px;
+  }
+
+  .job-description-dialog p {
+    font-size: 1rem;
+    color: #333;
+    line-height: 1.5;
+  }
+
+  .job-description-close-button {
+    cursor: pointer;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 4px;
+    font-size: 1rem;
+    margin-top: 10px;
+    transition: background-color 0.2s;
+  }
+
+  .job-description-close-button:hover {
+    background-color: #0056b3;
+  }
+
+  /* Responsive Design */
+  @media screen and (max-width: 768px) {
+    .title {
+      font-size: 1.4rem;
+    }
+
+    .table {
+      display: block;
+      overflow-x: auto;
+    }
+
+    .table th,
+    .table td {
+      font-size: 0.9rem;
+      padding: 0.5rem;
+    }
+
+    .resume-details {
+      padding: 15px;
+    }
+
+    .resume-details h3 {
+      font-size: 1.3rem;
+    }
+
+    .resume-section h4 {
+      font-size: 1.1rem;
+    }
+
+    .resume-section p {
+      font-size: 0.9rem;
+    }
+
+    .modal-content {
+      width: 95%;
+      max-height: 90vh;
+    }
+
+    .job-description-dialog {
+      width: 95%;
+    }
+  }
+}
+}

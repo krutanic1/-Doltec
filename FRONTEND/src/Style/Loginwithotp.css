@@ -1,0 +1,137 @@
+#loginwithotp{
+    display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #161616, #191a1d);
+  /* font-family: "Poppins", sans-serif; */
+
+  .loginform {
+  background: #000000;
+  color: #fff;
+  border-radius: 16px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  max-width: 380px;
+  padding: 40px 35px;
+  text-align: center;
+  transition: all 0.3s ease;
+}
+.backandexit{
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 15px;
+
+  a{
+    color: #fff;
+    font-size: 1.5rem;
+    text-decoration: none;
+    font-weight: bold;
+    transition: color 0.3s;
+  }
+}
+.loginform:hover {
+  transform: translateY(-4px);
+}
+
+.loginform h2 {
+  font-size: 1.8rem;
+  font-weight: 600;
+  color: #ffffff;
+  margin-bottom: 25px;
+}
+
+/* Input Fields */
+.loginform label {
+  display: block;
+  text-align: left;
+  margin-bottom: 8px;
+  font-weight: 500;
+  color: #333;
+}
+
+.loginform input {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  font-size: 1rem;
+  outline: none;
+  transition: 0.3s;
+}
+
+.loginform input:focus {
+  border-color: #4a63e7;
+  box-shadow: 0 0 5px rgba(74, 99, 231, 0.4);
+}
+
+/* Buttons */
+.loginform button {
+  width: 100%;
+  background-color: #4a63e7;
+  color: #fff;
+  font-size: 1rem;
+  font-weight: 600;
+  padding: 12px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: 0.3s ease;
+}
+
+.loginform button:hover {
+  background-color: #3549b2;
+}
+
+/* Separator */
+.loginform p {
+  color: #777;
+  font-size: 0.9rem;
+  margin: 15px 0;
+  position: relative;
+}
+
+.loginform p::before,
+.loginform p::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  width: 35%;
+  height: 1px;
+  background: #ccc;
+}
+
+.loginform p::before {
+  left: 0;
+}
+
+.loginform p::after {
+  right: 0;
+}
+
+/* Link Section */
+.loginwith a {
+  display: inline-block;
+  color: #4a63e7;
+  font-weight: 500;
+  text-decoration: none;
+  transition: color 0.3s;
+}
+
+.loginwith a:hover {
+  color: #3549b2;
+  text-decoration: underline;
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+  .loginform {
+    padding: 30px 20px;
+  }
+
+  .loginform h2 {
+    font-size: 1.5rem;
+  }
+}
+}

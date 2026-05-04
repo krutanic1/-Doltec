@@ -1,0 +1,243 @@
+
+#demo {
+    
+   
+  .demo__content {
+    position: relative;
+    max-width: 1500px;
+    margin: 0 auto;
+    padding: 30px 20px;
+
+    .newbar {
+      width: 100%;
+      padding: 10px 30px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      animation: fadeEaseIn 3s cubic-bezier(0, 0.33, 0.07, 1.03) 0s forwards;
+
+      .navbar-link {
+        width: 100%;
+        display: flex;
+        align-items: center;
+        color: white;
+        text-shadow: 0px 0px 21px rgb(255 255 255 / 65%);
+        justify-content: space-around;
+        gap: 90px;
+        font-weight: bold;
+      }
+    }
+
+    .center__content {
+      position: relative;
+      display: flex;
+      /* background-color: red; */
+      align-items: center;
+      gap: 40px;
+      height: 400px;
+      justify-content: space-evenly;
+
+      .M-text {
+        font-size: 25px;
+        color: white;
+        font-weight: 900;
+        transform: rotate(90deg);
+        transform-origin: 0 0;
+        text-shadow: 0px 0px 21px rgb(255 255 255 / 65%);
+      }
+
+      .doltec__text{
+        
+        width: 35%;
+        position: relative;
+
+        .XL-text {
+            position: absolute;
+            text-transform: uppercase;
+            opacity: 0;
+            font-weight: bolder;
+    
+            text-align: center;
+            color: #ffffff;
+            text-shadow: 0px 0px 21px rgb(255 255 255 / 65%);
+            font-family: "MADE Soulmaze Outline Regular";
+            font-size: min(10vw, 85px);
+    
+            line-height: min(10vw, 81px);
+           
+            z-index: 1;
+            animation: fadeIn 2s ease-in 0s forwards;
+          }
+          .L-text{
+            position: absolute;
+            font-family: "MADE Soulmaze Outline Regular";
+            text-transform: uppercase;
+            text-align: center;
+        
+            font-size: min(10vw, 85px);
+          font-weight:bolder;
+        
+            line-height: min(10vw, 81px);
+        
+            color: transparent;
+            -webkit-text-stroke: 0.3px rgba(255, 255, 255, 0.497);
+        
+            transform: translateY(-25px);
+          }
+      }
+
+      .social-icons{
+        display: flex;
+        flex-direction: column;
+        row-gap: 20px;
+        color: white;
+        text-shadow: 0px 0px 21px rgb(255 255 255 / 65%);
+        font-size: 20px;
+        font-weight: bold;
+        text-align: center;
+        cursor: pointer;
+        margin-top: 6rem;
+      }
+       
+      .text-M{
+        position: absolute;
+        top: 70%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        font-size: 1.5rem;
+        font-weight: bolder;
+        color: #ffffff;
+        text-shadow: 0px 0px 21px rgb(255 255 255 / 65%);
+        letter-spacing: 4px;
+    }
+     
+    }
+     
+    .featured{
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-shadow: 0px 0px 21px rgb(255 255 255 / 65%);
+        padding: 40px 10px;
+        font-family: "MADE Soulmaze Outline Regular";
+        font-weight:bolder;
+        transform: translateY(-10vh);
+        font-size: 2rem;
+        text-transform: uppercase;
+        animation: fadeIn 2s ease-in 0s forwards;
+
+        &::after {
+            content: "RECRUITMENT";
+            font-family: inherit;
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translate(-50%);
+            padding: 40px 10px;
+            font-size: 2rem;
+            color: transparent;
+            -webkit-text-stroke: 0.3px rgba(255, 255, 255, 0.497);
+            text-transform: uppercase;
+          }
+    }
+   
+    .recruitment-intro{
+        padding: 10px 30px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+        /* p{
+            font-size: 20px;
+            color: #ffffff;
+            padding: 8px 0;
+        } */
+        button{
+            background-color: #0e0e0e;
+            color: rgb(241, 236, 236);
+            text-shadow: 0px 0px 21px rgb(255 255 255 / 65%);
+            padding: 10px 20px;
+            cursor: pointer;
+            border-radius: 10px;
+            transition: transform 0.2s ease;
+            i{
+              margin-left:5px;
+            }
+
+            &:active {
+              transform: scale(0.8);
+            }
+        }
+    }
+  }
+}
+
+@keyframes fadeIn {
+  0% {
+    transform: translateY(-120px);
+    opacity: 1;
+  }
+
+  100% {
+    transform: translateY(-50px);
+    opacity: 1;
+  }
+}
+
+@keyframes fadeEaseIn {
+  0% {
+    transform: translateY(-180px);
+    opacity: 1;
+  }
+
+  100% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* Responsive Styles */
+@media (max-width: 768px) {
+  .demo__content{
+    padding: 0 !important;
+  }
+
+  .navbar-link {
+    flex-direction: column;
+    gap: 20px !important;
+  }
+
+  .center__content{
+      
+    .M-text{
+      display: none;
+    }
+   
+    .doltec__text{
+    position: relative;
+      .XL-text{
+        font-size: 50px !important;
+        top: -40px;
+        left: 15px;
+      }
+      .L-text{
+        font-size: 50px !important;
+        top: -40px;
+        left: 15px;
+      }
+    }
+
+    .text-M{
+      width: 100%;
+      padding: 0 3px;
+      font-size: 20px !important;
+      text-align: center;
+    }
+
+    .social-icons i{
+      display: none;
+    }
+  }
+
+}
+

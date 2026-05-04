@@ -1,0 +1,149 @@
+#createhr{
+  background-color: rgba(14, 14, 15, 0.8);
+  min-height: 100vh;
+.hr-container {
+    display: flex;
+    flex-direction: column;
+    padding: 80px 10px;
+  }
+  
+  .hr-title {
+    font-size: 24px;
+    font-weight: bold;
+    text-align: center;
+    margin-bottom: 1rem;
+    text-transform: uppercase;
+  }
+  
+  .hr-form-wrapper {
+    padding: 1rem;
+  }
+  
+  .hr-form {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+
+    div{
+      flex: 1;
+      min-width: 280px;
+    }
+   
+
+    .password-wrapper{
+      position: relative;
+
+      .toggle-icon{
+        position: absolute;
+        right: 10px;
+        top: 50%; 
+        transform: translateY(-50%);
+        cursor: pointer;
+      }
+    }
+
+  }
+
+  @media (max-width: 768px) {
+    .hr-form{
+      flex-direction: column;
+    }
+    .hr-button {
+    width: 100% !important;
+    }
+    .hr-title {
+        font-size: 16px;
+    }
+    .hr-table-container{
+      overflow-x: scroll;
+      scrollbar-width: thin !important;
+   }
+  }
+  
+  
+  .hr-input {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 25px;
+  }
+  
+  .hr-button {
+   min-width: 280px;
+    border: 1px solid #ddd;
+    color: white;
+    padding: 10px;
+    border-radius: 25px;
+    cursor: pointer;
+    font-weight: bold;
+  }
+  
+  .hr-button:hover {
+    background-color: #333;
+  }
+  
+  .hr-message {
+    margin-top: 1rem;
+    font-weight: bold;
+  }
+  
+  .hr-table-title {
+    font-size: 24px;
+    text-align: center;
+    font-weight: bold;
+    margin-top: 2rem;
+    color: white;
+  }
+  .hr-table-container{
+     overflow-x: scroll;
+     scrollbar-width: none;
+
+  }
+  .hr-table {
+    width: 100%;
+    margin-top: 1rem;
+    border-collapse: collapse;
+    /* color: black; */
+    /* background-color: white; */
+
+    .fa-pencil-square-o{
+      cursor: pointer;
+      color: #0d6efd;
+    }
+    .fa-trash{
+      cursor: pointer;
+      color: red;
+    }
+  }
+  
+  .hr-table th,
+  .hr-table td {
+    border: 1px solid #7e7a7a;
+    padding: 0.75rem;
+    /* text-align: left; */
+  }
+  
+  .hr-table th {
+    border: 1px solid #7e7a7a;
+    text-align: center;
+    color: white;
+  }
+  
+  /* .hr-table tr:nth-child(even) {
+    background-color: #080808;
+  } */
+  
+  .hr-table tr:hover {
+    background-color: #1f1d1d;
+    color: rgb(255, 255, 255);
+  }
+  
+  .no-hr {
+    text-align: center;
+    padding: 1rem;
+  }
+  
+}

@@ -1,0 +1,104 @@
+#landingpage {
+  
+  
+  
+  .recrutment__footer{
+     background-color: #ffffff;
+     border-radius: 12px 12px 0 0 ;
+     color: #000000;
+     padding: 30px 10px;
+
+     .whatsappicon{
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background-color: #25D366;
+      color: white;
+      border-radius: 50%;
+      width: 60px;
+      height: 60px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+      z-index: 1000;
+      
+      a {
+        color: white;
+        font-size: 30px;
+        text-decoration: none;
+      }
+     }
+
+    .recruitment__footer__container{
+      display: flex;
+      justify-content: center;
+      flex-direction: column;
+      align-items: center;
+        .footer__heading{
+          svg{
+            width: 500px;
+            height: 300px;
+          }
+        }
+      
+      .usefull__links{
+         display: flex;
+         justify-content: center;
+         padding: 5px 0;
+         /* width: 100%;
+         background-color: red; */
+         ul{
+          list-style: none;
+          display: grid;
+          gap: 20px;
+          grid-template-columns: repeat(9 , 1fr);
+
+          li {
+            transition: transform 0.3s ease;
+          }
+          
+          li:hover {
+            transform: rotate(5deg);
+          }
+         }
+      } 
+
+    }
+    .copyrights{
+      border-top: 1px solid #141414;
+      p{
+        text-align: center;
+        font-size: 15px;
+      }
+   }
+
+ 
+  }
+  
+  /* Responsive Adjustments */
+  @media (max-width: 768px) {
+  
+    .recrutment__footer{
+      padding: 10px 10px;
+    }
+    .recruitment__footer__container{
+        .footer__heading{
+          svg{
+            width: 350px !important;
+            height: 250px !important;
+          }
+        }
+
+        .usefull__links{
+          text-align: center !important;
+           ul{
+            grid-template-columns: repeat(3, 1fr) !important;
+            gap: 10px !important;
+           }
+        }
+    }
+  }
+  
+}
+

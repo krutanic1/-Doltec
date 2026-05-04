@@ -1,0 +1,210 @@
+#resume{
+     background-color: rgba(14, 14, 15, 0.8);
+    .resume-container {
+      background-color: #000000;
+        max-width: 800px;
+        margin: auto;
+        padding: 70px 10px;
+      }
+      
+    
+
+      .heading {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 30px;
+      }
+
+      .heading h1 {
+        font-size: 20px;
+        color: #e6dddd;
+      }
+      .heading .btn{
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 10px;
+
+        .btn__view{
+          background-color: #292828;
+          color: white;
+          border: none;
+          padding: 10px 16px;
+          font-size: 16px;
+          border-radius: 4px;
+          cursor: pointer;
+        }
+        .btn__edit{
+          background-color: #292828;
+          color: white;
+          border: none;
+          padding: 10px 16px;
+          font-size: 16px;
+          border-radius: 4px;
+          cursor: pointer;
+        }
+      }
+      
+      .resume-form section {
+        margin-bottom: 30px;
+      }
+
+      
+      .resume-form h2 {
+        margin-bottom: 10px;
+        font-size: 1.4em;
+        color: #000000;
+        background-color: #eee;
+        display: inline;
+        padding: 0 5px;
+        border-radius: 3px;
+      }
+        
+      .resume-form input {
+        width: 100%;
+        padding: 10px;
+        margin: 8px 0;
+        box-sizing: border-box;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        outline: none;
+      }
+        .resume-form textarea {
+        width: 100%;
+        height: 100px;
+        padding: 10px;
+        margin: 8px 0;
+        box-sizing: border-box;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        resize: none;
+        outline: none;
+      }
+      
+      .education-block {
+        border: 1px dashed #aaa;
+        padding: 15px;
+        margin-bottom: 15px;
+        border-radius: 5px;
+        background-color: #080808;
+      }
+      
+      .add-btn {
+        color: white;
+        border: 1px solid gray;
+        padding: 10px 16px;
+        font-size: 16px;
+        margin-top: 10px;
+        border-radius: 4px;
+        cursor: pointer;
+      }
+      
+      .add-btn:hover {
+        background: linear-gradient(to right, #27262659, #1f1e1e);
+      }
+      
+      .submit-btn {
+        width: 100%;
+        padding: 15px;
+        color: white;
+        border: 1px solid gray;
+        font-size: 18px;
+        border-radius: 5px;
+        cursor: pointer;
+
+        i{
+          margin-left: 10px;
+        }
+      }
+      
+      .submit-btn:hover {
+        background: linear-gradient(to right, #27262659, #1f1e1e);
+
+      }
+        
+      .modal {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.6);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 999;
+      }
+
+  
+
+      
+      .modal-content {
+        background: #ffffff;
+        /* box-shadow: 0 10px 25px rgba(56, 56, 56, 0.3);
+        transition: background 0.3s ease; */
+        color: rgb(0, 0, 0);
+        padding: 2rem;
+        width: 90%;
+        border: 1px solid gray;
+        max-width: 600px;
+        border-radius: 8px;
+        position: relative;
+        overflow: scroll;
+        max-height: 80vh;
+        scrollbar-width: none;
+
+
+        h2{
+          margin-bottom: 10px;
+          color: #000000;
+          text-align: center;
+        }
+        h3{
+          margin-bottom: 10px;
+          color: #000000;
+          
+        }
+        hr{
+          margin: 20px 0;
+          border: 1px solid #ccc;
+        }
+        pre{
+           white-space: pre-wrap;
+           word-wrap: break-word;
+           overflow: break-word;
+          font-family: 'Times New Roman', Times, serif;
+        }
+      }
+      
+      .close-btn {
+        position: absolute;
+        right: 20px;
+        top: 10px;
+        font-size: 24px;
+        cursor: pointer;
+      }
+      
+      /* Responsive Styles */
+      @media (max-width: 600px) {
+        .resume-form input {
+          font-size: 14px;
+        }
+      
+        .add-btn, .submit-btn {
+          font-size: 14px;
+          padding: 10px;
+        }
+      }
+          @media print {
+  .modal {
+    position: static;
+    transform: none;
+    background: white;
+    box-shadow: none;
+  }
+  .close-btn {
+    display: none;
+  }
+}
+}
