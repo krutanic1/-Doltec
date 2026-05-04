@@ -247,8 +247,8 @@ app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
 // Export the app for Vercel
 module.exports = app;
 
-mongoose.connect(process.env.DATABASE_URL, {
-  serverSelectionTimeoutMS: 20000,
-})
-.then(() => console.log('MongoDB connected'))
-.catch(err => console.error('MongoDB connection error:', err));
+const { connectDB } = require('./db');
+
+connectDB()
+  .then(() => console.log('MongoDB connected'))
+  .catch((err) => console.error('MongoDB connection error:', err));

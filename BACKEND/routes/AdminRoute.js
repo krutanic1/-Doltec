@@ -8,31 +8,45 @@ const ContactUs = require("../models/ContactUs");
 const CompanyPostedJob = require("../models/CompanyPostedJob");
 const jwt = require("jsonwebtoken");
 require("dotenv").config();
+const { connectDB } = require("../db");
 
 //login admin
 router.post("/adminlogin", async (req, res) => {
+  // Ensure DB is connected before running queries
   try {
-    const adminlogin = await Adminlogin.findOne({ email: req.body.email });
-    if (!adminlogin) {
-      return res.status(400).json({ message: "Invalid email or password" });
-    }
-    if (req.body.password !== adminlogin.password) {
-      return res.status(400).json({ message: "Invalid email or password" });
-    }
-        const payload = { user: { _id: adminlogin._id }, role: "admin" };
-        const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: "1d" });
+    await connectDB();
+  } catch (err) {
+    console.error("Database connection error (adminlogin):", err);
+    return res.status(503).json({ message: "Database unavailable. Please try again later." });
+  }
 
-    res
-      .status(200)
-      .json({
-        message: "Admin logged in successfully",
-        adminId: adminlogin._id,
-        email: adminlogin.email,
-        name: adminlogin.name,
-        token,
-      });
+  try {
+    const { email, password } = req.body;
+    if (!email || !password) {
+      return res.status(400).json({ message: "Email and password are required" });
+    }
+
+    const admin = await Adminlogin.findOne({ email }).lean();
+    if (!admin) {
+      return res.status(401).json({ message: "Invalid email or password" });
+    }
+
+    if (password !== admin.password) {
+      return res.status(401).json({ message: "Invalid email or password" });
+    }
+
+    const payload = { user: { _id: admin._id }, role: "admin" };
+    const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: "1d" });
+
+    res.status(200).json({
+      message: "Admin logged in successfully",
+      adminId: admin._id,
+      email: admin.email,
+      name: admin.name,
+      token,
+    });
   } catch (error) {
-    console.error(error);
+    console.error("Admin login error:", error);
     res.status(500).json({ message: "Server Error" });
   }
 });
