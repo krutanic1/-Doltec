@@ -1,11 +1,51 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import axios from "axios";
 import { useSearchParams } from "react-router-dom";
 import API from "../API";
+import { getCardImageUrl, getFullImageUrl, getThumbnailUrl } from "../utils/CloudinaryUtils";
+
+/**
+ * LazyImage component with Intersection Observer
+ */
+const LazyImage = ({ src, alt, className, isLoaded, onLoad }) => {
+  const imgRef = useRef(null);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting && imgRef.current && !isLoaded) {
+          imgRef.current.src = src;
+          imgRef.current.onload = onLoad;
+        }
+      },
+      { rootMargin: "50px" }
+    );
+
+    if (imgRef.current) {
+      observer.observe(imgRef.current);
+    }
+
+    return () => {
+      if (imgRef.current) {
+        observer.unobserve(imgRef.current);
+      }
+    };
+  }, [src, isLoaded, onLoad]);
+
+  return (
+    <img
+      ref={imgRef}
+      alt={alt}
+      className={className}
+      src={isLoaded ? undefined : "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1 1'%3E%3C/svg%3E"}
+    />
+  );
+};
 
 const RealEstate = () => {
   const [properties, setProperties] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [loadedImages, setLoadedImages] = useState({});
   const [selectedProperty, setSelectedProperty] = useState(null);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [showContactPopup, setShowContactPopup] = useState(false);
@@ -64,6 +104,13 @@ const RealEstate = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pageFromUrl]);
 
+  const handleImageLoad = (propertyId) => {
+    setLoadedImages((prev) => ({
+      ...prev,
+      [propertyId]: true,
+    }));
+  };
+
   const openGallery = (property, startIndex = 0) => {
     setSelectedProperty(property);
     setCurrentImageIndex(startIndex);
@@ -111,11 +158,16 @@ const RealEstate = () => {
               <article className="real-estate-card" key={property._id}>
                 <div className="image-strip">
                   {property.imageUrls?.[0] ? (
-                    <img
-                      className="property-image"
-                      src={property.imageUrls[0]}
-                      alt={property.propertyName}
-                    />
+                    <>
+                      <div className={`skeleton-loader ${loadedImages[property._id] ? "loaded" : ""}`} />
+                      <LazyImage
+                        src={getCardImageUrl(property.imageUrls[0])}
+                        alt={property.propertyName}
+                        className="property-image"
+                        isLoaded={loadedImages[property._id]}
+                        onLoad={() => handleImageLoad(property._id)}
+                      />
+                    </>
                   ) : (
                     <div className="image-placeholder">No image available</div>
                   )}
@@ -208,7 +260,7 @@ const RealEstate = () => {
 
             <div className="gallery-main">
               <img
-                src={selectedProperty.imageUrls[currentImageIndex]}
+                src={getFullImageUrl(selectedProperty.imageUrls[currentImageIndex])}
                 alt={`${selectedProperty.propertyName} ${currentImageIndex + 1}`}
               />
             </div>
@@ -236,7 +288,7 @@ const RealEstate = () => {
               {selectedProperty.imageUrls.map((url, index) => (
                 <img
                   key={index}
-                  src={url}
+                  src={getThumbnailUrl(url)}
                   alt={`Thumbnail ${index + 1}`}
                   className={`thumbnail ${
                     index === currentImageIndex ? "active" : ""
