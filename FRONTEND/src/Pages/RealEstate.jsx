@@ -7,18 +7,22 @@ import { getCardImageUrl, getFullImageUrl, getThumbnailUrl } from "../utils/Clou
 /**
  * LazyImage component with Intersection Observer
  */
-const LazyImage = ({ src, alt, className, isLoaded, onLoad }) => {
+const LazyImage = ({ src, alt, className, fallbackSrc, onLoad }) => {
   const imgRef = useRef(null);
+  const [imageSrc, setImageSrc] = useState(null);
+  const [useFallback, setUseFallback] = useState(false);
 
   useEffect(() => {
+    if (!src) return;
+
     const observer = new IntersectionObserver(
       ([entry]) => {
-        if (entry.isIntersecting && imgRef.current && !isLoaded) {
-          imgRef.current.src = src;
-          imgRef.current.onload = onLoad;
+        if (entry.isIntersecting) {
+          setImageSrc(src);
+          observer.disconnect();
         }
       },
-      { rootMargin: "50px" }
+      { rootMargin: "100px" }
     );
 
     if (imgRef.current) {
@@ -26,18 +30,25 @@ const LazyImage = ({ src, alt, className, isLoaded, onLoad }) => {
     }
 
     return () => {
-      if (imgRef.current) {
-        observer.unobserve(imgRef.current);
-      }
+      observer.disconnect();
     };
-  }, [src, isLoaded, onLoad]);
+  }, [src]);
+
+  const handleError = () => {
+    if (!useFallback && fallbackSrc) {
+      setUseFallback(true);
+      setImageSrc(fallbackSrc);
+    }
+  };
 
   return (
     <img
       ref={imgRef}
       alt={alt}
       className={className}
-      src={isLoaded ? undefined : "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1 1'%3E%3C/svg%3E"}
+      src={imageSrc || "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1 1'%3E%3C/svg%3E"}
+      onLoad={onLoad}
+      onError={handleError}
     />
   );
 };
@@ -162,9 +173,9 @@ const RealEstate = () => {
                       <div className={`skeleton-loader ${loadedImages[property._id] ? "loaded" : ""}`} />
                       <LazyImage
                         src={getCardImageUrl(property.imageUrls[0])}
+                        fallbackSrc={property.imageUrls[0]}
                         alt={property.propertyName}
                         className="property-image"
-                        isLoaded={loadedImages[property._id]}
                         onLoad={() => handleImageLoad(property._id)}
                       />
                     </>
@@ -259,9 +270,11 @@ const RealEstate = () => {
             </button>
 
             <div className="gallery-main">
-              <img
+              <LazyImage
                 src={getFullImageUrl(selectedProperty.imageUrls[currentImageIndex])}
+                fallbackSrc={selectedProperty.imageUrls[currentImageIndex]}
                 alt={`${selectedProperty.propertyName} ${currentImageIndex + 1}`}
+                className="gallery-image"
               />
             </div>
 
@@ -286,15 +299,22 @@ const RealEstate = () => {
 
             <div className="gallery-thumbnails">
               {selectedProperty.imageUrls.map((url, index) => (
-                <img
+                <div
                   key={index}
-                  src={getThumbnailUrl(url)}
-                  alt={`Thumbnail ${index + 1}`}
-                  className={`thumbnail ${
+                  className={`thumbnail-wrapper ${
                     index === currentImageIndex ? "active" : ""
                   }`}
                   onClick={() => setCurrentImageIndex(index)}
-                />
+                  role="button"
+                  tabIndex={0}
+                >
+                  <LazyImage
+                    src={getThumbnailUrl(url)}
+                    fallbackSrc={url}
+                    alt={`Thumbnail ${index + 1}`}
+                    className="thumbnail"
+                  />
+                </div>
               ))}
             </div>
           </div>
