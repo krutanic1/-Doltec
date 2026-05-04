@@ -62,6 +62,8 @@ import "./Style/CommunitySection.css"
 
 import "./Style/AllJobsPage.css"
 import "./Style/Pricing.css"
+import "./Style/RealEstate.css"
+import "./Style/AdminRealEstate.css"
 
 import "./Style/Loginwithotp.css"
 import "./Style/CommunityDashboard.css"

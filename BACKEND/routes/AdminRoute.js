@@ -19,7 +19,7 @@ router.post("/adminlogin", async (req, res) => {
     if (req.body.password !== adminlogin.password) {
       return res.status(400).json({ message: "Invalid email or password" });
     }
-        const payload = {  user: { _id: adminlogin._id }, role: "user" };
+        const payload = { user: { _id: adminlogin._id }, role: "admin" };
         const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: "1d" });
 
     res

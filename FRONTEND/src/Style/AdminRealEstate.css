@@ -1,0 +1,264 @@
+#admin-real-estate {
+  background-color: rgba(14, 14, 15, 0.8);
+  min-height: 100vh;
+
+  .admin-real-estate-container {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 100px 16px 30px;
+
+    h2,
+    h3 {
+      text-align: center;
+      margin-bottom: 16px;
+    }
+  }
+
+  .admin-real-estate-form {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+    margin-bottom: 30px;
+
+    input,
+    button {
+      width: 100%;
+      padding: 11px;
+      border-radius: 10px;
+      border: 1px solid #8d8d8d;
+      background: rgba(255, 255, 255, 0.06);
+      color: #fff;
+    }
+
+    button {
+      grid-column: span 2;
+      cursor: pointer;
+      font-weight: 700;
+      background: #1d3d72;
+    }
+  }
+
+  .admin-real-estate-list {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+
+  .admin-property-card {
+    display: flex;
+    gap: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 12px;
+    padding: 10px;
+    background: rgba(255, 255, 255, 0.05);
+  }
+
+  .admin-property-thumb {
+    width: 120px;
+    min-width: 120px;
+    height: 90px;
+    background: #131313;
+    border-radius: 8px;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+  }
+
+  .admin-property-info {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+
+    p,
+    small {
+      color: #d7d7d7;
+    }
+
+    a {
+      color: #94beff;
+      text-decoration: underline;
+    }
+  }
+
+  .empty-text {
+    text-align: center;
+    grid-column: span 2;
+  }
+
+  .admin-property-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 8px;
+  }
+
+  .edit-btn,
+  .delete-btn {
+    flex: 1;
+    padding: 6px 10px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 600;
+    transition: all 0.2s;
+  }
+
+  .edit-btn {
+    background: #4a90e2;
+    color: white;
+  }
+
+  .edit-btn:hover {
+    background: #357abd;
+  }
+
+  .delete-btn {
+    background: #e74c3c;
+    color: white;
+  }
+
+  .delete-btn:hover {
+    background: #c0392b;
+  }
+
+  .admin-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 3000;
+  }
+
+  .admin-modal-content {
+    background: #1a1a1a;
+    border-radius: 12px;
+    padding: 30px;
+    max-width: 500px;
+    width: 90%;
+    position: relative;
+    animation: slideIn 0.3s ease;
+
+    h2 {
+      margin-bottom: 20px;
+      text-align: center;
+    }
+
+    form {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+
+      input,
+      label {
+        width: 100%;
+        padding: 10px;
+        border-radius: 8px;
+        border: 1px solid #8d8d8d;
+        background: rgba(255, 255, 255, 0.06);
+        color: #fff;
+        font-size: 14px;
+      }
+
+      label {
+        padding: 0;
+        border: none;
+        background: none;
+        margin-top: 8px;
+        margin-bottom: -8px;
+        font-weight: 600;
+      }
+    }
+  }
+
+  .modal-close-btn {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    background: none;
+    border: none;
+    color: #fff;
+    font-size: 28px;
+    cursor: pointer;
+    transition: color 0.2s;
+  }
+
+  .modal-close-btn:hover {
+    color: #e74c3c;
+  }
+
+  .modal-buttons {
+    display: flex;
+    gap: 10px;
+    margin-top: 20px;
+
+    button {
+      flex: 1;
+      padding: 10px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.2s;
+    }
+
+    button[type="submit"] {
+      background: #1d3d72;
+      color: white;
+    }
+
+    button[type="submit"]:hover {
+      background: #2a4f94;
+    }
+  }
+
+  .cancel-btn {
+    background: rgba(255, 255, 255, 0.1) !important;
+    color: #fff;
+    border: 1px solid #8d8d8d !important;
+  }
+
+  .cancel-btn:hover {
+    background: rgba(255, 255, 255, 0.15) !important;
+  }
+
+  @keyframes slideIn {
+    from {
+      transform: translateY(-50px);
+      opacity: 0;
+    }
+    to {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  }
+
+  @media (max-width: 860px) {
+    .admin-real-estate-form {
+      grid-template-columns: 1fr;
+
+      button {
+        grid-column: span 1;
+      }
+    }
+
+    .admin-real-estate-list {
+      grid-template-columns: 1fr;
+    }
+
+    .empty-text {
+      grid-column: span 1;
+    }
+  }
+}

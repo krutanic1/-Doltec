@@ -86,6 +86,7 @@ import TermsAndConditions from './Pages/TermsAndConditions';
 import Resources from './Pages/Resources';
 import AllJobsPage from './Pages/AllJobs';
 import Pricing from './Pages/Pricing';
+import RealEstate from './Pages/RealEstate';
 
 
 import Loginwithotp from './Students/Loginwithotp';
@@ -99,6 +100,7 @@ import { CommunityPrivateRoute } from './PrivateRoute';
 import CommunityPrivateChat from './Community/CommunityPrivateChats';
 import CompanyOnboard from './Hr/CompanyOnboard';
 import CommunityPosts from './Community/CommunityPosts';
+import AdminRealEstate from './Admin/AdminRealEstate';
 
 
 
@@ -139,6 +141,7 @@ const AppContent = () => {
     "/resources",
     "/alljobs",
     "/pricing",
+    "/real-estate",
 
   ];
 
@@ -161,6 +164,7 @@ const AppContent = () => {
     "/usermanagement",
     "/contactusresponse",
     "/companyonboardlist",
+    "/adminrealestate",
 
   ];
   const hrHeader = [
@@ -223,6 +227,7 @@ const AppContent = () => {
           <Route path="/Resources" element={<Resources/>} />
           <Route path="/AllJobs" element={<AllJobsPage/>} />
           <Route path="/Pricing" element={<Pricing/>} />
+          <Route path="/real-estate" element={<RealEstate/>} />
 
 
 
@@ -283,6 +288,7 @@ const AppContent = () => {
           <Route path="/UserManagement" element={<AdminPrivateRoute><UserManagement/></AdminPrivateRoute>}/>
           <Route path="/CompanyOnboardList" element={<AdminPrivateRoute><CompanyOnboardList/></AdminPrivateRoute>}/>
           <Route path="/ContactUsResponse" element={<AdminPrivateRoute><ContactUsResponse/></AdminPrivateRoute>}/>
+          <Route path="/AdminRealEstate" element={<AdminPrivateRoute><AdminRealEstate/></AdminPrivateRoute>}/>
 
             {/* community */}
           <Route path="/CommunitySignup" element={<CommunitySignup/>} />

@@ -17,10 +17,12 @@ const CompanyPayment = require('./routes/CompanyPayment');
 const Company = require('./models/CompanyUser');
 const Community = require('./routes/Community');
 const UserPayment = require('./routes/UserPayment');
+const RealEstateRoute = require('./routes/RealEstateRoute');
 
 
 const app = express();
 app.use(fileUpload());
+app.use(cookieParser());
 
 
 // webhook for company 
@@ -204,8 +206,20 @@ app.post('/api/webhook', express.raw({ type: 'application/json' }), async (req, 
 
 
 app.use(express.json());
+const allowedOrigins = [
+  (process.env.FRONTEND_URL || "").trim(),
+  "http://localhost:5173",
+  "http://localhost:5174",
+].filter(Boolean);
+
 app.use(cors({
-  origin: process.env.FRONTEND_URL,
+  origin: (origin, callback) => {
+    // Allow non-browser tools and same-origin requests with no Origin header.
+    if (!origin || allowedOrigins.includes(origin)) {
+      return callback(null, true);
+    }
+    return callback(new Error("Not allowed by CORS"));
+  },
   credentials: true,
 }));
 app.use(bodyParser.json());
@@ -221,6 +235,7 @@ app.use('/', Thought);
 app.use('/', UserPayment);
 app.use('/',CompanyPayment);
 app.use('/', Community)
+app.use('/', RealEstateRoute)
 
 app.get("/", (req, res) => {
   res.send("Welcome to the Backend Server!");
@@ -233,9 +248,7 @@ app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
 module.exports = app;
 
 mongoose.connect(process.env.DATABASE_URL, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-  serverSelectionTimeoutMS: 20000, 
+  serverSelectionTimeoutMS: 20000,
 })
 .then(() => console.log('MongoDB connected'))
 .catch(err => console.error('MongoDB connection error:', err));

@@ -2,24 +2,28 @@
 require("dotenv").config();
 const nodemailer = require("nodemailer");
 
+const smtpHost = (process.env.SMTP_HOST || "").trim();
+const smtpPort = Number(process.env.SMTP_PORT || 587);
+const smtpUser = (process.env.SMTP_MAIL || "").trim();
+const smtpPass = (process.env.SMTP_PASSWORD || "").replace(/\s+/g, "");
 
 let transporter = nodemailer.createTransport({
-  host: process.env.SMTP_HOST,
-  port: process.env.SMTP_PORT,
- secure: false,
+  host: smtpHost,
+  port: smtpPort,
+  secure: smtpPort === 465,
   auth: {
-    user: process.env.SMTP_MAIL,
-    pass: process.env.SMTP_PASSWORD,
+    user: smtpUser,
+    pass: smtpPass,
   },
   tls: {
-    rejectUnauthorized: false, 
+    rejectUnauthorized: false,
   },
-  pool: true, 
+  pool: true,
 });
 
 transporter.verify((error, success) => {
   if (error) {
-    console.error("SMTP Connection Failed:", error);
+    console.error("SMTP Connection Failed: check SMTP_MAIL/SMTP_PASSWORD (Gmail App Password)");
   } else {
     console.log("SMTP Server Ready to Send Mail!");
   }
@@ -29,7 +33,7 @@ transporter.verify((error, success) => {
 
 const sendEmail = async ({ email, subject, message }) => {
   const mailOptions = {
-    from: process.env.SMTP_MAIL,
+    from: smtpUser,
     to: email,
     // cc: process.env.SMTP_ADMIN_MAIL,
     subject: subject,
@@ -37,17 +41,14 @@ const sendEmail = async ({ email, subject, message }) => {
     priority: "high",
   };
 
-  return new Promise((resolve, reject) => {
-    transporter.sendMail(mailOptions, (error, info) => {
-      if (error) {
-        console.error("Error sending email:", error);
-        reject(error); 
-      } else {
-        console.log("Email sent successfully!", info.response);
-        resolve(info.response); 
-      }
-    });
-  });
+  try {
+    const info = await transporter.sendMail(mailOptions);
+    console.log("Email sent successfully!", info.response);
+    return info.response;
+  } catch (error) {
+    console.error("Error sending email:", error.message);
+    throw error;
+  }
 };
 
-module.exports = { sendEmail};
+module.exports = { sendEmail };

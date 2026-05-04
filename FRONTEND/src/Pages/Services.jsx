@@ -35,6 +35,18 @@ const services = [
     description:
       "Personalized dashboards, real-time updates, and smart notifications for applicants.",
   },
+  {
+    title: "Co-working Solutions",
+    icon: "🏢",
+    description:
+      "Flexible co-working options for distributed teams, interviews, and project-based staffing operations.",
+  },
+  {
+    title: "Rental Solutions",
+    icon: "🏠",
+    description:
+      "End-to-end support for rental staffing and operational resource needs across locations.",
+  },
 ];
 import { Link } from "react-router-dom";
 import jobseeker from "../assets/job-seekers.png";

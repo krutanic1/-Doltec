@@ -34,6 +34,11 @@ const Industries = () => {
     icon: "📈",
     description: "Digital marketing, sales, and brand roles.",
   },
+  {
+    name: "Real Estate",
+    icon: "🏘️",
+    description: "Property sales, leasing, brokerage, and operations roles.",
+  },
 ];
   return (
     <div id="industries">

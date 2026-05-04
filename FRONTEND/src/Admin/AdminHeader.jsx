@@ -213,6 +213,11 @@ const AdminHeader = () => {
             </Link>
           </li>
           <li>
+            <Link onClick={toggleSidebar} to="/AdminRealEstate">
+              <i className="fa fa-building"></i> Real Estate
+            </Link>
+          </li>
+          <li>
             <button className="logout" onClick={handleLogout}>
               <i className="fa fa-sign-out"></i> Logout
             </button>

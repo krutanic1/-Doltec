@@ -264,6 +264,7 @@ const Header = () => {
                       <li>Financial Services & FinTech</li>
                       <li>Education & EdTech</li>
                       <li>Healthcare & Life Sciences</li>
+                      <li>Real Estate</li>
                      </ol>
                   </div>
                 )}
@@ -276,6 +277,8 @@ const Header = () => {
                       <li>Campus Hiring & University Engagement Programs</li>
                       <li>Technical & Non-Technical Talent Acquisition</li>
                       <li>Job Postings & Employer Branding Solutions</li>
+                      <li>Co-working Solutions</li>
+                      <li>Rental Solutions</li>
                     </ol>
                   </div>
                 )}
