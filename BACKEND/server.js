@@ -18,11 +18,29 @@ const Company = require('./models/CompanyUser');
 const Community = require('./routes/Community');
 const UserPayment = require('./routes/UserPayment');
 const RealEstateRoute = require('./routes/RealEstateRoute');
+const { connectDB } = require('./db');
 
 
 const app = express();
 app.use(fileUpload());
 app.use(cookieParser());
+
+let dbConnectPromise = null;
+
+app.use(async (req, res, next) => {
+  try {
+    if (!dbConnectPromise) {
+      dbConnectPromise = connectDB();
+    }
+
+    await dbConnectPromise;
+    next();
+  } catch (error) {
+    dbConnectPromise = null;
+    console.error('MongoDB connection error:', error);
+    res.status(503).json({ message: 'Database unavailable' });
+  }
+});
 
 
 // webhook for company 
@@ -246,9 +264,3 @@ app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
 
 // Export the app for Vercel
 module.exports = app;
-
-const { connectDB } = require('./db');
-
-connectDB()
-  .then(() => console.log('MongoDB connected'))
-  .catch((err) => console.error('MongoDB connection error:', err));

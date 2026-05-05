@@ -21,13 +21,17 @@ let transporter = nodemailer.createTransport({
   pool: true,
 });
 
-transporter.verify((error, success) => {
-  if (error) {
-    console.error("SMTP Connection Failed: check SMTP_MAIL/SMTP_PASSWORD (Gmail App Password)");
-  } else {
-    console.log("SMTP Server Ready to Send Mail!");
-  }
-});
+if (smtpHost && smtpUser && smtpPass) {
+  transporter.verify((error) => {
+    if (error) {
+      console.error("SMTP Connection Failed: check SMTP_MAIL/SMTP_PASSWORD (Gmail App Password)");
+    } else {
+      console.log("SMTP Server Ready to Send Mail!");
+    }
+  });
+} else {
+  console.warn("SMTP is not fully configured; email delivery will fail until SMTP_HOST/SMTP_MAIL/SMTP_PASSWORD are set.");
+}
 
 
 

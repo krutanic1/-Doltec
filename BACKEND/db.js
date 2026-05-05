@@ -9,8 +9,6 @@ const mongooseOptions = {
   serverSelectionTimeoutMS: 5000,
   maxPoolSize: 5,
   socketTimeoutMS: 20000,
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
 };
 
 let cached = global.mongoose;
