@@ -90,27 +90,29 @@ const Header = () => {
       {showHeaderFooter && (
         <div id="header">
           <div className="navbar" style={{ boxShadow: "none" }}>
-             <Link to="/ITServices"><img src={headerlogo} alt="" /></Link>
-            <ul>
-              <li onClick={() => toggleDropdown()}>
-                <Link className=" hover:text-white" to="/ITServices">
-                  {" "}
-                  HOME
-                </Link>
-              </li>
-              <li onClick={() => toggleDropdown("what_we_do")}>WHAT WE DO</li>
-              <li onClick={() => toggleDropdown("who_we_are")}>WHO WE ARE</li>
-              <li><Link to="/AllJobs">JOBS</Link></li>
-              <li onClick={() => toggleDropdown()}>
-                <Link className=" hover:text-white" to="/About">
-                  {" "}
-                  ABOUT US
-                </Link>
-              </li>
-            </ul>
-            <div className="hamburger"><i onClick={toggleMobileMenu} class="fa fa-bars" aria-hidden="true"></i></div>
-            <div onClick={() => {toggleDropdown()}}>
-              <Link to="/"> {" "} <ToggleComponent /> </Link>
+            <div className="container nav-row">
+              <Link to="/ITServices" className="brand"><img src={headerlogo} alt="" /></Link>
+
+              <nav className="primary-nav" aria-label="Main navigation">
+                <ul>
+                  <li onClick={() => toggleDropdown()}>
+                    <Link className=" hover:text-white" to="/ITServices">HOME</Link>
+                  </li>
+                  <li onClick={() => toggleDropdown("what_we_do")}>WHAT WE DO</li>
+                  <li onClick={() => toggleDropdown("who_we_are")}>WHO WE ARE</li>
+                  <li><Link to="/AllJobs">JOBS</Link></li>
+                  <li onClick={() => toggleDropdown()}>
+                    <Link className=" hover:text-white" to="/About">ABOUT US</Link>
+                  </li>
+                </ul>
+              </nav>
+
+              <div className="header-actions">
+                <div className="hamburger"><i onClick={toggleMobileMenu} class="fa fa-bars" aria-hidden="true"></i></div>
+                <div className="theme-toggle" onClick={() => {toggleDropdown()}}>
+                  <Link to="/"> <ToggleComponent /> </Link>
+                </div>
+              </div>
             </div>
           </div>
 

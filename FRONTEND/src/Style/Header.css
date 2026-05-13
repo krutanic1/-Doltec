@@ -10,9 +10,8 @@
   }
   
   #header .navbar {
-    padding: 8px 10px;
-    display: flex;
-    align-items: center;
+    padding: 0; /* container handles spacing */
+    display: block;
     z-index: 500;
   }
   
@@ -27,7 +26,8 @@
 
   }
    .navbar img{
-     height: 70px;
+     height: auto; /* controlled by .brand img */
+     max-height: 72px;
    }
   
   .navbar ul {
@@ -35,6 +35,12 @@
     margin-left: auto;
     display: flex;
     list-style: none;
+  }
+
+  /* primary-nav inside the new container should not auto-margin */
+  .navbar .primary-nav ul {
+    margin-left: 0;
+    margin-right: 0;
   }
   
   .navbar ul li {
@@ -142,12 +148,9 @@
     margin-left: auto;
     cursor: pointer;
     display: none;
-
-    i{
-      font-size: 2em;
-      color: white;
-    }
   }
+
+  .hamburger i{ font-size: 2em; color: white; }
   
   .mobile-menu ul {
     list-style-type: none;

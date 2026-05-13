@@ -156,7 +156,7 @@ const RealEstate = () => {
     <div id="real-estate-page">
       <section className="real-estate-hero">
         <div className="hero-overlay"></div>
-        <div className="hero-content-box">
+        <div className="hero-content-box container">
           <h1 className="hero-title">Find Your Perfect Property</h1>
           <p className="hero-subtitle">Verified listings, builder floors, and premium projects at your fingertips.</p>
           

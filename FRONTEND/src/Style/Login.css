@@ -1,0 +1,296 @@
+.re-login-page {
+  min-height: calc(100vh - 92px);
+  padding: 28px 16px 44px;
+  background:
+    radial-gradient(circle at 15% 20%, rgba(14, 165, 233, 0.18), transparent 36%),
+    radial-gradient(circle at 88% 88%, rgba(14, 116, 144, 0.16), transparent 42%),
+    linear-gradient(180deg, #f7fafc 0%, #eef2f6 100%);
+}
+
+.re-login-shell {
+  width: min(1120px, 100%);
+  margin: 0 auto;
+  background: #ffffff;
+  border: 1px solid rgba(2, 6, 23, 0.08);
+  border-radius: 30px;
+  overflow: hidden;
+  box-shadow: 0 24px 64px rgba(15, 23, 42, 0.12);
+  display: grid;
+  grid-template-columns: 1.08fr 0.92fr;
+}
+
+.re-login-hero {
+  position: relative;
+  min-height: 620px;
+  background-size: cover;
+  background-position: center;
+  padding: 48px 42px;
+  color: #ffffff;
+  display: flex;
+  align-items: flex-end;
+}
+
+.re-login-hero-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(0deg, rgba(2, 6, 23, 0.62), rgba(2, 6, 23, 0.12));
+}
+
+.re-login-hero-content {
+  position: relative;
+  z-index: 1;
+  max-width: 480px;
+  display: grid;
+  gap: 16px;
+}
+
+.re-login-kicker {
+  margin: 0;
+  display: inline-flex;
+  width: fit-content;
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: #ffffff;
+  background: linear-gradient(135deg, #0284c7 0%, #0ea5e9 100%);
+  border-radius: 999px;
+  padding: 6px 12px;
+}
+
+.re-login-hero-content h1 {
+  margin: 0;
+  font-size: clamp(1.85rem, 2.2vw, 2.5rem);
+  line-height: 1.12;
+  letter-spacing: -0.02em;
+}
+
+.re-login-hero-content p {
+  margin: 0;
+  color: rgba(241, 245, 249, 0.94);
+  font-size: 0.97rem;
+  line-height: 1.66;
+}
+
+.re-login-stats {
+  margin-top: 8px;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.re-login-stats div {
+  background: rgba(255, 255, 255, 0.17);
+  border: 1px solid rgba(255, 255, 255, 0.24);
+  border-radius: 16px;
+  padding: 12px 10px;
+  backdrop-filter: blur(2px);
+}
+
+.re-login-stats strong {
+  display: block;
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.re-login-stats span {
+  display: block;
+  margin-top: 2px;
+  font-size: 0.78rem;
+  color: rgba(241, 245, 249, 0.9);
+}
+
+.re-login-panel {
+  padding: 44px 40px;
+  display: grid;
+  align-content: center;
+  gap: 22px;
+  background: #ffffff;
+}
+
+.re-login-panel-head h2 {
+  margin: 0;
+  color: #0f172a;
+  font-size: clamp(1.7rem, 1.8vw, 2.15rem);
+  letter-spacing: -0.02em;
+}
+
+.re-login-panel-head p {
+  margin: 10px 0 0;
+  color: #475569;
+  line-height: 1.6;
+}
+
+.re-login-alert {
+  background: #fff1f2;
+  border: 1px solid #fecdd3;
+  color: #be123c;
+  border-radius: 12px;
+  padding: 12px 14px;
+  font-size: 0.92rem;
+}
+
+.re-login-form {
+  display: grid;
+  gap: 14px;
+}
+
+.re-login-field {
+  display: grid;
+  gap: 7px;
+}
+
+.re-login-field label {
+  color: #334155;
+  font-size: 0.82rem;
+  letter-spacing: 0.02em;
+  font-weight: 600;
+}
+
+.re-login-label-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.re-login-field input {
+  width: 100%;
+  border-radius: 14px;
+  border: 1px solid #cbd5e1;
+  background: #f8fafc;
+  color: #0f172a;
+  font-size: 0.96rem;
+  padding: 14px 16px;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+}
+
+.re-login-field input:focus {
+  outline: none;
+  border-color: #0e7490;
+  box-shadow: 0 0 0 4px rgba(14, 116, 144, 0.13);
+  background: #ffffff;
+}
+
+.re-login-field input.input-error {
+  border-color: #f43f5e;
+  box-shadow: 0 0 0 3px rgba(244, 63, 94, 0.09);
+}
+
+.re-login-field-error {
+  color: #e11d48;
+  font-size: 0.81rem;
+  margin-top: 1px;
+}
+
+.re-login-password-wrap {
+  position: relative;
+}
+
+.re-login-password-wrap input {
+  padding-right: 80px;
+}
+
+.re-login-password-toggle {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  border: 0;
+  border-radius: 10px;
+  background: #e2e8f0;
+  color: #0f172a;
+  font-size: 0.78rem;
+  font-weight: 600;
+  padding: 8px 12px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.re-login-password-toggle:hover {
+  background: #cbd5e1;
+}
+
+.re-login-submit {
+  margin-top: 4px;
+  border: 0;
+  border-radius: 14px;
+  background: linear-gradient(135deg, #0f172a 0%, #0e7490 100%);
+  color: #ffffff;
+  font-size: 0.96rem;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  padding: 14px 18px;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, filter 0.2s ease;
+  box-shadow: 0 16px 28px rgba(15, 23, 42, 0.2);
+}
+
+.re-login-submit:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.03);
+}
+
+.re-login-foot {
+  margin: 2px 0 0;
+  color: #475569;
+  font-size: 0.9rem;
+}
+
+.re-login-foot a {
+  color: #0e7490;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.re-login-foot a:hover {
+  text-decoration: underline;
+}
+
+.re-login-secure-note {
+  border-top: 1px solid #e2e8f0;
+  padding-top: 14px;
+  color: #64748b;
+  font-size: 0.82rem;
+}
+
+@media (max-width: 1024px) {
+  .re-login-shell {
+    grid-template-columns: 1fr;
+  }
+
+  .re-login-hero {
+    min-height: 340px;
+    padding: 28px 24px;
+  }
+
+  .re-login-panel {
+    padding: 30px 24px;
+  }
+}
+
+@media (max-width: 640px) {
+  .re-login-page {
+    padding: 14px 10px 24px;
+  }
+
+  .re-login-shell {
+    border-radius: 20px;
+  }
+
+  .re-login-hero {
+    min-height: 300px;
+    padding: 22px 18px;
+  }
+
+  .re-login-hero-content {
+    gap: 12px;
+  }
+
+  .re-login-stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .re-login-panel {
+    padding: 24px 16px;
+    gap: 18px;
+  }
+}

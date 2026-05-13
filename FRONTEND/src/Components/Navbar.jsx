@@ -1,9 +1,23 @@
-import { Link } from 'react-router-dom';
+import { useState } from 'react';
+import { Link, useLocation } from 'react-router-dom';
+import '../Style/RealEstateNavbar.css';
 
 export default function Navbar() {
-  const token = localStorage.getItem('token');
+  const location = useLocation();
+  const [menuOpen, setMenuOpen] = useState(false);
   const userStr = localStorage.getItem('user');
   const user = userStr ? JSON.parse(userStr) : null;
+  const query = new URLSearchParams(location.search);
+
+  const isPropertiesPage = location.pathname === '/real-estate/properties';
+  const activeIntent = query.get('intent');
+  const activeSegment = query.get('segment');
+
+  const navLinks = [
+    { label: 'Buy', to: '/real-estate/properties?intent=BUY', active: isPropertiesPage && activeIntent === 'BUY' },
+    { label: 'Rent', to: '/real-estate/properties?intent=RENT', active: isPropertiesPage && activeIntent === 'RENT' },
+    { label: 'Commercial', to: '/real-estate/properties?segment=COMMERCIAL', active: isPropertiesPage && activeSegment === 'COMMERCIAL' },
+  ];
 
   const handleLogout = () => {
     localStorage.removeItem('token');
@@ -11,34 +25,87 @@ export default function Navbar() {
     window.location.href = '/real-estate/login';
   };
 
+  const closeMenu = () => setMenuOpen(false);
+
   return (
-    <nav className="w-full bg-white border-b border-slate-200 sticky top-0 z-50">
-      <div className="max-w-[1440px] mx-auto px-6 h-20 flex items-center justify-between">
-        <div className="flex items-center gap-12">
-          <Link to="/real-estate" className="text-2xl font-black text-slate-900 tracking-tighter">
-            DOLTEC<span className="text-blue-600">.</span>
+    <nav className="re-navbar-wrap">
+      <div className="container re-navbar">
+        <div className="re-navbar-left">
+          <Link to="/real-estate" className="re-brand" onClick={closeMenu}>
+            DOLTEC <span className="re-brand-dot">.</span>
           </Link>
-          <div className="hidden md:flex gap-8">
-            <Link to="/real-estate/properties?intent=BUY" className="text-sm font-bold text-slate-600 hover:text-blue-600 transition-colors">Buy</Link>
-            <Link to="/real-estate/properties?intent=RENT" className="text-sm font-bold text-slate-600 hover:text-blue-600 transition-colors">Rent</Link>
-            <Link to="/real-estate/properties?segment=COMMERCIAL" className="text-sm font-bold text-slate-600 hover:text-blue-600 transition-colors">Commercial</Link>
+
+          <div className="re-nav-links re-nav-links-desktop">
+            {navLinks.map(link => (
+              <Link
+                key={link.label}
+                to={link.to}
+                className={`re-nav-link ${link.active ? 'is-active' : ''}`}
+                onClick={closeMenu}
+              >
+                {link.label}
+              </Link>
+            ))}
           </div>
         </div>
 
-        <div className="flex items-center gap-4">
+        <div className="re-navbar-right">
           {user ? (
-            <div className="flex items-center gap-4">
-               <Link to="/real-estate/dashboard" className="text-sm font-bold text-slate-900 hover:text-blue-600">Dashboard</Link>
-               <button onClick={handleLogout} className="px-5 py-2.5 bg-slate-100 text-slate-600 rounded-xl text-xs font-black hover:bg-red-50 hover:text-red-600 transition-colors">Logout</button>
+            <div className="re-auth-actions">
+              <Link to="/real-estate/dashboard" className="re-btn re-btn-muted" onClick={closeMenu}>Dashboard</Link>
+              <button onClick={handleLogout} className="re-btn re-btn-danger">Logout</button>
             </div>
           ) : (
-            <div className="flex gap-3">
-               <Link to="/real-estate/login" className="px-6 py-3 rounded-xl font-bold text-sm text-slate-600 hover:bg-slate-50 transition-colors">Log In</Link>
-               <Link to="/real-estate/register" className="px-6 py-3 bg-slate-900 text-white rounded-xl font-bold text-sm hover:bg-blue-600 transition-colors shadow-lg shadow-slate-200">Sign Up</Link>
+            <div className="re-auth-actions">
+              <Link to="/real-estate/login" className="re-btn re-btn-muted" onClick={closeMenu}>Log In</Link>
+              <Link to="/real-estate/register" className="re-btn re-btn-primary" onClick={closeMenu}>Sign Up</Link>
             </div>
           )}
+
+          <button
+            type="button"
+            className="re-nav-toggle"
+            onClick={() => setMenuOpen(prev => !prev)}
+            aria-expanded={menuOpen}
+            aria-label="Toggle navigation menu"
+          >
+            <span />
+            <span />
+            <span />
+          </button>
         </div>
       </div>
+
+      {menuOpen ? (
+        <div className="re-nav-mobile-panel">
+          <div className="container re-nav-mobile-content">
+            <div className="re-nav-links re-nav-links-mobile">
+              {navLinks.map(link => (
+                <Link
+                  key={link.label}
+                  to={link.to}
+                  className={`re-nav-link ${link.active ? 'is-active' : ''}`}
+                  onClick={closeMenu}
+                >
+                  {link.label}
+                </Link>
+              ))}
+            </div>
+
+            {user ? (
+              <div className="re-auth-actions re-auth-mobile">
+                <Link to="/real-estate/dashboard" className="re-btn re-btn-muted" onClick={closeMenu}>Dashboard</Link>
+                <button onClick={handleLogout} className="re-btn re-btn-danger">Logout</button>
+              </div>
+            ) : (
+              <div className="re-auth-actions re-auth-mobile">
+                <Link to="/real-estate/login" className="re-btn re-btn-muted" onClick={closeMenu}>Log In</Link>
+                <Link to="/real-estate/register" className="re-btn re-btn-primary" onClick={closeMenu}>Sign Up</Link>
+              </div>
+            )}
+          </div>
+        </div>
+      ) : null}
     </nav>
   );
 }

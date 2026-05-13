@@ -25,11 +25,59 @@ body{
   color: white;
 }
 
+/* Layout tokens and reusable container */
+:root{
+  --space-1: 8px;
+  --space-2: 12px;
+  --space-3: 16px;
+  --space-4: 24px;
+  --space-5: 32px;
+  --space-6: 48px;
+  --max-width: 1200px;
+}
+
+*{box-sizing: border-box}
+
+.container{
+  width: 100%;
+  max-width: var(--max-width);
+  margin: 0 auto;
+  padding-left: 16px;
+  padding-right: 16px;
+}
+
+@media (min-width: 768px){
+  .container{ padding-left: 24px; padding-right: 24px; }
+}
+@media (min-width: 1024px){
+  .container{ padding-left: 32px; padding-right: 32px; }
+}
+
+.section{ padding-top: var(--space-4); padding-bottom: var(--space-4); }
+
+.nav-row{ display:flex; align-items:center; gap: var(--space-4); justify-content:space-between; padding: var(--space-2) 0; }
+.nav-row .brand img{ height:56px; display:block; }
+.primary-nav ul{ display:flex; gap: var(--space-3); list-style:none; align-items:center; margin:0; padding:0; }
+.primary-nav ul li{ white-space:nowrap; }
+.header-actions{ display:flex; align-items:center; gap:12px; }
+
+.chip-list{ display:flex; gap:12px; flex-wrap:wrap; }
+
+.filter-grid{ display:grid; gap:16px; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); }
+
+.footer-grid{ display:flex; gap:24px; align-items:center; justify-content:space-between; flex-wrap:wrap; }
+
+/* Make primary nav collapse nicely on small screens */
+@media (max-width: 650px){
+  .primary-nav{ display:none }
+  .hamburger{ display:block }
+}
+
+
 /* Property Search Bar Styles */
 .property-search-container {
-  max-width: 1000px;
-  margin: 0 auto;
-  padding: 20px;
+  width: 100%;
+  padding: 20px 0;
   position: relative;
   z-index: 10;
 }

@@ -62,7 +62,7 @@ export default function PropertySearch({ onSearch }) {
   };
 
   return (
-    <div className="property-search-container">
+    <div className="property-search-container container">
       {/* Tab Switcher */}
       <div className="search-tabs">
         {Object.keys(searchModes).map(key => (

@@ -141,7 +141,7 @@ const AppContent = () => {
     "/resources",
     "/alljobs",
     "/pricing",
-    "/real-estate",
+    // header intentionally hidden for real-estate app
 
   ];
 
