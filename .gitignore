@@ -23,6 +23,10 @@ lerna-debug.log*
 .env
 .env.*
 *.local
+env/
+envs/
+venv/
+.venv/
 
 # Tooling and cache
 *.tsbuildinfo
