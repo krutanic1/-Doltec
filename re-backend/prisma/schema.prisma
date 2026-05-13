@@ -1,0 +1,228 @@
+// e:/DOLTEC/re-backend/prisma/schema.prisma
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+// ── Enums ──────────────────────────────────────────────────
+
+enum UserRole {
+  USER
+  OWNER
+  AGENT
+  BUILDER
+  ADMIN
+}
+
+enum ListingIntent {
+  BUY
+  RENT
+}
+
+enum PropertySegment {
+  RESIDENTIAL
+  COMMERCIAL
+}
+
+enum PosterType {
+  OWNER
+  AGENT
+  BUILDER
+}
+
+enum ListingStatus {
+  DRAFT
+  PENDING
+  APPROVED
+  REJECTED
+  ARCHIVED
+}
+
+// ── Tables (Collections) ────────────────────────────────────
+
+model User {
+  id              String           @id @default(auto()) @map("_id") @db.ObjectId
+  email           String           @unique
+  phone           String           @unique
+  name            String?
+  passwordHash    String?
+  role            UserRole         @default(USER)
+  posterType      PosterType       @default(OWNER)
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+
+  profile         Profile?
+  properties      Property[]
+  savedProperties SavedProperty[]
+  leads           Lead[]
+  adminActions    AdminAction[]
+  verifications   VerificationRequest[]
+}
+
+model Profile {
+  id              String    @id @default(auto()) @map("_id") @db.ObjectId
+  userId          String    @unique @db.ObjectId
+  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  firstName       String?
+  lastName        String?
+  avatarUrl       String?
+  companyName     String?
+  reraId          String?
+  address         String?
+}
+
+model Property {
+  id              String           @id @default(auto()) @map("_id") @db.ObjectId
+  slug            String           @unique
+  title           String
+  description     String?
+  intent          ListingIntent
+  segment         PropertySegment
+  status          ListingStatus    @default(DRAFT)
+  
+  // Relations
+  posterId        String           @db.ObjectId
+  poster          User             @relation(fields: [posterId], references: [id])
+  
+  // Nested Subdocuments
+  location        PropertyLocation
+  pricing         PropertyPricing
+  features        PropertyFeature
+  media           PropertyMedia[]
+  amenities       String[]         // Flattened for easy filtering
+  seo             PropertySEO?
+  moderation      ModerationMetadata?
+  
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+
+  // Relational Collections
+  savedBy         SavedProperty[]
+  leads           Lead[]
+  reports         Report[]
+
+  @@index([intent, segment, status])
+  @@index([posterId, status])
+}
+
+// ── Types (Embedded Documents) ─────────────────────────────
+
+type PropertyLocation {
+  addressLine1    String
+  locality        String
+  city            String
+  state           String
+  pincode         String
+  coordinates     Coordinates?
+}
+
+type Coordinates {
+  lat Float
+  lng Float
+}
+
+type PropertyPricing {
+  amount          Float
+  currency        String    @default("INR")
+  isNegotiable    Boolean   @default(false)
+  maintenance     Float?
+  taxInfo         String?   // Additional commercial tax info
+}
+
+type PropertyFeature {
+  // Residential Specific
+  bhk             Int?
+  bathrooms       Int?
+  furnishing      String?   // Unfurnished, Semi, Fully
+  
+  // Commercial/General Specific
+  areaSqFt        Float
+  plotArea        Float?
+  floorNo         Int?
+  totalFloors     Int?
+  facing          String?
+  ageOfProperty   Int?
+  possessionDate  DateTime?
+}
+
+type PropertyMedia {
+  url             String
+  publicId        String
+  type            String    @default("IMAGE") // IMAGE, VIDEO, PLAN
+  isHero          Boolean   @default(false)
+}
+
+type PropertySEO {
+  metaTitle       String?
+  metaDescription String?
+  canonicalUrl    String?
+  keywords        String[]
+}
+
+type ModerationMetadata {
+  reviewedBy      String?   @db.ObjectId
+  reviewedAt      DateTime?
+  rejectionReason String?
+  publishedAt     DateTime?
+}
+
+// ── Other Models ───────────────────────────────────────────
+
+model Lead {
+  id              String    @id @default(auto()) @map("_id") @db.ObjectId
+  propertyId      String    @db.ObjectId
+  property        Property  @relation(fields: [propertyId], references: [id])
+  userId          String?   @db.ObjectId
+  user            User?     @relation(fields: [userId], references: [id])
+  
+  name            String
+  email           String
+  phone           String
+  message         String?
+  status          String    @default("NEW")
+  createdAt       DateTime  @default(now())
+}
+
+model SavedProperty {
+  id              String    @id @default(auto()) @map("_id") @db.ObjectId
+  userId          String    @db.ObjectId
+  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  propertyId      String    @db.ObjectId
+  property        Property  @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  createdAt       DateTime  @default(now())
+
+  @@unique([userId, propertyId])
+}
+
+model Report {
+  id              String    @id @default(auto()) @map("_id") @db.ObjectId
+  propertyId      String    @db.ObjectId
+  property        Property  @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  reporterId      String?   @db.ObjectId
+  reason          String
+  createdAt       DateTime  @default(now())
+}
+
+model VerificationRequest {
+  id              String    @id @default(auto()) @map("_id") @db.ObjectId
+  userId          String    @db.ObjectId
+  user            User      @relation(fields: [userId], references: [id])
+  documents       String[]
+  status          String    @default("PENDING")
+  createdAt       DateTime  @default(now())
+}
+
+model AdminAction {
+  id              String    @id @default(auto()) @map("_id") @db.ObjectId
+  adminId         String    @db.ObjectId
+  admin           User      @relation(fields: [adminId], references: [id])
+  action          String
+  targetId        String    @db.ObjectId
+  createdAt       DateTime  @default(now())
+}

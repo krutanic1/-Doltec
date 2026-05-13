@@ -1,0 +1,56 @@
+version: '3.8'
+services:
+  # Infrastructure
+  mongodb:
+    image: mongo:6.0
+    container_name: doltec-mongodb
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: password
+    volumes:
+      - mongo_data:/data/db
+
+  redis:
+    image: redis:7-alpine
+    container_name: doltec-redis
+    ports:
+      - "6379:6379"
+
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.10.2
+    container_name: doltec-es
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+    ports:
+      - "9200:9200"
+
+  # Applications
+  backend:
+    build: .
+    container_name: doltec-api
+    ports:
+      - "5001:5001"
+    environment:
+      - DATABASE_URL=mongodb://admin:password@mongodb:27017/doltec_estates?authSource=admin
+      - REDIS_URL=redis://redis:6379
+      - PORT=5001
+      - JWT_SECRET=your_secret_here
+    depends_on:
+      - mongodb
+      - redis
+
+  frontend:
+    build: ../re-frontend
+    container_name: doltec-web
+    ports:
+      - "3000:3000"
+    environment:
+      - NEXT_PUBLIC_API_URL=http://localhost:5001/api/v1
+    depends_on:
+      - backend
+
+volumes:
+  mongo_data:

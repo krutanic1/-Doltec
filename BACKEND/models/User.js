@@ -14,6 +14,8 @@ const userSchema = new mongoose.Schema({
   subscriptionEnd: { type: Date },
   paid: { type: Boolean, default: false },
   accessLevel: { type: String, default: 'basic' },
+  role: { type: String, enum: ['USER', 'OWNER', 'AGENT', 'BUILDER', 'ADMIN'], default: 'USER' },
+  posterType: { type: String, enum: ['OWNER', 'AGENT', 'BUILDER'], default: 'OWNER' },
 
 });
 

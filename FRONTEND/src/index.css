@@ -1,4 +1,8 @@
 @import "tailwindcss";
+@source "./real-estate/**/*.{js,jsx,ts,tsx}";
+@source "./Pages/**/*.{js,jsx,ts,tsx}";
+@source "./Components/**/*.{js,jsx,ts,tsx}";
+
 
 *{
   margin: 0;
@@ -10,7 +14,7 @@
 
 body{
   width: 100%;
-  height: 100vh;
+  min-height: 100vh;
   background-image: url("./assets/bg.jpg");
   background-size: cover;
   background-position: center;
@@ -19,5 +23,320 @@ body{
   background-color: rgba(0, 0, 0, 0.6);
   background-repeat: no-repeat;
   color: white;
-  
+}
+
+/* Property Search Bar Styles */
+.property-search-container {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 20px;
+  position: relative;
+  z-index: 10;
+}
+
+.search-tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 0;
+  padding-left: 20px;
+}
+
+.search-tab {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border: none;
+  padding: 12px 24px;
+  border-radius: 20px 20px 0 0;
+  color: white;
+  font-weight: 800;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-bottom: none;
+}
+
+.search-tab.active {
+  background: white;
+  color: #0f172a;
+  transform: translateY(-2px);
+}
+
+.search-main-box {
+  background: white;
+  padding: 12px;
+  border-radius: 0 40px 40px 40px;
+  box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.search-form {
+  display: flex;
+  width: 100%;
+  gap: 10px;
+  align-items: center;
+}
+
+.category-select select {
+  padding: 15px 20px;
+  border-radius: 25px;
+  border: 1px solid #e2e8f0;
+  background: #f8fafc;
+  color: #1e293b;
+  font-weight: 700;
+  outline: none;
+  appearance: none;
+  cursor: pointer;
+}
+
+.search-input-wrap {
+  flex: 1;
+  position: relative;
+}
+
+.search-input-wrap input {
+  width: 100%;
+  padding: 15px 25px;
+  border-radius: 25px;
+  border: 1px solid #e2e8f0;
+  outline: none;
+  font-weight: 600;
+  color: #1e293b;
+  font-size: 16px;
+}
+
+.search-submit-btn {
+  background: #2563eb;
+  color: white;
+  padding: 15px 40px;
+  border-radius: 25px;
+  border: none;
+  font-weight: 900;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 10px 20px rgba(37, 99, 235, 0.2);
+}
+
+.search-submit-btn:hover {
+  background: #1d4ed8;
+  transform: scale(1.05);
+}
+
+.quick-filters {
+  display: flex;
+  gap: 10px;
+  margin-top: 15px;
+  flex-wrap: wrap;
+}
+
+.filter-chip {
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(5px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  padding: 8px 16px;
+  border-radius: 15px;
+  color: white;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.filter-chip:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+.advanced-toggle {
+  background: none;
+  border: none;
+  color: #60a5fa;
+  font-weight: 800;
+  font-size: 12px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.filter-badge {
+  background: #ef4444;
+  color: white;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+}
+
+.advanced-filter-panel {
+  background: white;
+  margin-top: 20px;
+  border-radius: 30px;
+  padding: 30px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+  color: #1e293b;
+  animation: slideDown 0.3s ease-out;
+}
+
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.filter-grid {
+  display: grid;
+  grid-template-cols: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 20px;
+}
+
+.filter-item label {
+  display: block;
+  font-size: 10px;
+  font-weight: 900;
+  color: #94a3b8;
+  margin-bottom: 5px;
+  letter-spacing: 1px;
+}
+
+.filter-item input {
+  width: 100%;
+  padding: 10px 15px;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  background: #f8fafc;
+  outline: none;
+}
+
+.filter-footer {
+  margin-top: 30px;
+  padding-top: 20px;
+  border-top: 1px solid #f1f5f9;
+  display: flex;
+  justify-content: flex-end;
+  gap: 15px;
+}
+
+.clear-all {
+  background: none;
+  border: none;
+  color: #94a3b8;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.apply-filters {
+  background: #0f172a;
+  color: white;
+  padding: 10px 25px;
+  border-radius: 12px;
+  border: none;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.search-footer-info {
+  margin-top: 20px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.popular-tags {
+  display: flex;
+  gap: 15px;
+}
+
+.popular-tags span {
+  color: white;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.popular-tags span:hover {
+  text-decoration: underline;
+}
+
+@media (max-width: 768px) {
+  .search-main-box {
+    border-radius: 30px;
+    flex-direction: column;
+  }
+  .search-form {
+    flex-direction: column;
+  }
+  .category-select, .search-input-wrap, .search-submit-btn {
+    width: 100%;
+  }
+}
+
+/* Real Estate Hero Styles */
+.real-estate-hero {
+  position: relative;
+  min-height: 80vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 100px 20px;
+  overflow: hidden;
+}
+
+.hero-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(to bottom, rgba(15, 23, 42, 0.4), rgba(15, 23, 42, 0.8));
+  z-index: 1;
+}
+
+.hero-content-box {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  max-width: 1200px;
+}
+
+.hero-title {
+  font-size: 64px;
+  font-weight: 900;
+  color: white;
+  margin-bottom: 20px;
+  text-shadow: 0 10px 30px rgba(0,0,0,0.5);
+  letter-spacing: -2px;
+}
+
+.hero-subtitle {
+  font-size: 20px;
+  color: rgba(255, 255, 255, 0.8);
+  margin-bottom: 50px;
+  font-weight: 600;
+}
+
+.real-estate-grid-wrap {
+  background: white;
+  padding: 100px 0;
+  color: #1e293b;
+  position: relative;
+  z-index: 5;
+  border-radius: 80px 80px 0 0;
+  margin-top: -80px;
+}
+
+@media (max-width: 768px) {
+  .hero-title {
+    font-size: 40px;
+    letter-spacing: -1px;
+  }
+  .real-estate-hero {
+    min-height: 60vh;
+    padding: 60px 20px;
+  }
 }

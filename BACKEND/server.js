@@ -22,7 +22,8 @@ const { connectDB } = require('./db');
 
 
 const app = express();
-app.use(fileUpload());
+const os = require('os');
+app.use(fileUpload({ useTempFiles: true, tempFileDir: os.tmpdir() }));
 app.use(cookieParser());
 
 let dbConnectPromise = null;
@@ -254,6 +255,9 @@ app.use('/', UserPayment);
 app.use('/',CompanyPayment);
 app.use('/', Community)
 app.use('/', RealEstateRoute)
+app.use('/api/v1/auth', require('./routes/authRoutes'));
+app.use('/api/v1/properties', require('./routes/propertyRoutes'));
+app.use('/api/v1/leads', require('./routes/leadRoutes'));
 
 app.get("/", (req, res) => {
   res.send("Welcome to the Backend Server!");

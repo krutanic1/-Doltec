@@ -76,9 +76,11 @@ const Recruitment = () => {
           >
             Connect <i className="fa fa-chevron-circle-right"></i>
           </a>
+          {/*
           <Link to="/real-estate" className="intro-action-btn">
             Real Estate <i className="fa fa-building"></i>
           </Link>
+          */}
         </div>
       </div>
     </div>

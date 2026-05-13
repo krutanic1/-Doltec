@@ -86,7 +86,7 @@ import TermsAndConditions from './Pages/TermsAndConditions';
 import Resources from './Pages/Resources';
 import AllJobsPage from './Pages/AllJobs';
 import Pricing from './Pages/Pricing';
-import RealEstate from './Pages/RealEstate';
+import RealEstateApp from './real-estate/RealEstateApp';
 
 
 import Loginwithotp from './Students/Loginwithotp';
@@ -227,7 +227,7 @@ const AppContent = () => {
           <Route path="/Resources" element={<Resources/>} />
           <Route path="/AllJobs" element={<AllJobsPage/>} />
           <Route path="/Pricing" element={<Pricing/>} />
-          <Route path="/real-estate" element={<RealEstate/>} />
+          <Route path="/real-estate/*" element={<RealEstateApp/>} />
 
 
 

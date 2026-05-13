@@ -3,6 +3,8 @@ import axios from "axios";
 import { useSearchParams } from "react-router-dom";
 import API from "../API";
 import { getCardImageUrl, getFullImageUrl, getThumbnailUrl } from "../utils/CloudinaryUtils";
+import PropertySearch from "../components/PropertySearch";
+
 
 /**
  * LazyImage component with Intersection Observer
@@ -153,9 +155,15 @@ const RealEstate = () => {
   return (
     <div id="real-estate-page">
       <section className="real-estate-hero">
-        <h2>Real Estate</h2>
-        <p>Verified listings posted directly by Doltec admin.</p>
+        <div className="hero-overlay"></div>
+        <div className="hero-content-box">
+          <h1 className="hero-title">Find Your Perfect Property</h1>
+          <p className="hero-subtitle">Verified listings, builder floors, and premium projects at your fingertips.</p>
+          
+          <PropertySearch onSearch={(data) => console.log('Searching for:', data)} />
+        </div>
       </section>
+
 
       <section className="real-estate-grid-wrap">
         {loading ? (
