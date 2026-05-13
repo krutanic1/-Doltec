@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, Link } from 'react-router-dom';
 import axios from 'axios';
 
 export default function PropertyDetail() {
@@ -12,6 +12,10 @@ export default function PropertyDetail() {
    const [enquiryData, setEnquiryData] = useState({ name: '', email: '', phone: '', message: '' });
    const [enquiryLoading, setEnquiryLoading] = useState(false);
    const [enquirySuccess, setEnquirySuccess] = useState(false);
+   const [isModalOpen, setIsModalOpen] = useState(false);
+    
+    const userJson = localStorage.getItem('user');
+    const user = userJson ? JSON.parse(userJson) : null;
 
    useEffect(() => {
     const fetchProperty = async () => {
@@ -31,13 +35,21 @@ export default function PropertyDetail() {
 
   const handleEnquiry = async (e) => {
     e.preventDefault();
+    if (!user) return;
+
     setEnquiryLoading(true);
     try {
       await axios.post('http://localhost:5000/api/v1/leads', {
         propertyId: p._id,
-        ...enquiryData
+        name: user.name,
+        email: user.email,
+        phone: user.phone,
+        message: enquiryData.message
+      }, {
+        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
       });
       setEnquirySuccess(true);
+      setIsModalOpen(false);
     } catch (err) {
       alert('Failed to send enquiry');
     } finally {
@@ -141,22 +153,66 @@ export default function PropertyDetail() {
                   <p className="text-slate-400 text-sm">{p.poster?.email}</p>
                </div>
                
-               {enquirySuccess ? (
+               {!user ? (
+                 <div className="space-y-6">
+                    <p className="text-slate-400 text-sm font-bold">Please log in as a buyer or tenant to send an enquiry for this property.</p>
+                    <Link to="/real-estate/login" className="block w-full bg-blue-600 text-white py-4 rounded-2xl font-black text-center hover:bg-blue-500 transition-colors shadow-lg shadow-blue-900/20">
+                       Log In / Sign Up
+                    </Link>
+                 </div>
+               ) : enquirySuccess ? (
                  <div className="bg-green-500/10 border border-green-500/20 p-6 rounded-2xl text-center">
                     <p className="text-green-400 font-black mb-2">Enquiry Sent! ✨</p>
-                    <p className="text-xs text-slate-400">The poster will contact you shortly.</p>
+                    <p className="text-xs text-slate-400">The poster will contact you shortly at {user.email}.</p>
                  </div>
                ) : (
-                 <form onSubmit={handleEnquiry} className="space-y-4">
-                    <input type="text" name="name" placeholder="Your Name" required value={enquiryData.name} onChange={onEnquiryChange} className="w-full bg-white/5 border border-white/10 rounded-xl p-4 text-sm font-bold outline-none focus:border-blue-600" />
-                    <input type="email" name="email" placeholder="Email Address" required value={enquiryData.email} onChange={onEnquiryChange} className="w-full bg-white/5 border border-white/10 rounded-xl p-4 text-sm font-bold outline-none focus:border-blue-600" />
-                    <input type="tel" name="phone" placeholder="Phone Number" required value={enquiryData.phone} onChange={onEnquiryChange} className="w-full bg-white/5 border border-white/10 rounded-xl p-4 text-sm font-bold outline-none focus:border-blue-600" />
-                    <textarea name="message" placeholder="I'm interested in this property..." value={enquiryData.message} onChange={onEnquiryChange} className="w-full bg-white/5 border border-white/10 rounded-xl p-4 text-sm font-bold outline-none focus:border-blue-600 min-h-[100px]"></textarea>
-                    
-                    <button type="submit" disabled={enquiryLoading} className="w-full bg-blue-600 text-white py-4 rounded-2xl font-black hover:bg-blue-500 transition-colors disabled:opacity-50">
-                       {enquiryLoading ? 'Sending...' : 'Send Enquiry'}
-                    </button>
-                 </form>
+                 <button onClick={() => setIsModalOpen(true)} className="w-full bg-blue-600 text-white py-4 rounded-2xl font-black hover:bg-blue-500 transition-colors shadow-lg shadow-blue-900/20 flex items-center justify-center gap-3">
+                    <span className="text-xl">📩</span> Send Enquiry
+                 </button>
+               )}
+
+               {/* Enquiry Modal */}
+               {isModalOpen && (
+                 <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[100] flex items-center justify-center p-6">
+                    <div className="bg-white rounded-[40px] w-full max-w-lg overflow-hidden shadow-2xl animate-in fade-in zoom-in duration-300">
+                       <div className="p-8 border-b border-slate-100 flex justify-between items-center bg-slate-50">
+                          <div>
+                             <h4 className="text-xl font-black text-slate-900">Send Message</h4>
+                             <p className="text-xs font-bold text-slate-400 mt-0.5">Contacting {p.poster?.name}</p>
+                          </div>
+                          <button onClick={() => setIsModalOpen(false)} className="w-10 h-10 rounded-full bg-white border border-slate-200 flex items-center justify-center text-slate-400 hover:text-slate-900 transition-colors">✕</button>
+                       </div>
+                       <form onSubmit={handleEnquiry} className="p-8 space-y-6">
+                          <div className="bg-blue-50 p-6 rounded-3xl border border-blue-100">
+                             <p className="text-[10px] font-black text-blue-400 uppercase tracking-widest mb-3">Your Details (Auto-filled)</p>
+                             <div className="flex flex-col gap-2">
+                                <div className="flex items-center gap-3">
+                                   <span className="text-xs font-bold text-slate-900">{user.name}</span>
+                                   <span className="w-1 h-1 bg-slate-300 rounded-full"></span>
+                                   <span className="text-xs font-medium text-slate-500">{user.phone}</span>
+                                </div>
+                                <p className="text-xs font-medium text-slate-500">{user.email}</p>
+                             </div>
+                          </div>
+                          
+                          <div>
+                             <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-2 mb-2 block">Your Message</label>
+                             <textarea 
+                                name="message" 
+                                placeholder="Write your message here... (e.g., I'm interested in viewing this property this weekend)" 
+                                required
+                                value={enquiryData.message} 
+                                onChange={onEnquiryChange} 
+                                className="w-full bg-slate-50 border border-slate-100 rounded-2xl p-4 text-sm font-bold outline-none focus:border-blue-600 min-h-[150px] transition-colors"
+                             ></textarea>
+                          </div>
+                          
+                          <button type="submit" disabled={enquiryLoading} className="w-full bg-blue-600 text-white py-4 rounded-2xl font-black hover:bg-blue-500 transition-all transform hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 shadow-xl shadow-blue-200">
+                             {enquiryLoading ? 'Sending...' : 'Confirm & Send Enquiry'}
+                          </button>
+                       </form>
+                    </div>
+                 </div>
                )}
             </div>
          </div>

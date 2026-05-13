@@ -1,4 +1,4 @@
-const Lead = require('../models/Lead');
+   const Lead = require('../models/Lead');
 const Property = require('../models/Property');
 
 exports.create = async (req, res) => {
@@ -34,9 +34,9 @@ exports.create = async (req, res) => {
 exports.list = async (req, res) => {
   try {
     const filter = {};
-    if (req.user.role !== 'admin') {
+    if (req.user.role !== 'ADMIN') {
       // Find properties owned by this user
-      const ownedProperties = await Property.find({ ownerId: req.user.sub }).select('_id');
+      const ownedProperties = await Property.find({ poster: req.user.id }).select('_id');
       const ids = ownedProperties.map(p => p._id);
       filter.propertyId = { $in: ids };
     }
@@ -58,9 +58,9 @@ exports.updateStatus = async (req, res) => {
     if (!lead) return res.status(404).json({ success: false, message: 'Lead not found' });
 
     // Check permission (Admin or Property Owner)
-    if (req.user.role !== 'admin') {
+    if (req.user.role !== 'ADMIN') {
       const property = await Property.findById(lead.propertyId);
-      if (String(property.ownerId) !== String(req.user.sub)) {
+      if (!property || String(property.poster) !== String(req.user.id)) {
         return res.status(403).json({ success: false, message: 'Forbidden' });
       }
     }
