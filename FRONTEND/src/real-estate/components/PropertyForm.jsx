@@ -10,7 +10,10 @@ import {
   FACING_OPTIONS,
   PARKING_OPTIONS,
   AMENITIES_OPTIONS,
+  POSTED_BY_OPTIONS,
 } from '../constants/filterOptions';
+import CustomSelect from './CustomSelect';
+import { listCities } from '../services/propertiesApi';
 
 const FONT = 'Inter, -apple-system, sans-serif';
 
@@ -41,16 +44,7 @@ const inputStyle = {
   boxSizing: 'border-box',
 };
 
-const selectStyle = {
-  ...inputStyle,
-  cursor: 'pointer',
-  backgroundImage: "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='none' stroke='%2394a3b8' stroke-width='2' viewBox='0 0 24 24'%3E%3Cpath d='M19 9l-7 7-7-7'/%3E%3C/svg%3E\")",
-  backgroundRepeat: 'no-repeat',
-  backgroundPosition: 'right 12px center',
-  paddingRight: 38,
-  appearance: 'none',
-  WebkitAppearance: 'none',
-};
+
 
 const sectionStyle = {
   background: '#fff',
@@ -117,6 +111,12 @@ function Field({ label, children }) {
 export default function PropertyForm({ form, onSubmit, currentStep, setCurrentStep, totalSteps }) {
   const { values, setField, toggleAmenity, onFiles, loading, error, preview } = form;
   const [locationLookupState, setLocationLookupState] = React.useState({ loading: false, message: '' });
+  const [cityOptions, setCityOptions] = React.useState([]);
+  const [showCityDropdown, setShowCityDropdown] = React.useState(false);
+
+  React.useEffect(() => {
+    listCities().then(setCityOptions).catch(console.error);
+  }, []);
 
   const handleSegmentChange = (e) => {
     const seg = e.target.value;
@@ -193,21 +193,16 @@ export default function PropertyForm({ form, onSubmit, currentStep, setCurrentSt
 
           <div style={grid2} className="re-form-grid">
             <Field label="Listing Intent">
-              <select style={selectStyle} value={values.filters.intent} onChange={e => setField('filters.intent', e.target.value)} onFocus={onFocus} onBlur={onBlur}>
-                {INTENT_OPTIONS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
-              </select>
+              <CustomSelect value={values.filters.intent} onChange={e => setField('filters.intent', e.target.value)} options={INTENT_OPTIONS} />
             </Field>
             <Field label="Segment">
-              <select style={selectStyle} value={values.category} onChange={handleSegmentChange} onFocus={onFocus} onBlur={onBlur}>
-                {SEGMENT_OPTIONS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
-              </select>
+              <CustomSelect value={values.category} onChange={handleSegmentChange} options={SEGMENT_OPTIONS} />
             </Field>
             <Field label="Property Type">
-              <select style={selectStyle} value={values.propertyType}
+              <CustomSelect value={values.propertyType}
                 onChange={e => { setField('propertyType', e.target.value); setField('filters.propertyType', e.target.value); }}
-                onFocus={onFocus} onBlur={onBlur}>
-                {(PROPERTY_TYPE_OPTIONS[values.category] || []).map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
-              </select>
+                options={PROPERTY_TYPE_OPTIONS[values.category] || []}
+              />
             </Field>
             <Field label="Price (₹)">
               <input style={inputStyle} type="number" placeholder="Enter amount"
@@ -220,11 +215,7 @@ export default function PropertyForm({ form, onSubmit, currentStep, setCurrentSt
                 onFocus={onFocus} onBlur={onBlur} />
             </Field>
             <Field label="Posted By">
-              <select style={selectStyle} value={values.filters?.postedBy || 'OWNER'} onChange={e => setField('filters.postedBy', e.target.value)} onFocus={onFocus} onBlur={onBlur}>
-                <option value="OWNER">Owner</option>
-                <option value="BUILDER">Builder</option>
-                <option value="AGENT">Agent</option>
-              </select>
+              <CustomSelect value={values.filters?.postedBy || 'OWNER'} onChange={e => setField('filters.postedBy', e.target.value)} options={POSTED_BY_OPTIONS} />
             </Field>
           </div>
         </div>
@@ -241,35 +232,23 @@ export default function PropertyForm({ form, onSubmit, currentStep, setCurrentSt
             <div style={grid2} className="re-form-grid">
               {showBhk && (
                 <Field label="BHK Type">
-                  <select style={selectStyle} value={values.filters.bhk} onChange={e => setField('filters.bhk', e.target.value)} onFocus={onFocus} onBlur={onBlur}>
-                    {BHK_OPTIONS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
-                  </select>
+                  <CustomSelect value={values.filters.bhk} onChange={e => setField('filters.bhk', e.target.value)} options={BHK_OPTIONS} />
                 </Field>
               )}
               <Field label="Possession Status">
-                <select style={selectStyle} value={values.filters.possession} onChange={e => setField('filters.possession', e.target.value)} onFocus={onFocus} onBlur={onBlur}>
-                  {POSSESSION_OPTIONS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
-                </select>
+                <CustomSelect value={values.filters.possession} onChange={e => setField('filters.possession', e.target.value)} options={POSSESSION_OPTIONS} />
               </Field>
               <Field label="Age of Property">
-                <select style={selectStyle} value={values.filters.age || ''} onChange={e => setField('filters.age', e.target.value)} onFocus={onFocus} onBlur={onBlur}>
-                  {AGE_OPTIONS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
-                </select>
+                <CustomSelect value={values.filters.age || ''} onChange={e => setField('filters.age', e.target.value)} options={AGE_OPTIONS} />
               </Field>
               <Field label="Furnishing">
-                <select style={selectStyle} value={values.filters.furnishing} onChange={e => setField('filters.furnishing', e.target.value)} onFocus={onFocus} onBlur={onBlur}>
-                  {FURNISHING_OPTIONS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
-                </select>
+                <CustomSelect value={values.filters.furnishing} onChange={e => setField('filters.furnishing', e.target.value)} options={FURNISHING_OPTIONS} />
               </Field>
               <Field label="Facing">
-                <select style={selectStyle} value={values.filters.facing || ''} onChange={e => setField('filters.facing', e.target.value)} onFocus={onFocus} onBlur={onBlur}>
-                  {FACING_OPTIONS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
-                </select>
+                <CustomSelect value={values.filters.facing || ''} onChange={e => setField('filters.facing', e.target.value)} options={FACING_OPTIONS} />
               </Field>
               <Field label="Parking">
-                <select style={selectStyle} value={values.filters.parking || ''} onChange={e => setField('filters.parking', e.target.value)} onFocus={onFocus} onBlur={onBlur}>
-                  {PARKING_OPTIONS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
-                </select>
+                <CustomSelect value={values.filters.parking || ''} onChange={e => setField('filters.parking', e.target.value)} options={PARKING_OPTIONS} />
               </Field>
             </div>
           </div>
@@ -286,9 +265,34 @@ export default function PropertyForm({ form, onSubmit, currentStep, setCurrentSt
                   onFocus={onFocus} onBlur={onBlur} required />
               </Field>
               <Field label="City">
-                <input style={inputStyle} placeholder="e.g. Mumbai"
-                  value={values.city} onChange={e => setField('city', e.target.value)}
-                  onFocus={onFocus} onBlur={onBlur} required />
+                <div style={{ position: 'relative' }}>
+                  <input style={inputStyle} placeholder="e.g. Mumbai"
+                    value={values.city} 
+                    onChange={e => { setField('city', e.target.value); setShowCityDropdown(true); }}
+                    onFocus={() => setShowCityDropdown(true)} 
+                    required />
+                  
+                  {showCityDropdown && (
+                    <div style={{
+                      position: 'absolute', top: '105%', left: 0, right: 0, 
+                      background: '#fff', borderRadius: 12, border: '1px solid #e2e8f0',
+                      boxShadow: '0 10px 25px rgba(0,0,0,.1)', zIndex: 1000,
+                      maxHeight: 200, overflowY: 'auto', padding: '6px 0'
+                    }}>
+                      <div style={{ padding: '6px 12px', fontSize: 10, fontWeight: 800, color: '#94a3b8', textTransform: 'uppercase' }}>Available Cities</div>
+                      {cityOptions.filter(c => c.toLowerCase().includes(values.city?.toLowerCase() || '')).map(c => (
+                        <div key={c} 
+                          onClick={() => { setField('city', c); setShowCityDropdown(false); }}
+                          style={{ padding: '10px 12px', fontSize: 13, fontWeight: 600, color: '#334155', cursor: 'pointer' }}
+                          onMouseOver={e => e.currentTarget.style.background = '#f8fafc'}
+                          onMouseOut={e => e.currentTarget.style.background = 'transparent'}
+                        >{c}</div>
+                      ))}
+                      {cityOptions.length === 0 && <div style={{ padding: '10px 12px', fontSize: 12, color: '#94a3b8' }}>Type to add a new city...</div>}
+                    </div>
+                  )}
+                  {showCityDropdown && <div onClick={() => setShowCityDropdown(false)} style={{ position: 'fixed', inset: 0, zIndex: 999 }} />}
+                </div>
               </Field>
             </div>
             <Field label="Society / Builder Name (optional)">
@@ -371,11 +375,40 @@ export default function PropertyForm({ form, onSubmit, currentStep, setCurrentSt
         </>
       )}
 
-      {/* ── STEP 2: Photos ─────────────────────────────────── */}
+      {/* ── STEP 2: Amenities ─────────────────────────────── */}
       {currentStep === 2 && (
         <div style={sectionStyle}>
           <h2 style={sectionTitleStyle}>
             <span style={sectionNumStyle}>4</span>
+            Amenities
+          </h2>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+            {AMENITIES_OPTIONS.map(o => {
+              const active = values.filters.amenities?.includes(o.value);
+              return (
+                <button key={o.value} type="button" onClick={() => toggleAmenity(o.value)}
+                  style={{
+                    padding: '8px 16px', borderRadius: 30, border: `1.5px solid ${active ? '#2563eb' : '#e2e8f0'}`,
+                    background: active ? '#eff6ff' : '#fff',
+                    color: active ? '#2563eb' : '#475569',
+                    fontSize: 13, fontWeight: 600, cursor: 'pointer',
+                    fontFamily: FONT, transition: 'all .15s',
+                    boxShadow: active ? '0 2px 8px rgba(37,99,235,.12)' : 'none',
+                  }}
+                  onMouseOver={e => { if (!active) { e.currentTarget.style.borderColor = '#bfdbfe'; e.currentTarget.style.color = '#2563eb'; } }}
+                  onMouseOut={e => { if (!active) { e.currentTarget.style.borderColor = '#e2e8f0'; e.currentTarget.style.color = '#475569'; } }}
+                >{o.label}</button>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* ── STEP 3: Photos ─────────────────────────────────── */}
+      {currentStep === 3 && (
+        <div style={sectionStyle}>
+          <h2 style={sectionTitleStyle}>
+            <span style={sectionNumStyle}>5</span>
             Photos
           </h2>
           <div style={{
@@ -403,35 +436,6 @@ export default function PropertyForm({ form, onSubmit, currentStep, setCurrentSt
               <span style={{ fontSize: 13, fontWeight: 700, color: '#15803d' }}>{preview.imageCount} image{preview.imageCount > 1 ? 's' : ''} selected and ready</span>
             </div>
           )}
-        </div>
-      )}
-
-      {/* ── STEP 3: Amenities ─────────────────────────────── */}
-      {currentStep === 3 && (
-        <div style={sectionStyle}>
-          <h2 style={sectionTitleStyle}>
-            <span style={sectionNumStyle}>5</span>
-            Amenities
-          </h2>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
-            {AMENITIES_OPTIONS.map(o => {
-              const active = values.filters.amenities?.includes(o.value);
-              return (
-                <button key={o.value} type="button" onClick={() => toggleAmenity(o.value)}
-                  style={{
-                    padding: '8px 16px', borderRadius: 30, border: `1.5px solid ${active ? '#2563eb' : '#e2e8f0'}`,
-                    background: active ? '#eff6ff' : '#fff',
-                    color: active ? '#2563eb' : '#475569',
-                    fontSize: 13, fontWeight: 600, cursor: 'pointer',
-                    fontFamily: FONT, transition: 'all .15s',
-                    boxShadow: active ? '0 2px 8px rgba(37,99,235,.12)' : 'none',
-                  }}
-                  onMouseOver={e => { if (!active) { e.currentTarget.style.borderColor = '#bfdbfe'; e.currentTarget.style.color = '#2563eb'; } }}
-                  onMouseOut={e => { if (!active) { e.currentTarget.style.borderColor = '#e2e8f0'; e.currentTarget.style.color = '#475569'; } }}
-                >{o.label}</button>
-              );
-            })}
-          </div>
         </div>
       )}
 

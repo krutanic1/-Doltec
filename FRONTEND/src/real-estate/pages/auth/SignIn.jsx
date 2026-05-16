@@ -71,7 +71,6 @@ export default function SignIn() {
           <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
             {[
               { icon: '✓', text: '25,000+ verified listings' },
-              { icon: '✓', text: 'Zero brokerage — always' },
               { icon: '✓', text: 'Direct owner connections' },
             ].map(item => (
               <div key={item.text} style={{ display: 'flex', alignItems: 'center', gap: 12 }}>

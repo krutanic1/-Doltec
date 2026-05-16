@@ -9,12 +9,6 @@ const TRENDS = [
   { area: 'Sarjapur',    change: '-2%',  price: '₹7,400/sqft',  up: false },
 ];
 
-const RESOURCES = [
-  { title: 'Stamp Duty Calculator',   icon: '📝' },
-  { title: 'Legal Title Check Guide', icon: '🛡️' },
-  { title: 'Home Loan Eligibility',   icon: '🏦' },
-  { title: 'Vastu Consultation',      icon: '🧘' },
-];
 
 const ChevronRight = () => (
   <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -85,26 +79,6 @@ export default function MarketIntelligenceSidebar({ city = 'Bengaluru' }) {
         </p>
       </div>
 
-      {/* Expert Resources */}
-      <div style={{ background: '#fff', borderRadius: 16, border: '1px solid #e2e8f0', padding: '22px 20px' }}>
-        <h3 style={{ fontSize: 12, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '.1em', color: '#0f172a', margin: '0 0 14px' }}>Expert Resources</h3>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-          {RESOURCES.map(r => (
-            <button key={r.title} style={{
-              display: 'flex', alignItems: 'center', gap: 12, padding: '11px 12px',
-              borderRadius: 10, border: '1px solid #f1f5f9', background: '#fafafa',
-              cursor: 'pointer', fontFamily: S.font, textAlign: 'left', transition: 'all .15s',
-            }}
-              onMouseOver={e => { e.currentTarget.style.background = '#eff6ff'; e.currentTarget.style.borderColor = '#bfdbfe'; }}
-              onMouseOut={e => { e.currentTarget.style.background = '#fafafa'; e.currentTarget.style.borderColor = '#f1f5f9'; }}
-            >
-              <span style={{ fontSize: 18, flexShrink: 0 }}>{r.icon}</span>
-              <span style={{ fontSize: 12, fontWeight: 700, color: '#334155', flex: 1 }}>{r.title}</span>
-              <span style={{ color: '#94a3b8' }}><ChevronRight /></span>
-            </button>
-          ))}
-        </div>
-      </div>
 
       {/* CTA */}
       <div style={{

@@ -1,15 +1,22 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { listProperties } from '../services/propertiesApi';
+import { listProperties, listCities } from '../services/propertiesApi';
 import PropertyCard from '../components/PropertyCard';
 import MarketIntelligenceSidebar from '../components/MarketIntelligenceSidebar';
 import CompareBar from '../components/CompareBar';
 import EmptyState from '../components/EmptyState';
+import CustomSelect from '../components/CustomSelect';
 import {
   INTENT_OPTIONS, SEGMENT_OPTIONS, PROPERTY_TYPE_OPTIONS,
   BHK_OPTIONS, BUDGET_SLABS, POSSESSION_OPTIONS,
   AMENITIES_OPTIONS, ALL_PROPERTY_TYPES,
 } from '../constants/filterOptions';
+
+const SORT_OPTIONS = [
+  { label: 'Latest First', value: 'newest' },
+  { label: 'Price: Low to High', value: 'price_asc' },
+  { label: 'Price: High to Low', value: 'price_desc' },
+];
 
 const S = {
   font: 'Inter,sans-serif',
@@ -46,6 +53,13 @@ export default function Listing() {
   const [selectedCompare, setSelectedCompare]   = useState([]);
   const [nearbyLoading, setNearbyLoading] = useState(false);
   const [nearbyError, setNearbyError] = useState('');
+  const [cityOptions, setCityOptions] = useState([]);
+  const [cityInput, setCityInput] = useState('');
+  const [showCityDropdown, setShowCityDropdown] = useState(false);
+
+  useEffect(() => {
+    listCities().then(setCityOptions).catch(console.error);
+  }, []);
 
   const [filters, setFilters] = useState({
     intent: searchParams.get('intent') || 'BUY',
@@ -209,20 +223,14 @@ export default function Listing() {
 
       {/* Property Type */}
       <FilterSection title="Property Type">
-        <select
+        <CustomSelect
           value={filters.propertyType}
           onChange={e => updateFilter('propertyType', e.target.value)}
-          style={{
-            width: '100%', background: '#f8fafc', border: '1.5px solid #e2e8f0',
-            borderRadius: 10, padding: '10px 14px', fontFamily: S.font,
-            fontSize: 13, fontWeight: 600, color: '#334155', outline: 'none', cursor: 'pointer',
-          }}
-        >
-          <option value="">Any Type</option>
-          {(PROPERTY_TYPE_OPTIONS[filters.segment] || ALL_PROPERTY_TYPES).map(o => (
-            <option key={o.value} value={o.value}>{o.label}</option>
-          ))}
-        </select>
+          options={[
+            { label: 'Any Type', value: '' },
+            ...(PROPERTY_TYPE_OPTIONS[filters.segment] || ALL_PROPERTY_TYPES)
+          ]}
+        />
       </FilterSection>
 
       {/* Budget */}
@@ -309,12 +317,54 @@ export default function Listing() {
         boxShadow: '0 2px 12px rgba(0,0,0,.05)',
       }}>
         <div style={{ maxWidth: 1380, margin: '0 auto', padding: '14px 24px', display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
-          {/* Search */}
+          
+          {/* City Autocomplete */}
+          <div style={{ position: 'relative', width: 220 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, background: '#f8fafc', border: '1.5px solid #e2e8f0', borderRadius: 10, padding: '0 14px' }}>
+              <svg width="15" height="15" fill="none" stroke="#2563eb" viewBox="0 0 24 24"><path strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" d="M17.657 16.657L13.414 20.9a2 2 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+              <input 
+                type="text" 
+                placeholder="Select City"
+                value={showCityDropdown ? cityInput : (city || '')}
+                onChange={e => { setCityInput(e.target.value); setShowCityDropdown(true); }}
+                onFocus={() => { setCityInput(city); setShowCityDropdown(true); }}
+                style={{ border: 'none', background: 'transparent', outline: 'none', fontFamily: S.font, fontSize: 13, fontWeight: 700, color: '#0f172a', padding: '11px 0', width: '100%' }}
+              />
+            </div>
+            
+            {showCityDropdown && (
+              <div style={{
+                position: 'absolute', top: '105%', left: 0, right: 0, 
+                background: '#fff', borderRadius: 12, border: '1px solid #e2e8f0',
+                boxShadow: '0 10px 25px rgba(0,0,0,.1)', zIndex: 1000,
+                maxHeight: 240, overflowY: 'auto', padding: '8px 0'
+              }}>
+                <div style={{ padding: '6px 14px', fontSize: 10, fontWeight: 800, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '.05em' }}>Registered Cities</div>
+                {['All Cities', ...cityOptions].filter(c => c.toLowerCase().includes(cityInput.toLowerCase())).map(c => (
+                  <div key={c} 
+                    onClick={() => {
+                      const p = new URLSearchParams(searchParams);
+                      if (c === 'All Cities') p.delete('city'); else p.set('city', c);
+                      setSearchParams(p);
+                      setShowCityDropdown(false);
+                      setCityInput('');
+                    }}
+                    style={{ padding: '10px 14px', fontSize: 13, fontWeight: 600, color: '#334155', cursor: 'pointer', transition: 'background .15s' }}
+                    onMouseOver={e => e.currentTarget.style.background = '#f8fafc'}
+                    onMouseOut={e => e.currentTarget.style.background = 'transparent'}
+                  >{c}</div>
+                ))}
+              </div>
+            )}
+            {showCityDropdown && <div onClick={() => setShowCityDropdown(false)} style={{ position: 'fixed', inset: 0, zIndex: 999 }} />}
+          </div>
+
+          {/* Search Query */}
           <div style={{ flex: 1, minWidth: 240, display: 'flex', alignItems: 'center', gap: 8, background: '#f8fafc', border: '1.5px solid #e2e8f0', borderRadius: 10, padding: '0 14px' }}>
             <svg width="15" height="15" fill="none" stroke="#94a3b8" viewBox="0 0 24 24" style={{ flexShrink: 0 }}>
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
             </svg>
-            <input type="text" placeholder={`Search in ${city}…`}
+            <input type="text" placeholder={`Search properties, builders or projects…`}
               defaultValue={q}
               onChange={e => { const p = new URLSearchParams(searchParams); if (e.target.value) p.set('q', e.target.value); else p.delete('q'); setSearchParams(p); }}
               style={{ border: 'none', background: 'transparent', outline: 'none', fontFamily: S.font, fontSize: 13, fontWeight: 500, color: '#334155', padding: '11px 0', flex: 1 }}
@@ -374,17 +424,14 @@ export default function Listing() {
           </button>
 
           {/* Sort */}
-          <select value={sort}
-            onChange={e => { const p = new URLSearchParams(searchParams); p.set('sort', e.target.value); setSearchParams(p); }}
-            style={{
-              border: '1.5px solid #e2e8f0', borderRadius: 10, padding: '9px 14px',
-              fontFamily: S.font, fontSize: 12, fontWeight: 700, color: '#334155',
-              background: '#fff', outline: 'none', cursor: 'pointer',
-            }}>
-            <option value="newest">Latest First</option>
-            <option value="price_asc">Price: Low to High</option>
-            <option value="price_desc">Price: High to Low</option>
-          </select>
+          <div style={{ minWidth: 160 }}>
+            <CustomSelect
+              value={sort}
+              onChange={e => { const p = new URLSearchParams(searchParams); p.set('sort', e.target.value); setSearchParams(p); }}
+              options={SORT_OPTIONS}
+              style={{ fontSize: 12 }}
+            />
+          </div>
 
           {activeCount > 0 && (
             <button onClick={clearAll} style={{ fontSize: 12, fontWeight: 700, color: '#64748b', background: 'none', border: 'none', cursor: 'pointer', padding: '8px 4px' }}>Reset</button>
@@ -561,7 +608,10 @@ export default function Listing() {
         }
         @media(max-width:1100px){.re-listing-grid{grid-template-columns:220px 1fr !important}}
         @media(max-width:900px){.re-listing-grid{grid-template-columns:1fr !important} .re-listing-grid>:first-child{display:none} .re-listing-grid>:last-child{display:none}}
-        @media(max-width:640px){.re-props-grid{grid-template-columns:1fr !important}}
+        @media(max-width:640px){
+          .re-props-grid{grid-template-columns:1fr !important}
+          div[style*="padding: '32px 24px 80px'"] { padding: 20px 16px 60px !important; }
+        }
       `}</style>
     </div>
   );

@@ -1,14 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
+import headerLogo from '../../assets/headerlogo.png';
 
-const DoltecLogo = () => (
-  <svg width="36" height="36" viewBox="0 0 36 36" fill="none">
-    <rect width="36" height="36" rx="9" fill="#2563EB"/>
-    <path d="M18 8L28 15.5V28H8V15.5L18 8Z" fill="white"/>
-    <rect x="15" y="21" width="6" height="7" rx="1" fill="#2563EB"/>
-    <path d="M18 8L28 15.5L18 12L8 15.5L18 8Z" fill="#93c5fd"/>
-  </svg>
-);
 
 const NAV = [
   { label: 'Buy', to: '/real-estate/properties?intent=BUY' },
@@ -52,10 +45,7 @@ export default function RealEstateHeader() {
 
           {/* Left: Logo */}
           <Link to="/real-estate" style={{ display: 'flex', alignItems: 'center', gap: 10, textDecoration: 'none', flexShrink: 0 }}>
-            <DoltecLogo />
-            <span style={{ fontFamily: 'Inter,sans-serif', fontWeight: 800, fontSize: 18, color: '#0f172a', letterSpacing: '-.02em' }}>
-              Doltec<span style={{ color: '#2563eb' }}>Properties</span>
-            </span>
+            <img src={headerLogo} alt="Logo" style={{ height: 40, width: 'auto', display: 'block', filter: 'brightness(0)' }} />
           </Link>
 
           {/* Center: Nav */}
@@ -169,6 +159,9 @@ export default function RealEstateHeader() {
             background: '#fff', borderTop: '1px solid #e2e8f0',
             padding: '16px 20px 24px', display: 'flex', flexDirection: 'column', gap: 4,
           }}>
+            <div style={{ marginBottom: 12, paddingLeft: 14 }}>
+              <img src={headerLogo} alt="Logo" style={{ height: 32, width: 'auto', filter: 'brightness(0)' }} />
+            </div>
             {NAV.map(n => (
               <Link key={n.label} to={n.to}
                 style={{

@@ -5,6 +5,11 @@ export async function listProperties(params = {}) {
   return res.data;
 }
 
+export async function listCities() {
+  const res = await api.get('/properties/cities');
+  return res.data;
+}
+
 export async function getProperty(slug) {
   const res = await api.get(`/properties/${encodeURIComponent(slug)}`);
   return res.data;

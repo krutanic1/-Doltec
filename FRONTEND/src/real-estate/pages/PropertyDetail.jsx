@@ -71,10 +71,11 @@ export default function PropertyDetail() {
 
   if (!property) return null;
 
-  const images   = property.media || property.images || [];
+  const rawMedia = (property.media && property.media.length > 0) ? property.media : (property.images || []);
+  const images   = rawMedia.map(i => i.url || i).filter(Boolean);
   const title    = property.title || 'Exclusive Property';
   const location = [property.locality, property.city].filter(Boolean).join(', ') || 'Prime Location';
-  const price    = property.price?.amount ?? 0;
+  const price    = (property.price?.amount ?? property.price) ?? 0;
   const ppsf     = price && property.areaSqFt ? Math.round(price / property.areaSqFt) : null;
   const amenities = property.filters?.amenities || ['Power Backup', 'Gym', 'Swimming Pool', 'Security', 'Club House', 'Parking'];
 
@@ -82,12 +83,21 @@ export default function PropertyDetail() {
     window.open(`https://wa.me/${WA}?text=${encodeURIComponent(`Hi, I'm interested in: ${title}\nLocation: ${location}\nPrice: ${fmt(price)}\n\nName: ${form.name}\nPhone: ${form.phone}`)}`, '_blank');
   };
 
+  const nextImg = (e) => {
+    e.stopPropagation();
+    setMainImg((prev) => (prev + 1) % images.length);
+  };
+  const prevImg = (e) => {
+    e.stopPropagation();
+    setMainImg((prev) => (prev - 1 + images.length) % images.length);
+  };
+
   return (
     <div style={{ background: '#f8fafc', minHeight: '100vh', fontFamily: S.font, paddingBottom: 80 }}>
       <div style={{ maxWidth: 1240, margin: '0 auto', padding: '96px 24px 0' }}>
 
         {/* Breadcrumb */}
-        <nav style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 24, fontSize: 12, fontWeight: 600 }}>
+        <nav style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 24, fontSize: 12, fontWeight: 600, flexWrap: 'wrap' }} className="re-breadcrumb">
           {[
             { label: 'Home', to: '/real-estate' },
             { label: 'Properties', to: '/real-estate/properties' },
@@ -96,7 +106,7 @@ export default function PropertyDetail() {
             <React.Fragment key={b.label}>
               {b.to
                 ? <Link to={b.to} style={{ color: '#64748b', textDecoration: 'none' }} onMouseOver={e => e.currentTarget.style.color = '#2563eb'} onMouseOut={e => e.currentTarget.style.color = '#64748b'}>{b.label}</Link>
-                : <span style={{ color: '#0f172a', fontWeight: 700, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: 220 }}>{b.label}</span>
+                : <span style={{ color: '#0f172a', fontWeight: 700, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '40vw' }}>{b.label}</span>
               }
               {i < arr.length - 1 && <span style={{ color: '#cbd5e1' }}>/</span>}
             </React.Fragment>
@@ -105,13 +115,48 @@ export default function PropertyDetail() {
 
         {/* Gallery */}
         <div style={{ display: 'grid', gridTemplateColumns: '3fr 1fr', gridTemplateRows: '1fr 1fr', gap: 10, height: 480, marginBottom: 40 }} className="re-gallery-grid">
-          <div style={{ gridRow: '1 / 3', borderRadius: 18, overflow: 'hidden', background: '#e2e8f0', cursor: 'zoom-in' }}>
+          <div style={{ gridRow: '1 / 3', borderRadius: 18, overflow: 'hidden', background: '#e2e8f0', cursor: 'zoom-in', position: 'relative' }}>
             <img
               src={images[mainImg]?.url || images[mainImg] || 'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=1200&q=80'}
               alt={title} style={{ width: '100%', height: '100%', objectFit: 'cover', transition: 'transform .6s' }}
               onMouseOver={e => e.currentTarget.style.transform = 'scale(1.03)'}
               onMouseOut={e => e.currentTarget.style.transform = 'scale(1)'}
             />
+            {images.length > 1 && (
+              <>
+                <button 
+                  onClick={prevImg}
+                  style={{
+                    position: 'absolute', left: 20, top: '50%', transform: 'translateY(-50%)',
+                    width: 44, height: 44, borderRadius: '50%', background: 'rgba(255,255,255,0.2)',
+                    backdropFilter: 'blur(10px)', border: '1px solid rgba(255,255,255,0.3)',
+                    color: '#fff', fontSize: 20, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    transition: 'all .2s', zIndex: 10,
+                  }}
+                  onMouseOver={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.4)'; e.currentTarget.style.transform = 'translateY(-50%) scale(1.1)'; }}
+                  onMouseOut={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.2)'; e.currentTarget.style.transform = 'translateY(-50%) scale(1)'; }}
+                >←</button>
+                <button 
+                  onClick={nextImg}
+                  style={{
+                    position: 'absolute', right: 20, top: '50%', transform: 'translateY(-50%)',
+                    width: 44, height: 44, borderRadius: '50%', background: 'rgba(255,255,255,0.2)',
+                    backdropFilter: 'blur(10px)', border: '1px solid rgba(255,255,255,0.3)',
+                    color: '#fff', fontSize: 20, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    transition: 'all .2s', zIndex: 10,
+                  }}
+                  onMouseOver={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.4)'; e.currentTarget.style.transform = 'translateY(-50%) scale(1.1)'; }}
+                  onMouseOut={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.2)'; e.currentTarget.style.transform = 'translateY(-50%) scale(1)'; }}
+                >→</button>
+                <div style={{
+                  position: 'absolute', bottom: 20, right: 20, background: 'rgba(0,0,0,0.5)',
+                  backdropFilter: 'blur(10px)', color: '#fff', padding: '5px 12px', borderRadius: 20,
+                  fontSize: 11, fontWeight: 700, letterSpacing: '.05em'
+                }}>
+                  {mainImg + 1} / {images.length}
+                </div>
+              </>
+            )}
           </div>
           {images.slice(1, 3).map((img, i) => (
             <div key={i} onClick={() => setMainImg(i + 1)} style={{ borderRadius: 14, overflow: 'hidden', background: '#e2e8f0', cursor: 'pointer' }}>
@@ -183,7 +228,7 @@ export default function PropertyDetail() {
                 <div style={{ width: 4, height: 22, background: '#2563eb', borderRadius: 2 }} />
                 <h3 style={{ fontSize: 18, fontWeight: 800, color: '#0f172a', margin: 0 }}>Amenities</h3>
               </div>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 14 }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 14 }} className="re-amenities-grid">
                 {amenities.map(a => (
                   <div key={a} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                     <div style={{
@@ -211,14 +256,6 @@ export default function PropertyDetail() {
               <h2 style={{ fontSize: 38, fontWeight: 900, margin: '0 0 6px', letterSpacing: '-.03em' }}>{fmt(price)}</h2>
               {ppsf && <p style={{ fontSize: 13, color: '#94a3b8', margin: '0 0 24px', fontWeight: 500 }}>₹{ppsf.toLocaleString()}/sqft</p>}
 
-              <div style={{ borderTop: '1px solid rgba(255,255,255,.08)', paddingTop: 20, display: 'flex', flexDirection: 'column', gap: 12, marginBottom: 24 }}>
-                {[{ l: 'EMI Starts at', v: '₹45k / mo*' }, { l: 'Booking Amount', v: '₹5.0 L' }].map(r => (
-                  <div key={r.l} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <span style={{ fontSize: 12, color: '#64748b', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '.06em' }}>{r.l}</span>
-                    <span style={{ fontSize: 14, fontWeight: 800 }}>{r.v}</span>
-                  </div>
-                ))}
-              </div>
 
               {/* Enquiry form */}
               <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
@@ -272,10 +309,22 @@ export default function PropertyDetail() {
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
         @keyframes shimmer{0%,100%{opacity:.8}50%{opacity:.4}}
-        @media(max-width:960px){.re-detail-grid{grid-template-columns:1fr !important}}
-        @media(max-width:800px){.re-gallery-grid{grid-template-columns:1fr !important; grid-template-rows:auto !important; height:300px !important}}
-        @media(max-width:800px){.re-gallery-grid>:not(:first-child){display:none}}
-        @media(max-width:640px){.re-specs-grid{grid-template-columns:repeat(2,1fr) !important}}
+        @media(max-width:960px){
+          .re-detail-grid{grid-template-columns:1fr !important}
+          .re-detail-grid aside { position: static !important; }
+        }
+        @media(max-width:800px){
+          .re-gallery-grid{grid-template-columns:1fr !important; grid-template-rows:auto !important; height:300px !important}
+          .re-gallery-grid>:not(:first-child){display:none}
+          div[style*="maxWidth: 1240"] { padding: 80px 16px 0 !important; }
+        }
+        @media(max-width:640px){
+          .re-specs-grid{grid-template-columns:repeat(2,1fr) !important}
+          .re-amenities-grid{grid-template-columns:repeat(2,1fr) !important}
+        }
+        @media(max-width:480px){
+          .re-amenities-grid{grid-template-columns:1fr !important}
+        }
       `}</style>
     </div>
   );

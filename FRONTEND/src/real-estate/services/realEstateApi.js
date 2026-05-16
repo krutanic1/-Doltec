@@ -5,6 +5,12 @@ export async function listProperties({ page = 1, limit = 12, filters = {} } = {}
   return res.json();
 }
 
+export async function listCities() {
+  const res = await fetch('/api/v1/properties/cities');
+  if (!res.ok) throw new Error('Failed to fetch cities');
+  return res.json();
+}
+
 export async function getPropertyBySlug(slug) {
   const res = await fetch(`/api/v1/properties/${encodeURIComponent(slug)}`);
   if (!res.ok) throw new Error('Failed to fetch property');

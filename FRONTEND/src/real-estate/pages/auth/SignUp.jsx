@@ -64,7 +64,7 @@ export default function SignUp() {
             </svg>
           </div>
           <h1 style={{ fontSize: 26, fontWeight: 900, color: '#0f172a', margin: '0 0 8px', letterSpacing: '-.03em' }}>Create Account</h1>
-          <p style={{ color: '#64748b', fontSize: 14, fontWeight: 500, margin: 0 }}>Join India's most trusted property portal — free forever.</p>
+          <p style={{ color: '#64748b', fontSize: 14, fontWeight: 500, margin: 0 }}>Join India's most trusted property portal.</p>
         </div>
 
         {error && (

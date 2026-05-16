@@ -7,6 +7,7 @@ const auth = require('../middleware/auth');
 // @desc    Get all properties (with filters)
 // @access  Public
 router.get('/', propertyController.getProperties);
+router.get('/cities', propertyController.getCities);
 
 // @route   GET api/v1/properties/:slug
 // @desc    Get property by slug
@@ -19,5 +20,6 @@ router.put('/:slug', auth, propertyController.updateProperty);
 // @desc    Create a new property
 // @access  Private
 router.post('/', auth, propertyController.createProperty);
+router.patch('/:id/moderate', auth, propertyController.moderateProperty);
 
 module.exports = router;

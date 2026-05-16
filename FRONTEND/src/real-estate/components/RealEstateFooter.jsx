@@ -1,14 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import headerLogo from '../../assets/headerlogo.png';
 
-const Logo = () => (
-  <svg width="30" height="30" viewBox="0 0 36 36" fill="none">
-    <rect width="36" height="36" rx="9" fill="#2563EB"/>
-    <path d="M18 8L28 15.5V28H8V15.5L18 8Z" fill="white"/>
-    <rect x="15" y="21" width="6" height="7" rx="1" fill="#2563EB"/>
-    <path d="M18 8L28 15.5L18 12L8 15.5L18 8Z" fill="#93c5fd"/>
-  </svg>
-);
 
 const COLUMNS = [
   {
@@ -113,8 +106,7 @@ export default function RealEstateFooter() {
           {/* Brand */}
           <div style={S.brand}>
             <Link to="/real-estate" style={S.brandLink}>
-              <Logo />
-              <span style={S.brandName}>Doltec<span style={{ color: '#3b82f6' }}>Properties</span></span>
+              <img src={headerLogo} alt="Logo" style={{ height: 36, width: 'auto' }} />
             </Link>
             <p style={S.tagline}>
               India's most trusted property marketplace for buying, selling, and renting premium real estate.

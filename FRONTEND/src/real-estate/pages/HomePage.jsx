@@ -13,20 +13,18 @@ const TABS = [
 const CITIES = [
   { label: 'Bengaluru', value: 'bengaluru', img: 'https://images.unsplash.com/photo-1596176530529-78163a4f7af2?w=500&q=80' },
   { label: 'Mumbai', value: 'mumbai', img: 'https://images.unsplash.com/photo-1529253355930-ddbe423a2ac7?w=500&q=80' },
-  { label: 'Pune', value: 'pune', img: 'https://images.unsplash.com/photo-1562215267-333e387063f1?w=500&q=80' },
+  { label: 'Pune', value: 'pune', img: 'https://images.unsplash.com/photo-1626544827763-d516dce335e2?w=500&q=80' },
   { label: 'Hyderabad', value: 'hyderabad', img: 'https://images.unsplash.com/photo-1605640840605-14ac1855827b?w=500&q=80' },
 ];
 
 const TRUST_STATS = [
   { value: '25,000+', label: 'Verified Listings' },
-  { value: '₹0', label: 'Brokerage Fee' },
   { value: '10,000+', label: 'Happy Owners' },
   { value: '99%', label: 'Trust Score' },
 ];
 
 const WHY_US = [
   { icon: '✓', title: 'RERA Verified', desc: 'Every property undergoes multi-stage RERA and legal verification.' },
-  { icon: '→', title: 'Zero Brokerage', desc: 'Connect directly with builders and owners — no middlemen, no hidden fees.' },
   { icon: '↑', title: 'Market Intelligence', desc: 'Data-driven insights on locality trends, pricing, and infrastructure.' },
 ];
 
@@ -85,19 +83,20 @@ export default function HomePage() {
             <span style={{ color: '#60a5fa' }}>love to live in.</span>
           </h1>
           <p style={{ color: '#93c5fd', fontSize: 17, fontWeight: 500, margin: '0 0 48px', maxWidth: 540, lineHeight: 1.6 }}>
-            Browse thousands of verified listings with zero brokerage. From luxury villas to budget apartments — find your perfect match.
+            Browse thousands of verified listings. From luxury villas to budget apartments — find your perfect match.
           </p>
 
           {/* Search card */}
           <div style={{ maxWidth: 820, background: '#fff', borderRadius: 16, padding: 8, boxShadow: '0 24px 64px rgba(0,0,0,.25)' }}>
             {/* Tabs */}
-            <div style={{ display: 'flex', gap: 4, marginBottom: 8 }}>
+            <div style={{ display: 'flex', gap: 4, marginBottom: 8, flexWrap: 'wrap' }} className="re-search-tabs">
               {TABS.map(t => (
                 <button key={t.value} onClick={() => setTab(t.value)} style={{
                   padding: '9px 18px', borderRadius: 9, border: 'none', cursor: 'pointer',
                   fontFamily: S.font, fontSize: 13, fontWeight: 700, transition: 'all .15s',
                   background: tab === t.value ? '#2563eb' : 'transparent',
                   color: tab === t.value ? '#fff' : '#475569',
+                  whiteSpace: 'nowrap',
                 }}
                   onMouseOver={e => { if (tab !== t.value) e.currentTarget.style.background = '#f8fafc'; }}
                   onMouseOut={e => { if (tab !== t.value) e.currentTarget.style.background = 'transparent'; }}
@@ -105,7 +104,7 @@ export default function HomePage() {
               ))}
             </div>
             {/* Search row */}
-            <div style={{ display: 'flex', gap: 8 }}>
+            <div style={{ display: 'flex', gap: 8 }} className="re-search-row">
               <div style={{ flex: 1, display: 'flex', alignItems: 'center', gap: 10, background: '#f8fafc', borderRadius: 10, padding: '0 16px', border: '1.5px solid #e2e8f0' }}>
                 <svg width="16" height="16" fill="none" stroke="#94a3b8" viewBox="0 0 24 24" style={{ flexShrink: 0 }}>
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
@@ -117,12 +116,13 @@ export default function HomePage() {
                   style={{
                     flex: 1, border: 'none', background: 'transparent', outline: 'none',
                     fontFamily: S.font, fontSize: 14, fontWeight: 500, color: '#0f172a', padding: '14px 0',
+                    width: '100%',
                   }}
                 />
               </div>
               <button onClick={doSearch} style={{
                 background: '#2563eb', color: '#fff', border: 'none',
-                padding: '0 28px', borderRadius: 10, fontFamily: S.font,
+                padding: '14px 28px', borderRadius: 10, fontFamily: S.font,
                 fontSize: 14, fontWeight: 700, cursor: 'pointer',
                 boxShadow: '0 4px 16px rgba(37,99,235,.3)', transition: 'background .15s',
                 whiteSpace: 'nowrap',
@@ -297,7 +297,15 @@ export default function HomePage() {
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
         @keyframes pulse { 0%,100%{opacity:1}50%{opacity:.5} }
         @media (max-width:1024px){.re-card-grid,.re-city-grid{grid-template-columns:repeat(2,1fr)!important}}
-        @media (max-width:720px){.re-why-grid{grid-template-columns:1fr!important;gap:48px!important}}
+        @media (max-width:720px){
+          .re-why-grid{grid-template-columns:1fr!important;gap:48px!important}
+          section:first-of-type { padding: 80px 0 60px !important; }
+        }
+        @media (max-width:640px){
+          .re-search-row { flex-direction: column !important; }
+          .re-search-row > * { width: 100% !important; }
+          .re-search-tabs { justify-content: center; }
+        }
         @media (max-width:500px){.re-card-grid,.re-city-grid{grid-template-columns:1fr!important}}
       `}</style>
     </div>

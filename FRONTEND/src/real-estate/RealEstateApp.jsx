@@ -1,4 +1,4 @@
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route, Navigate } from 'react-router-dom';
 import React, { useEffect } from 'react';
 import './re.css';
 
@@ -11,6 +11,13 @@ import SignIn           from './pages/auth/SignIn';
 import SignUp           from './pages/auth/SignUp';
 import Dashboard        from './pages/Dashboard';
 import PostProperty     from './pages/PostProperty';
+import EditProperty     from './pages/EditProperty';
+
+const RealEstatePrivateRoute = ({ children }) => {
+  const token = localStorage.getItem('token');
+  if (!token) return <Navigate to="/real-estate/login" replace />;
+  return children;
+};
 
 export default function RealEstateApp() {
   useEffect(() => {
@@ -36,8 +43,9 @@ export default function RealEstateApp() {
           <Route path="/properties/:slug" element={<PropertyDetail />} />
           <Route path="/login"         element={<SignIn />} />
           <Route path="/register"      element={<SignUp />} />
-          <Route path="/dashboard"     element={<Dashboard />} />
-          <Route path="/post-property" element={<PostProperty />} />
+          <Route path="/dashboard"     element={<RealEstatePrivateRoute><Dashboard /></RealEstatePrivateRoute>} />
+          <Route path="/post-property" element={<RealEstatePrivateRoute><PostProperty /></RealEstatePrivateRoute>} />
+          <Route path="/edit-property/:slug" element={<RealEstatePrivateRoute><EditProperty /></RealEstatePrivateRoute>} />
         </Routes>
       </main>
 

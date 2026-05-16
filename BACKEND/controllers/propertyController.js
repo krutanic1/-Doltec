@@ -23,14 +23,14 @@ function getDistanceKm(lat1, lng1, lat2, lng2) {
 exports.getProperties = async (req, res) => {
   try {
     const { 
-      city, q, minPrice, maxPrice,
+      city, q, minPrice, maxPrice, budget,
       intent, segment, propertyType, bhk, 
       possession, age, postedBy, amenities, 
       furnishing, facing, parking, availability,
-      lat, lng, radius
+      lat, lng, radius, sort
     } = req.query;
 
-    const query = { status: { $ne: 'REJECTED' } };
+    const query = { status: req.query.status || 'APPROVED' };
 
     // Search and Location
     if (city) query['city'] = { $regex: city, $options: 'i' };
@@ -42,8 +42,26 @@ exports.getProperties = async (req, res) => {
       ];
     }
 
-    // Price Range
-    if (minPrice || maxPrice) {
+    // Price Range & Budget Slabs
+    if (budget) {
+      const slabs = intent === 'RENT' ? [
+        { label: 'Under ₹10k', min: 0, max: 10000 },
+        { label: '₹10k - ₹25k', min: 10000, max: 25000 },
+        { label: '₹25k - ₹50k', min: 25000, max: 50000 },
+        { label: '₹50k - ₹1L', min: 50000, max: 100000 },
+        { label: '₹1L+', min: 100000, max: 999999999 },
+      ] : [
+        { label: 'Under ₹50L', min: 0, max: 5000000 },
+        { label: '₹50L - ₹1Cr', min: 5000000, max: 10000000 },
+        { label: '₹1Cr - ₹2Cr', min: 10000000, max: 20000000 },
+        { label: '₹2Cr - ₹5Cr', min: 20000000, max: 50000000 },
+        { label: '₹5Cr+', min: 50000000, max: 999999999 },
+      ];
+      const slab = slabs.find(s => s.label === budget);
+      if (slab) {
+        query['price'] = { $gte: slab.min, $lte: slab.max };
+      }
+    } else if (minPrice || maxPrice) {
       query['price'] = {};
       if (minPrice) query['price'].$gte = Number(minPrice);
       if (maxPrice) query['price'].$lte = Number(maxPrice);
@@ -83,8 +101,13 @@ exports.getProperties = async (req, res) => {
       query['filters.amenities'] = { $all: amenitiesList };
     }
 
+    // Sorting logic
+    let sortObj = { createdAt: -1 };
+    if (sort === 'price_asc') sortObj = { price: 1, createdAt: -1 };
+    else if (sort === 'price_desc') sortObj = { price: -1, createdAt: -1 };
+
     console.log('Property Query:', JSON.stringify(query, null, 2));
-    let properties = await Property.find(query).populate('poster', 'name email phone').sort({ createdAt: -1 });
+    let properties = await Property.find(query).populate('poster', 'name email phone').sort(sortObj);
 
     const centerLat = toNumber(lat);
     const centerLng = toNumber(lng);
@@ -110,8 +133,14 @@ exports.getProperties = async (req, res) => {
           nextProperty.distanceKm = Number(distanceKm.toFixed(2));
           return nextProperty;
         })
-        .filter(Boolean)
-        .sort((a, b) => (a.distanceKm || 0) - (b.distanceKm || 0) || new Date(b.createdAt) - new Date(a.createdAt));
+        .filter(Boolean);
+      
+      // If we are searching nearby, we usually want to sort by distance first
+      // But if a specific sort was requested (price), we might want to keep that.
+      // For now, let's stick to distance if nearby is active, or use the requested sort.
+      if (!sort || sort === 'newest') {
+        properties.sort((a, b) => (a.distanceKm || 0) - (b.distanceKm || 0));
+      }
     }
 
     console.log('Results found:', properties.length);
@@ -133,6 +162,15 @@ exports.createProperty = async (req, res) => {
 
     data.poster = req.user.id;
     data.slug = slugify(data.title, { lower: true }) + '-' + Date.now();
+    
+    console.log('--- Create Property Debug ---');
+    console.log('Files received:', req.files ? Object.keys(req.files) : 'None');
+    if (req.files && req.files.images) {
+      const imgCount = Array.isArray(req.files.images) ? req.files.images.length : 1;
+      console.log('Images count:', imgCount);
+    }
+    console.log('Data received:', JSON.stringify(data, null, 2));
+    console.log('-----------------------------');
     
     // Validation
     if (!data.filters) {
@@ -168,6 +206,7 @@ exports.createProperty = async (req, res) => {
       }
     }
 
+    data.status = 'PENDING';
     const property = new Property(data);
     await property.save();
     res.json(property);
@@ -251,3 +290,31 @@ exports.getMyProperties = async (req, res) => {
   }
 };
 
+exports.getCities = async (req, res) => {
+  try {
+    const cities = await Property.distinct('city', { status: { $ne: 'REJECTED' } });
+    res.json(cities.filter(Boolean));
+  } catch (err) {
+    res.status(500).send('Server error');
+  }
+};
+
+exports.moderateProperty = async (req, res) => {
+  try {
+    const { status, reviewNote } = req.body;
+    if (!['APPROVED', 'REJECTED'].includes(status)) {
+      return res.status(400).json({ msg: 'Invalid status' });
+    }
+
+    const property = await Property.findByIdAndUpdate(
+      req.params.id,
+      { status, reviewNote },
+      { new: true }
+    );
+
+    if (!property) return res.status(404).json({ msg: 'Property not found' });
+    res.json(property);
+  } catch (err) {
+    res.status(500).send('Server error');
+  }
+};

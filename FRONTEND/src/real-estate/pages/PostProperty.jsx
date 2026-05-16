@@ -9,8 +9,8 @@ const S = { font: 'Inter,sans-serif' };
 const STEPS = [
   { n: '01', t: 'Basic Info' },
   { n: '02', t: 'Location & Details' },
-  { n: '03', t: 'Photos' },
-  { n: '04', t: 'Amenities' },
+  { n: '03', t: 'Amenities' },
+  { n: '04', t: 'Photos' },
 ];
 
 const PERKS = [
@@ -26,6 +26,7 @@ export default function PostProperty() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (form.loading) return; // Prevent double submission
     try {
       form.setLoading(true);
       form.setError('');
@@ -63,7 +64,7 @@ export default function PostProperty() {
             marginBottom: 20,
           }}>
             <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#60a5fa', display: 'inline-block' }} />
-            Zero Brokerage · 100% Free
+            100% Free
           </span>
           <h1 style={{
             fontSize: 'clamp(28px, 5vw, 48px)', fontWeight: 900, color: '#fff',
@@ -85,7 +86,7 @@ export default function PostProperty() {
           boxShadow: '0 24px 64px rgba(0,0,0,.08)', overflow: 'hidden',
         }}>
           {/* Step indicator */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', borderBottom: '1px solid #f1f5f9' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', borderBottom: '1px solid #f1f5f9' }} className="re-step-indicator">
             {STEPS.map((s, i) => {
               const active = i === currentStep;
               const completed = i < currentStep;
@@ -113,7 +114,7 @@ export default function PostProperty() {
           </div>
 
           {/* Form body */}
-          <div style={{ padding: '36px 40px' }}>
+          <div style={{ padding: '36px 40px' }} className="re-form-body">
             {form.error && (
               <div style={{
                 background: '#fee2e2', border: '1px solid #fecaca', borderRadius: 12,
@@ -153,6 +154,12 @@ export default function PostProperty() {
 
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+        @media(max-width:800px){
+          .re-step-indicator { grid-template-columns: repeat(2,1fr) !important; }
+          .re-step-indicator > div { border-bottom: 1px solid #f1f5f9; }
+          .re-step-indicator > div:nth-child(even) { border-right: none !important; }
+          .re-form-body { padding: 24px 20px !important; }
+        }
         @media(max-width:640px){.re-perks-grid{grid-template-columns:1fr!important}}
       `}</style>
     </div>

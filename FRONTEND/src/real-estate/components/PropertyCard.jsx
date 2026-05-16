@@ -41,10 +41,11 @@ export default function PropertyCard({ property: p, onCompare, isComparing }) {
   const title    = p.title    || 'Exclusive Property';
   const builder  = p.builder  || 'Premium Developer';
   const locality = p.locality || p.city || 'Prime Location';
-  const price    = p.price?.amount ?? 0;
+  const price    = (p.price?.amount ?? p.price) ?? 0;
   const ppsf     = p.areaSqFt && price ? Math.round(price / p.areaSqFt) : 0;
   const slug     = p.slug || p._id;
-  const images   = (p.media || p.images)?.map(i => i.url || i).filter(Boolean) || [];
+  const rawMedia = (p.media && p.media.length > 0) ? p.media : (p.images || []);
+  const images   = rawMedia.map(i => i.url || i).filter(Boolean);
   const img      = images[imgIdx] || 'https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=800&q=80';
   const bhk      = p.filters?.bhk?.replace(/_/g, ' ') || '3 BHK';
   const area     = p.areaSqFt ? `${p.areaSqFt} sqft` : '—';

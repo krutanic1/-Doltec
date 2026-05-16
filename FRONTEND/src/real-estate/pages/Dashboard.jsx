@@ -50,7 +50,7 @@ export default function Dashboard() {
 
   useEffect(() => {
     setLoading(true);
-    api.get('/properties', { params: { ownerId: 'me', limit: 12 } })
+    api.get('/properties/my-properties')
       .then(res => { setItems(res.data.data || res.data || []); setLoading(false); })
       .catch(err => { 
         const errMsg = err.response?.data?.message || err.response?.data?.msg || err.message;
@@ -163,7 +163,9 @@ export default function Dashboard() {
                   <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
                     <div style={{ width: 64, height: 64, borderRadius: 12, overflow: 'hidden', background: '#f1f5f9', flexShrink: 0 }}>
                       <img
-                        src={(property.media || property.images)?.[0]?.url || (property.media || property.images)?.[0] || 'https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=200&q=80'}
+                        src={((property.media && property.media.length > 0) ? property.media : (property.images || []))[0]?.url || 
+                             ((property.media && property.media.length > 0) ? property.media : (property.images || []))[0] || 
+                             'https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=200&q=80'}
                         alt={property.title}
                         style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                       />
@@ -193,14 +195,16 @@ export default function Dashboard() {
                         onMouseOver={e => { e.currentTarget.style.background = '#eff6ff'; e.currentTarget.style.color = '#2563eb'; e.currentTarget.style.borderColor = '#bfdbfe'; }}
                         onMouseOut={e => { e.currentTarget.style.background = '#f8fafc'; e.currentTarget.style.color = '#64748b'; e.currentTarget.style.borderColor = '#e2e8f0'; }}
                       ><EyeIcon /></Link>
-                      <button style={{
-                        width: 36, height: 36, borderRadius: 10, border: '1px solid #e2e8f0',
-                        background: '#f8fafc', display: 'flex', alignItems: 'center', justifyContent: 'center',
-                        color: '#64748b', cursor: 'pointer', transition: 'all .15s',
-                      }}
+                      <Link 
+                        to={`/real-estate/edit-property/${property.slug || property._id}`}
+                        style={{
+                          width: 36, height: 36, borderRadius: 10, border: '1px solid #e2e8f0',
+                          background: '#f8fafc', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                          color: '#64748b', transition: 'all .15s',
+                        }}
                         onMouseOver={e => { e.currentTarget.style.background = '#0f172a'; e.currentTarget.style.color = '#fff'; e.currentTarget.style.borderColor = '#0f172a'; }}
                         onMouseOut={e => { e.currentTarget.style.background = '#f8fafc'; e.currentTarget.style.color = '#64748b'; e.currentTarget.style.borderColor = '#e2e8f0'; }}
-                      ><EditIcon /></button>
+                      ><EditIcon /></Link>
                     </div>
                   </div>
                 </div>
