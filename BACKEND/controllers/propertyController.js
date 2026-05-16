@@ -2,13 +2,32 @@ const Property = require('../models/Property');
 const slugify = require('slugify');
 const cloudinary = require("../middleware/cloudinary");
 
+function toNumber(value) {
+  const parsed = Number(value);
+  return Number.isFinite(parsed) ? parsed : null;
+}
+
+function getDistanceKm(lat1, lng1, lat2, lng2) {
+  const earthRadiusKm = 6371;
+  const dLat = ((lat2 - lat1) * Math.PI) / 180;
+  const dLng = ((lng2 - lng1) * Math.PI) / 180;
+  const startLat = (lat1 * Math.PI) / 180;
+  const endLat = (lat2 * Math.PI) / 180;
+
+  const a = Math.sin(dLat / 2) * Math.sin(dLat / 2)
+    + Math.sin(dLng / 2) * Math.sin(dLng / 2) * Math.cos(startLat) * Math.cos(endLat);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  return earthRadiusKm * c;
+}
+
 exports.getProperties = async (req, res) => {
   try {
     const { 
       city, q, minPrice, maxPrice,
       intent, segment, propertyType, bhk, 
       possession, age, postedBy, amenities, 
-      furnishing, facing, parking, availability 
+      furnishing, facing, parking, availability,
+      lat, lng, radius
     } = req.query;
 
     const query = { status: { $ne: 'REJECTED' } };
@@ -65,7 +84,36 @@ exports.getProperties = async (req, res) => {
     }
 
     console.log('Property Query:', JSON.stringify(query, null, 2));
-    const properties = await Property.find(query).populate('poster', 'name email phone').sort({ createdAt: -1 });
+    let properties = await Property.find(query).populate('poster', 'name email phone').sort({ createdAt: -1 });
+
+    const centerLat = toNumber(lat);
+    const centerLng = toNumber(lng);
+    const searchRadius = toNumber(radius) || 10;
+
+    if (centerLat !== null && centerLng !== null) {
+      properties = properties
+        .map((property) => {
+          const coords = property.location?.coordinates;
+          const propLat = toNumber(coords?.lat);
+          const propLng = toNumber(coords?.lng);
+
+          if (propLat === null || propLng === null) {
+            return null;
+          }
+
+          const distanceKm = getDistanceKm(centerLat, centerLng, propLat, propLng);
+          if (distanceKm > searchRadius) {
+            return null;
+          }
+
+          const nextProperty = property.toObject ? property.toObject() : property;
+          nextProperty.distanceKm = Number(distanceKm.toFixed(2));
+          return nextProperty;
+        })
+        .filter(Boolean)
+        .sort((a, b) => (a.distanceKm || 0) - (b.distanceKm || 0) || new Date(b.createdAt) - new Date(a.createdAt));
+    }
+
     console.log('Results found:', properties.length);
     res.json(properties);
   } catch (err) {

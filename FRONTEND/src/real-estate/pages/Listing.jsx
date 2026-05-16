@@ -44,6 +44,8 @@ export default function Listing() {
   const [count, setCount]             = useState(0);
   const [mobileFilterOpen, setMobileFilterOpen] = useState(false);
   const [selectedCompare, setSelectedCompare]   = useState([]);
+  const [nearbyLoading, setNearbyLoading] = useState(false);
+  const [nearbyError, setNearbyError] = useState('');
 
   const [filters, setFilters] = useState({
     intent: searchParams.get('intent') || 'BUY',
@@ -60,6 +62,10 @@ export default function Listing() {
   const city = searchParams.get('city') || '';
   const q    = searchParams.get('q') || '';
   const sort = searchParams.get('sort') || 'newest';
+  const lat = searchParams.get('lat') || '';
+  const lng = searchParams.get('lng') || '';
+  const radius = searchParams.get('radius') || '';
+  const isNearbyActive = Boolean(lat && lng && radius);
 
   const updateFilter = (key, value) => {
     const next = { ...filters, [key]: value };
@@ -82,12 +88,52 @@ export default function Listing() {
     setSearchParams({ intent: 'BUY', segment: 'RESIDENTIAL' });
   };
 
+  const toggleNearbySearch = () => {
+    if (isNearbyActive) {
+      const next = new URLSearchParams(searchParams);
+      next.delete('lat');
+      next.delete('lng');
+      next.delete('radius');
+      setNearbyError('');
+      setSearchParams(next);
+      return;
+    }
+
+    if (!navigator.geolocation) {
+      setNearbyError('Your browser does not support location access.');
+      return;
+    }
+
+    setNearbyLoading(true);
+    setNearbyError('');
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const next = new URLSearchParams(searchParams);
+        next.set('lat', String(position.coords.latitude));
+        next.set('lng', String(position.coords.longitude));
+        next.set('radius', '10');
+        setSearchParams(next);
+        setNearbyLoading(false);
+      },
+      () => {
+        setNearbyLoading(false);
+        setNearbyError('Unable to access your location. Please allow location permission and try again.');
+      },
+      { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+    );
+  };
+
   const fetchListings = useCallback(async () => {
     setLoading(true); setError('');
     try {
       const params = { ...filters, sort };
       if (city) params.city = city;
       if (q)    params.q    = q;
+      if (lat && lng) {
+        params.lat = lat;
+        params.lng = lng;
+        params.radius = radius || '10';
+      }
       if (filters.budget) {
         const slab = BUDGET_SLABS[filters.intent]?.find(s => s.label === filters.budget);
         if (slab) { params.minPrice = slab.min; params.maxPrice = slab.max; }
@@ -98,7 +144,7 @@ export default function Listing() {
       setCount(res?.totalResults || res?.count || items.length);
     } catch { setError('Failed to load properties. Please try again.'); setProperties([]); }
     finally { setLoading(false); }
-  }, [filters, city, q, sort]);
+  }, [filters, city, q, sort, lat, lng, radius]);
 
   useEffect(() => { fetchListings(); }, [fetchListings]);
 
@@ -246,6 +292,35 @@ export default function Listing() {
               onChange={e => { const p = new URLSearchParams(searchParams); if (e.target.value) p.set('q', e.target.value); else p.delete('q'); setSearchParams(p); }}
               style={{ border: 'none', background: 'transparent', outline: 'none', fontFamily: S.font, fontSize: 13, fontWeight: 500, color: '#334155', padding: '11px 0', flex: 1 }}
             />
+            <button
+              type="button"
+              onClick={toggleNearbySearch}
+              disabled={nearbyLoading}
+              title={isNearbyActive ? 'Clear nearby search' : 'Search within 10 km of your current location'}
+              aria-label={isNearbyActive ? 'Clear nearby search' : 'Search within 10 km of your current location'}
+              style={{
+                width: 38,
+                height: 38,
+                borderRadius: 10,
+                border: `1.5px solid ${isNearbyActive ? '#2563eb' : '#e2e8f0'}`,
+                background: isNearbyActive ? '#eff6ff' : '#fff',
+                color: isNearbyActive ? '#2563eb' : '#64748b',
+                display: 'inline-flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                flexShrink: 0,
+                cursor: nearbyLoading ? 'wait' : 'pointer',
+                transition: 'all .15s',
+              }}
+            >
+              {nearbyLoading ? (
+                <span style={{ fontSize: 14, fontWeight: 800 }}>…</span>
+              ) : (
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                  <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5A2.5 2.5 0 1 1 12 6a2.5 2.5 0 0 1 0 5.5z" fill="currentColor" />
+                </svg>
+              )}
+            </button>
           </div>
 
           {/* Intent chips */}
@@ -289,6 +364,14 @@ export default function Listing() {
           )}
         </div>
       </div>
+
+      {nearbyError && (
+        <div style={{ maxWidth: 1380, margin: '0 auto', padding: '0 24px' }}>
+          <div style={{ marginTop: 12, background: '#fff5f5', border: '1px solid #fecaca', color: '#991b1b', borderRadius: 12, padding: '10px 14px', fontSize: 12, fontWeight: 600 }}>
+            {nearbyError}
+          </div>
+        </div>
+      )}
 
       {/* ── Main 3-Column Grid ───────────────────────────── */}
       <div style={{ maxWidth: 1380, margin: '0 auto', padding: '32px 24px 80px', display: 'grid', gridTemplateColumns: '260px 1fr 280px', gap: 28, alignItems: 'start' }} className="re-listing-grid">

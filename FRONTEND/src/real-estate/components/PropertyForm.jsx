@@ -116,6 +116,7 @@ function Field({ label, children }) {
 
 export default function PropertyForm({ form, onSubmit, currentStep, setCurrentStep, totalSteps }) {
   const { values, setField, toggleAmenity, onFiles, loading, error, preview } = form;
+  const [locationLookupState, setLocationLookupState] = React.useState({ loading: false, message: '' });
 
   const handleSegmentChange = (e) => {
     const seg = e.target.value;
@@ -142,6 +143,29 @@ export default function PropertyForm({ form, onSubmit, currentStep, setCurrentSt
       setCurrentStep(currentStep - 1);
       window.scrollTo({ top: 100, behavior: 'smooth' });
     }
+  };
+
+  const handleUseCurrentLocation = () => {
+    if (!navigator.geolocation) {
+      setLocationLookupState({ loading: false, message: 'Location access is not supported in this browser.' });
+      return;
+    }
+
+    setLocationLookupState({ loading: true, message: '' });
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const { latitude, longitude } = position.coords;
+        const mapsUrl = `https://www.google.com/maps?q=${latitude},${longitude}`;
+
+        setField('locationUrl', mapsUrl);
+        setField('locationCoordinates', { lat: latitude, lng: longitude });
+        setLocationLookupState({ loading: false, message: 'Current location added to the map link field.' });
+      },
+      () => {
+        setLocationLookupState({ loading: false, message: 'Unable to read your location. Check browser permissions and try again.' });
+      },
+      { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+    );
   };
 
   return (
@@ -279,6 +303,69 @@ export default function PropertyForm({ form, onSubmit, currentStep, setCurrentSt
                 value={values.description || ''} onChange={e => setField('description', e.target.value)}
                 onFocus={onFocus} onBlur={onBlur}
               />
+            </Field>
+            <Field label="Location URL / Map Link">
+              <div style={{ display: 'flex', gap: 10, alignItems: 'stretch' }} className="re-location-row">
+                <input
+                  style={{ ...inputStyle, flex: 1 }}
+                  placeholder="Paste a Google Maps link or use the current location button"
+                  value={values.locationUrl || ''}
+                  onChange={e => setField('locationUrl', e.target.value)}
+                  onFocus={onFocus}
+                  onBlur={onBlur}
+                />
+                <button
+                  type="button"
+                  onClick={handleUseCurrentLocation}
+                  disabled={locationLookupState.loading}
+                  aria-label="Use current location"
+                  title="Use current location"
+                  style={{
+                    ...inputStyle,
+                    width: 52,
+                    minWidth: 52,
+                    padding: 0,
+                    border: '1.5px solid #bfdbfe',
+                    background: locationLookupState.loading ? '#eff6ff' : '#eff6ff',
+                    color: '#1d4ed8',
+                    fontWeight: 800,
+                    cursor: locationLookupState.loading ? 'wait' : 'pointer',
+                    boxShadow: 'none',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontSize: 20,
+                  }}
+                  onMouseOver={e => { if (!locationLookupState.loading) { e.currentTarget.style.borderColor = '#93c5fd'; e.currentTarget.style.background = '#dbeafe'; } }}
+                  onMouseOut={e => { if (!locationLookupState.loading) { e.currentTarget.style.borderColor = '#bfdbfe'; e.currentTarget.style.background = '#eff6ff'; } }}
+                >
+                  {locationLookupState.loading ? (
+                    '⌛'
+                  ) : (
+                    <svg
+                      viewBox="0 0 24 24"
+                      width="22"
+                      height="22"
+                      aria-hidden="true"
+                      focusable="false"
+                      style={{ display: 'block' }}
+                    >
+                      <path
+                        d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5A2.5 2.5 0 1 1 12 6a2.5 2.5 0 0 1 0 5.5z"
+                        fill="#e11d48"
+                      />
+                    </svg>
+                  )}
+                </button>
+              </div>
+              <p style={{ margin: '8px 0 0', fontSize: 12, color: '#64748b', lineHeight: 1.5 }}>
+                Paste a shareable map URL, or let the browser fill one from your current GPS location.
+              </p>
+              {locationLookupState.message && (
+                <p style={{ margin: '8px 0 0', fontSize: 12, fontWeight: 600, color: '#1d4ed8' }}>
+                  {locationLookupState.message}
+                </p>
+              )}
             </Field>
           </div>
         </>
@@ -423,6 +510,7 @@ export default function PropertyForm({ form, onSubmit, currentStep, setCurrentSt
       <style>{`
         @keyframes re-spin{to{transform:rotate(360deg)}}
         @media(max-width:640px){.re-form-grid{grid-template-columns:1fr !important}}
+        @media(max-width:720px){.re-location-row{flex-direction:column}}
       `}</style>
     </form>
   );

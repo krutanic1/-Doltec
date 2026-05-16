@@ -10,6 +10,8 @@ const initialState = {
   locality: '',
   city: '',
   state: '',
+  locationUrl: '',
+  locationCoordinates: null,
   status: 'DRAFT',
   filters: {
     intent: 'BUY',
@@ -81,6 +83,10 @@ export default function usePropertyForm(seed = {}) {
       description: values.description,
       city: values.city,
       locality: values.locality,
+      location: {
+        mapUrl: values.locationUrl,
+        coordinates: values.locationCoordinates || undefined,
+      },
       category: values.category,
       propertyType: values.propertyType,
       price: values.price.amount,
