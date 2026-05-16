@@ -65,6 +65,7 @@ export default function Listing() {
   const lat = searchParams.get('lat') || '';
   const lng = searchParams.get('lng') || '';
   const radius = searchParams.get('radius') || '';
+  const nearbyRadius = radius || '10';
   const isNearbyActive = Boolean(lat && lng && radius);
 
   const updateFilter = (key, value) => {
@@ -111,7 +112,7 @@ export default function Listing() {
         const next = new URLSearchParams(searchParams);
         next.set('lat', String(position.coords.latitude));
         next.set('lng', String(position.coords.longitude));
-        next.set('radius', '10');
+        next.set('radius', nearbyRadius);
         setSearchParams(next);
         setNearbyLoading(false);
       },
@@ -177,6 +178,32 @@ export default function Listing() {
           {SEGMENT_OPTIONS.map(o => (
             <button key={o.value} onClick={() => updateFilter('segment', o.value)} style={S.chip(filters.segment === o.value)}>{o.label}</button>
           ))}
+        </div>
+      </FilterSection>
+
+      <FilterSection title="Nearby Radius">
+        <div style={{ paddingTop: 2 }}>
+          <div style={{ position: 'relative', padding: '14px 0 8px' }}>
+            <input
+              type="range"
+              min="3"
+              max="20"
+              step="1"
+              value={Number(nearbyRadius)}
+              onChange={e => {
+                const next = new URLSearchParams(searchParams);
+                next.set('radius', e.target.value);
+                setSearchParams(next);
+              }}
+              className="re-radius-slider"
+              aria-label="Nearby radius"
+            />
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <span style={{ fontSize: 12, color: '#64748b', fontWeight: 600 }}>3 km</span>
+            <span style={{ fontSize: 12, color: '#334155', fontWeight: 800 }}>{nearbyRadius} km</span>
+            <span style={{ fontSize: 12, color: '#64748b', fontWeight: 600 }}>20 km</span>
+          </div>
         </div>
       </FilterSection>
 
@@ -296,8 +323,8 @@ export default function Listing() {
               type="button"
               onClick={toggleNearbySearch}
               disabled={nearbyLoading}
-              title={isNearbyActive ? 'Clear nearby search' : 'Search within 10 km of your current location'}
-              aria-label={isNearbyActive ? 'Clear nearby search' : 'Search within 10 km of your current location'}
+              title={isNearbyActive ? 'Clear nearby search' : `Search within ${nearbyRadius} km of your current location`}
+              aria-label={isNearbyActive ? 'Clear nearby search' : `Search within ${nearbyRadius} km of your current location`}
               style={{
                 width: 38,
                 height: 38,
@@ -364,6 +391,28 @@ export default function Listing() {
           )}
         </div>
       </div>
+
+      {lat && lng && radius && (
+        <div style={{ maxWidth: 1380, margin: '0 auto', padding: '0 24px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 12, flexWrap: 'wrap' }}>
+            <span style={{ fontSize: 10, fontWeight: 700, color: '#2563eb', background: '#dbeafe', padding: '4px 10px', borderRadius: 30 }}>
+              Nearby search: {radius} km
+            </span>
+            <button
+              onClick={() => {
+                const next = new URLSearchParams(searchParams);
+                next.delete('lat');
+                next.delete('lng');
+                next.delete('radius');
+                setSearchParams(next);
+              }}
+              style={{ fontSize: 11, fontWeight: 700, color: '#64748b', background: 'none', border: 'none', cursor: 'pointer', padding: '4px 0' }}
+            >
+              Clear nearby
+            </button>
+          </div>
+        </div>
+      )}
 
       {nearbyError && (
         <div style={{ maxWidth: 1380, margin: '0 auto', padding: '0 24px' }}>
@@ -476,6 +525,40 @@ export default function Listing() {
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
         @keyframes shimmer { 0%,100%{opacity:.7}50%{opacity:.4} }
         .re-no-scrollbar{scrollbar-width:none}.re-no-scrollbar::-webkit-scrollbar{display:none}
+        .re-radius-slider{
+          width:100%;
+          appearance:none;
+          -webkit-appearance:none;
+          height:8px;
+          border-radius:999px;
+          background:linear-gradient(to right, #2563eb 0%, #2563eb ${((Number(nearbyRadius) - 3) / 17) * 100}%, #dbe4f0 ${((Number(nearbyRadius) - 3) / 17) * 100}%, #dbe4f0 100%);
+          outline:none;
+        }
+        .re-radius-slider::-webkit-slider-thumb{
+          -webkit-appearance:none;
+          appearance:none;
+          width:22px;
+          height:22px;
+          border-radius:50%;
+          background:#2563eb;
+          border:4px solid #fff;
+          box-shadow:0 4px 12px rgba(37,99,235,.28);
+          cursor:pointer;
+        }
+        .re-radius-slider::-moz-range-thumb{
+          width:22px;
+          height:22px;
+          border-radius:50%;
+          background:#2563eb;
+          border:4px solid #fff;
+          box-shadow:0 4px 12px rgba(37,99,235,.28);
+          cursor:pointer;
+        }
+        .re-radius-slider::-moz-range-track{
+          height:8px;
+          border-radius:999px;
+          background:#dbe4f0;
+        }
         @media(max-width:1100px){.re-listing-grid{grid-template-columns:220px 1fr !important}}
         @media(max-width:900px){.re-listing-grid{grid-template-columns:1fr !important} .re-listing-grid>:first-child{display:none} .re-listing-grid>:last-child{display:none}}
         @media(max-width:640px){.re-props-grid{grid-template-columns:1fr !important}}
