@@ -1,198 +1,305 @@
-/* ─────────────────────────────────────────────────────
-   src/real-estate/pages/HomePage.jsx
-   Search-first homepage — Hero + Search + Cities + Grid
-───────────────────────────────────────────────────── */
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { usePropertyList } from '../hooks/useRealEstate';
 import PropertyCard from '../components/PropertyCard';
 
-const TABS  = ['Buy', 'Rent', 'New Launch', 'Commercial', 'Plots'];
-const CITIES = [
-  { label: 'Bengaluru', value: 'bengaluru' },
-  { label: 'Mumbai',    value: 'mumbai'    },
-  { label: 'Pune',      value: 'pune'      },
-  { label: 'Hyderabad', value: 'hyderabad' },
-  { label: 'Chennai',   value: 'chennai'   },
+const TABS = [
+  { label: 'Buy', value: 'BUY' },
+  { label: 'Rent', value: 'RENT' },
+  { label: 'New Projects', value: 'PROJECTS' },
+  { label: 'Commercial', value: 'COMMERCIAL' },
 ];
-const CATS = ['🏠 Apartments','🏡 Villas','📦 Plots','🏢 Commercial','🏗 New Launch','🛏 PG / Co-living'];
+
+const CITIES = [
+  { label: 'Bengaluru', value: 'bengaluru', img: 'https://images.unsplash.com/photo-1596176530529-78163a4f7af2?w=500&q=80' },
+  { label: 'Mumbai', value: 'mumbai', img: 'https://images.unsplash.com/photo-1529253355930-ddbe423a2ac7?w=500&q=80' },
+  { label: 'Pune', value: 'pune', img: 'https://images.unsplash.com/photo-1562215267-333e387063f1?w=500&q=80' },
+  { label: 'Hyderabad', value: 'hyderabad', img: 'https://images.unsplash.com/photo-1605640840605-14ac1855827b?w=500&q=80' },
+];
+
+const TRUST_STATS = [
+  { value: '25,000+', label: 'Verified Listings' },
+  { value: '₹0', label: 'Brokerage Fee' },
+  { value: '10,000+', label: 'Happy Owners' },
+  { value: '99%', label: 'Trust Score' },
+];
+
+const WHY_US = [
+  { icon: '✓', title: 'RERA Verified', desc: 'Every property undergoes multi-stage RERA and legal verification.' },
+  { icon: '→', title: 'Zero Brokerage', desc: 'Connect directly with builders and owners — no middlemen, no hidden fees.' },
+  { icon: '↑', title: 'Market Intelligence', desc: 'Data-driven insights on locality trends, pricing, and infrastructure.' },
+];
+
+const S = {
+  font: 'Inter,sans-serif',
+};
 
 export default function HomePage() {
-  const navigate  = useNavigate();
-  const [tab, setTab]   = useState('Buy');
-  const [q,   setQ]     = useState('');
-  const [city, setCity] = useState('');
+  const navigate = useNavigate();
+  const [tab, setTab] = useState('BUY');
+  const [q, setQ] = useState('');
 
-  const { data, loading } = usePropertyList({ limit: 8, status: 'published', ...(city && { city }) });
+  const { data, loading } = usePropertyList({ limit: 4, status: 'published' });
   const properties = Array.isArray(data) ? data : data?.data || [];
 
-  const handleSearch = (e) => {
-    e.preventDefault();
+  const doSearch = () => {
     const p = new URLSearchParams();
-    p.set('type', tab.toLowerCase());
-    if (q)    p.set('q',    q);
-    if (city) p.set('city', city);
+    p.set('intent', tab === 'RENT' ? 'RENT' : 'BUY');
+    if (tab === 'PROJECTS')   p.set('segment', 'PROJECTS');
+    if (tab === 'COMMERCIAL') p.set('segment', 'COMMERCIAL');
+    if (q) p.set('q', q);
     navigate(`/real-estate/properties?${p}`);
   };
 
-  const goCity = (v) => {
-    setCity(v === city ? '' : v);
-    navigate(`/real-estate/properties?city=${v}`);
-  };
-
   return (
-    <>
-      {/* ── Hero ───────────────────────────────────────── */}
-      <section style={{ background: '#3b0921', padding: '72px 32px 80px' }}>
-        <div style={{ maxWidth: 1280, margin: '0 auto', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 64, alignItems: 'center' }}>
-          <div style={{ color: '#fff' }}>
-            <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.25em', opacity: 0.55, textTransform: 'uppercase', marginBottom: 18 }}>Doltec Estates · Verified Listings</p>
-            <h1 style={{ fontSize: 46, fontWeight: 900, lineHeight: 1.15, letterSpacing: '-1.5px', marginBottom: 22 }}>
-              Find Your Perfect<br/>Property in India
-            </h1>
-            <p style={{ fontSize: 16, opacity: 0.75, lineHeight: 1.75, marginBottom: 36, maxWidth: 440 }}>
-              Verified listings, direct owner connect, zero brokerage surprises. Explore homes, plots and commercial spaces.
-            </p>
-            <button onClick={() => navigate('/real-estate/properties')}
-              style={{ display: 'inline-flex', alignItems: 'center', gap: 10, border: '2px solid rgba(255,255,255,0.8)', color: '#fff', background: 'transparent', padding: '13px 36px', fontWeight: 700, fontSize: 14, cursor: 'pointer', letterSpacing: '0.08em' }}>
-              Browse All Listings →
-            </button>
+    <div style={{ background: '#fff', fontFamily: S.font }}>
+
+      {/* ── HERO ──────────────────────────────────────────── */}
+      <section style={{
+        background: 'linear-gradient(145deg, #0f172a 0%, #1e3a8a 60%, #1d4ed8 100%)',
+        paddingTop: 120, paddingBottom: 96,
+        position: 'relative', overflow: 'hidden',
+      }}>
+        {/* Decorative circles */}
+        <div style={{ position: 'absolute', top: -80, right: -80, width: 400, height: 400, borderRadius: '50%', background: 'rgba(59,130,246,.08)', pointerEvents: 'none' }} />
+        <div style={{ position: 'absolute', bottom: -60, left: -60, width: 300, height: 300, borderRadius: '50%', background: 'rgba(147,197,253,.06)', pointerEvents: 'none' }} />
+
+        <div style={{ maxWidth: 1100, margin: '0 auto', padding: '0 24px', position: 'relative', zIndex: 1 }}>
+          {/* Eyebrow */}
+          <div style={{
+            display: 'inline-flex', alignItems: 'center', gap: 8,
+            padding: '5px 14px', borderRadius: 30,
+            background: 'rgba(59,130,246,.12)', border: '1px solid rgba(96,165,250,.2)',
+            marginBottom: 24, color: '#93c5fd', fontSize: 11, fontWeight: 700,
+            textTransform: 'uppercase', letterSpacing: '.1em',
+          }}>
+            <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#60a5fa', display: 'inline-block', animation: 'pulse 1.8s ease-in-out infinite' }} />
+            India's Most Trusted Property Portal
           </div>
-          <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-            <div style={{ position: 'relative' }}>
-              <img src="https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=560&q=80"
-                alt="Modern building" style={{ height: 400, width: 300, objectFit: 'cover', borderRadius: '80px 80px 0 0', boxShadow: '0 40px 80px rgba(0,0,0,0.5)' }} />
-              <div style={{ position: 'absolute', bottom: -16, left: -20, background: '#eab308', color: '#1a1a1a', padding: '14px 20px', fontWeight: 800, fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.15em', boxShadow: '0 10px 30px rgba(0,0,0,0.3)' }}>
-                ✓ Verified Listings Only
+
+          <h1 style={{
+            fontSize: 'clamp(36px, 5vw, 60px)', fontWeight: 900, color: '#fff',
+            margin: '0 0 18px', letterSpacing: '-.04em', lineHeight: 1.12, maxWidth: 700,
+          }}>
+            Find a home you'll{' '}
+            <span style={{ color: '#60a5fa' }}>love to live in.</span>
+          </h1>
+          <p style={{ color: '#93c5fd', fontSize: 17, fontWeight: 500, margin: '0 0 48px', maxWidth: 540, lineHeight: 1.6 }}>
+            Browse thousands of verified listings with zero brokerage. From luxury villas to budget apartments — find your perfect match.
+          </p>
+
+          {/* Search card */}
+          <div style={{ maxWidth: 820, background: '#fff', borderRadius: 16, padding: 8, boxShadow: '0 24px 64px rgba(0,0,0,.25)' }}>
+            {/* Tabs */}
+            <div style={{ display: 'flex', gap: 4, marginBottom: 8 }}>
+              {TABS.map(t => (
+                <button key={t.value} onClick={() => setTab(t.value)} style={{
+                  padding: '9px 18px', borderRadius: 9, border: 'none', cursor: 'pointer',
+                  fontFamily: S.font, fontSize: 13, fontWeight: 700, transition: 'all .15s',
+                  background: tab === t.value ? '#2563eb' : 'transparent',
+                  color: tab === t.value ? '#fff' : '#475569',
+                }}
+                  onMouseOver={e => { if (tab !== t.value) e.currentTarget.style.background = '#f8fafc'; }}
+                  onMouseOut={e => { if (tab !== t.value) e.currentTarget.style.background = 'transparent'; }}
+                >{t.label}</button>
+              ))}
+            </div>
+            {/* Search row */}
+            <div style={{ display: 'flex', gap: 8 }}>
+              <div style={{ flex: 1, display: 'flex', alignItems: 'center', gap: 10, background: '#f8fafc', borderRadius: 10, padding: '0 16px', border: '1.5px solid #e2e8f0' }}>
+                <svg width="16" height="16" fill="none" stroke="#94a3b8" viewBox="0 0 24 24" style={{ flexShrink: 0 }}>
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                </svg>
+                <input
+                  type="text" placeholder="Enter locality, project or builder…"
+                  value={q} onChange={e => setQ(e.target.value)}
+                  onKeyDown={e => e.key === 'Enter' && doSearch()}
+                  style={{
+                    flex: 1, border: 'none', background: 'transparent', outline: 'none',
+                    fontFamily: S.font, fontSize: 14, fontWeight: 500, color: '#0f172a', padding: '14px 0',
+                  }}
+                />
               </div>
+              <button onClick={doSearch} style={{
+                background: '#2563eb', color: '#fff', border: 'none',
+                padding: '0 28px', borderRadius: 10, fontFamily: S.font,
+                fontSize: 14, fontWeight: 700, cursor: 'pointer',
+                boxShadow: '0 4px 16px rgba(37,99,235,.3)', transition: 'background .15s',
+                whiteSpace: 'nowrap',
+              }}
+                onMouseOver={e => e.currentTarget.style.background = '#1d4ed8'}
+                onMouseOut={e => e.currentTarget.style.background = '#2563eb'}
+              >Search Properties</button>
             </div>
           </div>
         </div>
       </section>
 
-      {/* ── Search Module ──────────────────────────────── */}
-      <section style={{ background: '#fff', borderBottom: '1px solid #e2e8f0' }}>
-        <div style={{ maxWidth: 860, margin: '0 auto', padding: '0 24px' }}>
-          <div style={{ display: 'flex', gap: 4 }}>
-            {TABS.map(t => (
-              <button key={t} onClick={() => setTab(t)} style={{
-                padding: '16px 20px', fontWeight: 700, fontSize: 13, border: 'none',
-                background: 'none', cursor: 'pointer', whiteSpace: 'nowrap',
-                borderBottom: tab === t ? '2px solid #2563eb' : '2px solid transparent',
-                color: tab === t ? '#2563eb' : '#94a3b8',
-              }}>{t}</button>
-            ))}
-          </div>
-          <form onSubmit={handleSearch} style={{ display: 'flex', gap: 10, padding: '16px 0' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8, border: '1px solid #e2e8f0', borderRadius: 10, padding: '10px 16px', minWidth: 160 }}>
-              <span style={{ fontSize: 13, fontWeight: 600, color: '#475569', whiteSpace: 'nowrap' }}>All Types</span>
-              <span style={{ color: '#94a3b8', marginLeft: 'auto' }}>▾</span>
+      {/* ── TRUST STATS BAR ───────────────────────────────── */}
+      <section style={{ background: '#f8fafc', borderBottom: '1px solid #e2e8f0' }}>
+        <div style={{ maxWidth: 1100, margin: '0 auto', padding: '0 24px', display: 'flex', justifyContent: 'space-around', flexWrap: 'wrap', gap: 0 }}>
+          {TRUST_STATS.map((s, i) => (
+            <div key={s.label} style={{
+              padding: '28px 32px', textAlign: 'center', flex: '1 1 160px',
+              borderRight: i < TRUST_STATS.length - 1 ? '1px solid #e2e8f0' : 'none',
+            }}>
+              <p style={{ fontSize: 28, fontWeight: 900, color: '#2563eb', margin: '0 0 4px', letterSpacing: '-.03em' }}>{s.value}</p>
+              <p style={{ fontSize: 12, color: '#64748b', fontWeight: 600, margin: 0, textTransform: 'uppercase', letterSpacing: '.08em' }}>{s.label}</p>
             </div>
-            <div style={{ flex: 1, display: 'flex', alignItems: 'center', gap: 10, border: '1px solid #e2e8f0', borderRadius: 10, padding: '10px 16px' }}>
-              <svg width="16" height="16" fill="none" stroke="#94a3b8" strokeWidth="2" viewBox="0 0 24 24"><path d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z"/></svg>
-              <input type="text" value={q} onChange={e => setQ(e.target.value)}
-                placeholder="Enter city, locality or project..." style={{ flex: 1, border: 'none', outline: 'none', fontSize: 14, fontWeight: 500, color: '#0f172a', background: 'transparent' }} />
-            </div>
-            <button type="submit" style={{ background: '#2563eb', color: '#fff', border: 'none', borderRadius: 10, padding: '0 32px', fontWeight: 700, fontSize: 14, cursor: 'pointer' }}>
-              Search
-            </button>
-          </form>
-        </div>
-      </section>
-
-      {/* ── City Chips ────────────────────────────────── */}
-      <section style={{ background: '#fff', borderBottom: '1px solid #e2e8f0' }}>
-        <div style={{ maxWidth: 860, margin: '0 auto', padding: '14px 24px', display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
-          <span style={{ fontSize: 11, fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.15em' }}>Popular:</span>
-          {CITIES.map(c => (
-            <button key={c.value} onClick={() => goCity(c.value)} style={{
-              padding: '6px 18px', borderRadius: 999, border: '1px solid',
-              borderColor: city === c.value ? '#2563eb' : '#e2e8f0',
-              background: city === c.value ? '#2563eb' : '#fff',
-              color: city === c.value ? '#fff' : '#475569',
-              fontSize: 13, fontWeight: 600, cursor: 'pointer',
-            }}>{c.label}</button>
           ))}
         </div>
       </section>
 
-      {/* ── Quick Categories ──────────────────────────── */}
-      <section style={{ background: '#f8fafc', padding: '48px 32px' }}>
-        <div style={{ maxWidth: 1280, margin: '0 auto' }}>
-          <h2 style={{ fontSize: 22, fontWeight: 800, color: '#0f172a', marginBottom: 28, letterSpacing: '-0.5px' }}>Browse by Category</h2>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: 16 }}>
-            {CATS.map(cat => (
-              <button key={cat} style={{ background: '#fff', border: '1px solid #e2e8f0', borderRadius: 14, padding: '20px 12px', fontSize: 13, fontWeight: 600, color: '#334155', cursor: 'pointer', textAlign: 'center' }}>
-                {cat}
-              </button>
+      {/* ── EXPLORE CITIES ────────────────────────────────── */}
+      <section style={{ padding: '80px 24px' }}>
+        <div style={{ maxWidth: 1100, margin: '0 auto' }}>
+          <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', marginBottom: 40 }}>
+            <div>
+              <p style={{ fontSize: 11, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '.15em', color: '#2563eb', margin: '0 0 8px' }}>Browse by City</p>
+              <h2 style={{ fontSize: 30, fontWeight: 900, color: '#0f172a', margin: 0, letterSpacing: '-.03em' }}>Explore Top Cities</h2>
+              <p style={{ fontSize: 15, color: '#64748b', margin: '8px 0 0', fontWeight: 500 }}>Find your next home in India's prime localities</p>
+            </div>
+            <button style={{ fontSize: 13, fontWeight: 700, color: '#2563eb', background: 'none', border: 'none', cursor: 'pointer', padding: '8px 0' }}>View All Cities →</button>
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16 }} className="re-city-grid">
+            {CITIES.map(city => (
+              <div key={city.value}
+                onClick={() => navigate(`/real-estate/properties?city=${city.value}`)}
+                style={{ borderRadius: 16, overflow: 'hidden', aspectRatio: '4/5', position: 'relative', cursor: 'pointer' }}
+                onMouseOver={e => { e.currentTarget.querySelector('img').style.transform = 'scale(1.07)'; }}
+                onMouseOut={e => { e.currentTarget.querySelector('img').style.transform = 'scale(1)'; }}
+              >
+                <img src={city.img} alt={city.label} style={{ width: '100%', height: '100%', objectFit: 'cover', transition: 'transform .6s ease' }} />
+                <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(0,0,0,.75) 0%, transparent 55%)' }} />
+                <div style={{ position: 'absolute', bottom: 20, left: 20, color: '#fff' }}>
+                  <p style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '.1em', opacity: .75, margin: '0 0 4px' }}>Explore</p>
+                  <p style={{ fontSize: 20, fontWeight: 900, margin: 0, letterSpacing: '-.02em' }}>{city.label}</p>
+                </div>
+              </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* ── Featured Listings ─────────────────────────── */}
-      <section style={{ background: '#fff', padding: '56px 32px' }}>
-        <div style={{ maxWidth: 1280, margin: '0 auto' }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 36 }}>
+      {/* ── FEATURED LISTINGS ─────────────────────────────── */}
+      <section style={{ background: '#f8fafc', borderTop: '1px solid #e2e8f0', borderBottom: '1px solid #e2e8f0', padding: '80px 24px' }}>
+        <div style={{ maxWidth: 1100, margin: '0 auto' }}>
+          <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', marginBottom: 40 }}>
             <div>
-              <h2 style={{ fontSize: 26, fontWeight: 800, color: '#0f172a', letterSpacing: '-0.5px' }}>Featured Properties</h2>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 8 }}>
-                <div style={{ width: 8, height: 8, borderRadius: '50%', background: '#22c55e' }} />
-                <span style={{ fontSize: 11, fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.12em' }}>Live Verified Listings</span>
-              </div>
+              <p style={{ fontSize: 11, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '.15em', color: '#2563eb', margin: '0 0 8px' }}>Handpicked</p>
+              <h2 style={{ fontSize: 30, fontWeight: 900, color: '#0f172a', margin: 0, letterSpacing: '-.03em' }}>Featured Properties</h2>
+              <p style={{ fontSize: 15, color: '#64748b', margin: '8px 0 0', fontWeight: 500 }}>Exclusive projects with premium amenities</p>
             </div>
-            <button onClick={() => navigate('/real-estate/properties')}
-              style={{ fontSize: 13, fontWeight: 700, color: '#2563eb', background: 'none', border: 'none', cursor: 'pointer' }}>
-              View All →
-            </button>
+            <button onClick={() => navigate('/real-estate/properties')} style={{ fontSize: 13, fontWeight: 700, color: '#2563eb', background: 'none', border: 'none', cursor: 'pointer', padding: '8px 0' }}>View All →</button>
           </div>
 
           {loading ? (
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 24 }}>
-              {Array.from({ length: 4 }).map((_, i) => (
-                <div key={i} style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: 16, overflow: 'hidden' }}>
-                  <div style={{ aspectRatio: '16/10', background: '#e2e8f0' }} />
-                  <div style={{ padding: 20 }}>
-                    <div style={{ height: 12, background: '#e2e8f0', borderRadius: 6, marginBottom: 10, width: '40%' }} />
-                    <div style={{ height: 18, background: '#e2e8f0', borderRadius: 6, marginBottom: 20 }} />
-                    <div style={{ height: 36, background: '#f1f5f9', borderRadius: 6 }} />
-                  </div>
-                </div>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 16 }} className="re-card-grid">
+              {[1, 2, 3, 4].map(i => (
+                <div key={i} style={{ borderRadius: 18, background: '#e2e8f0', aspectRatio: '4/5', animation: 'pulse 1.4s ease-in-out infinite' }} />
               ))}
             </div>
-          ) : properties.length > 0 ? (
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 24 }}>
-              {properties.map(p => <PropertyCard key={p._id} property={p} />)}
-            </div>
           ) : (
-            <div style={{ textAlign: 'center', padding: '64px 24px', color: '#94a3b8' }}>
-              <div style={{ fontSize: 40, marginBottom: 16 }}>🏠</div>
-              <p style={{ fontSize: 16, fontWeight: 600, color: '#64748b' }}>No listings yet — be the first to post!</p>
-              <button onClick={() => navigate('/real-estate/post')}
-                style={{ marginTop: 20, padding: '12px 28px', background: '#2563eb', color: '#fff', border: 'none', borderRadius: 10, fontWeight: 700, cursor: 'pointer' }}>
-                Post Your Property
-              </button>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 16 }} className="re-card-grid">
+              {properties.map(p => <PropertyCard key={p._id} property={p} />)}
             </div>
           )}
         </div>
       </section>
 
-      {/* ── Trust Section ─────────────────────────────── */}
-      <section style={{ background: '#f8fafc', borderTop: '1px solid #e2e8f0', padding: '56px 32px' }}>
-        <div style={{ maxWidth: 1280, margin: '0 auto', display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 40 }}>
-          {[
-            ['✓', 'Verified Listings', 'Every listing is manually reviewed before going live on our platform.'],
-            ['₹', 'Zero Hidden Brokerage', 'Connect directly with owners and builders. No middlemen, no surprises.'],
-            ['📞', 'Direct Owner Connect', 'Get the owner or builder contact with a single click. No gatekeeping.'],
-          ].map(([icon, title, desc]) => (
-            <div key={title} style={{ background: '#fff', border: '1px solid #e2e8f0', borderRadius: 16, padding: '32px 28px' }}>
-              <div style={{ width: 48, height: 48, borderRadius: 12, background: '#eff6ff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20, marginBottom: 18 }}>{icon}</div>
-              <h3 style={{ fontSize: 16, fontWeight: 800, color: '#0f172a', marginBottom: 10 }}>{title}</h3>
-              <p style={{ fontSize: 14, color: '#64748b', lineHeight: 1.7 }}>{desc}</p>
+      {/* ── WHY CHOOSE US ─────────────────────────────────── */}
+      <section style={{ padding: '80px 24px' }}>
+        <div style={{ maxWidth: 1100, margin: '0 auto', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 80, alignItems: 'center' }} className="re-why-grid">
+          <div>
+            <p style={{ fontSize: 11, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '.15em', color: '#2563eb', margin: '0 0 12px' }}>Our Commitment</p>
+            <h2 style={{ fontSize: 36, fontWeight: 900, color: '#0f172a', margin: '0 0 40px', letterSpacing: '-.03em', lineHeight: 1.15 }}>
+              Redefining trust in<br /><span style={{ color: '#94a3b8' }}>Indian Real Estate.</span>
+            </h2>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 32 }}>
+              {WHY_US.map(item => (
+                <div key={item.title} style={{ display: 'flex', gap: 20 }}>
+                  <div style={{
+                    width: 48, height: 48, borderRadius: 12, flexShrink: 0,
+                    background: '#eff6ff', border: '1.5px solid #dbeafe',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    fontSize: 18, color: '#2563eb', fontWeight: 900,
+                  }}>{item.icon}</div>
+                  <div>
+                    <h4 style={{ fontSize: 16, fontWeight: 800, color: '#0f172a', margin: '0 0 6px' }}>{item.title}</h4>
+                    <p style={{ fontSize: 14, color: '#64748b', margin: 0, lineHeight: 1.6 }}>{item.desc}</p>
+                  </div>
+                </div>
+              ))}
             </div>
-          ))}
+          </div>
+
+          <div style={{ position: 'relative' }}>
+            <div style={{ borderRadius: 24, overflow: 'hidden', boxShadow: '0 24px 64px rgba(37,99,235,.12)', border: '6px solid #fff' }}>
+              <img
+                src="https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=800&q=80"
+                alt="Premium Home"
+                style={{ width: '100%', aspectRatio: '1', objectFit: 'cover', display: 'block' }}
+              />
+            </div>
+            {/* Stats float */}
+            <div style={{
+              position: 'absolute', bottom: -24, left: -24,
+              background: '#fff', border: '1px solid #e2e8f0', borderRadius: 16,
+              padding: '20px 28px', boxShadow: '0 12px 40px rgba(0,0,0,.1)',
+              display: 'flex', gap: 28,
+            }}>
+              <div>
+                <p style={{ fontSize: 24, fontWeight: 900, color: '#0f172a', margin: '0 0 2px', letterSpacing: '-.03em' }}>25k+</p>
+                <p style={{ fontSize: 11, fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '.08em', margin: 0 }}>Properties</p>
+              </div>
+              <div style={{ width: 1, background: '#f1f5f9' }} />
+              <div>
+                <p style={{ fontSize: 24, fontWeight: 900, color: '#0f172a', margin: '0 0 2px', letterSpacing: '-.03em' }}>10k+</p>
+                <p style={{ fontSize: 11, fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '.08em', margin: 0 }}>Verified Owners</p>
+              </div>
+            </div>
+          </div>
         </div>
       </section>
-    </>
+
+      {/* ── CTA BANNER ────────────────────────────────────── */}
+      <section style={{ padding: '0 24px 80px' }}>
+        <div style={{
+          maxWidth: 1100, margin: '0 auto',
+          background: 'linear-gradient(135deg, #1e40af 0%, #2563eb 50%, #3b82f6 100%)',
+          borderRadius: 24, padding: '64px 48px', textAlign: 'center',
+          position: 'relative', overflow: 'hidden',
+          boxShadow: '0 20px 60px rgba(37,99,235,.25)',
+        }}>
+          <div style={{ position: 'absolute', top: -60, right: -60, width: 250, height: 250, borderRadius: '50%', background: 'rgba(255,255,255,.06)', pointerEvents: 'none' }} />
+          <div style={{ position: 'absolute', bottom: -40, left: -40, width: 180, height: 180, borderRadius: '50%', background: 'rgba(255,255,255,.04)', pointerEvents: 'none' }} />
+          <div style={{ position: 'relative', zIndex: 1 }}>
+            <h2 style={{ fontSize: 'clamp(24px, 4vw, 38px)', fontWeight: 900, color: '#fff', margin: '0 0 16px', letterSpacing: '-.03em' }}>
+              Ready to post your property?
+            </h2>
+            <p style={{ color: 'rgba(255,255,255,.8)', fontSize: 16, margin: '0 0 36px', fontWeight: 500 }}>
+              Join 10,000+ owners who have already sold or rented their properties through us — for free.
+            </p>
+            <button onClick={() => navigate('/real-estate/post-property')} style={{
+              background: '#fff', color: '#2563eb', border: 'none',
+              padding: '15px 40px', borderRadius: 12, fontFamily: S.font,
+              fontWeight: 800, fontSize: 15, cursor: 'pointer',
+              boxShadow: '0 8px 30px rgba(0,0,0,.15)', transition: 'all .15s',
+            }}
+              onMouseOver={e => e.currentTarget.style.background = '#eff6ff'}
+              onMouseOut={e => e.currentTarget.style.background = '#fff'}
+            >Post Your Property — Free</button>
+          </div>
+        </div>
+      </section>
+
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+        @keyframes pulse { 0%,100%{opacity:1}50%{opacity:.5} }
+        @media (max-width:1024px){.re-card-grid,.re-city-grid{grid-template-columns:repeat(2,1fr)!important}}
+        @media (max-width:720px){.re-why-grid{grid-template-columns:1fr!important;gap:48px!important}}
+        @media (max-width:500px){.re-card-grid,.re-city-grid{grid-template-columns:1fr!important}}
+      `}</style>
+    </div>
   );
 }

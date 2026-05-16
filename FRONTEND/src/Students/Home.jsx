@@ -68,7 +68,7 @@ const Home = () => {
                   onClick={() => handleJumpToJobDetail()}
                 >
                   {" "}
-                  See More <i class="fa fa-external-link-square"></i>
+                  See More <i className="fa fa-external-link-square"></i>
                 </div>
               </div>
             ))}
@@ -79,28 +79,28 @@ const Home = () => {
           <div className="card__containers">
             <div className="counter__card">
               <div className="content">
-                <i class="fa fa-hourglass" style={{ color: "blue" }}></i>
+                <i className="fa fa-hourglass" style={{ color: "blue" }}></i>
                 <h2>Pending</h2>
               </div>
               <div className="count">{count?.pending}</div>
             </div>
             <div className="counter__card">
               <div className="content">
-                <i class="fa fa-check" style={{ color: "green" }}></i>
+                <i className="fa fa-check" style={{ color: "green" }}></i>
                 <h2>Selected</h2>
               </div>
               <div className="count">{count?.shortListed}</div>
             </div>
             <div className="counter__card">
               <div className="content">
-                <i class="fa fa-times" style={{ color: "red" }}></i>
+                <i className="fa fa-times" style={{ color: "red" }}></i>
                 <h2>Rejected</h2>
               </div>
               <div className="count">{count?.rejected}</div>
             </div>
             <div className="counter__card resume">
               <div className="content">
-                <i class="fa fa-file-pdf-o" style={{ color: "red" }}></i>
+                <i className="fa fa-file-pdf-o" style={{ color: "red" }}></i>
                 <h2>Last Resume Updated</h2>
               </div>
               <div className="count">

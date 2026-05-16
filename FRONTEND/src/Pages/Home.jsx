@@ -6,9 +6,9 @@ export default function Home() {
 
   const handleSearch = (data) => {
     const params = new URLSearchParams();
-    if (data.query) params.set('q', data.query);
-    if (data.category) params.set('category', data.category);
-    // Add other filters as needed
+    Object.entries(data).forEach(([key, value]) => {
+      if (value) params.set(key, value);
+    });
     navigate(`/real-estate/properties?${params.toString()}`);
   };
 

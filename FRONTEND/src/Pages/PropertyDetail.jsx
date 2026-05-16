@@ -112,32 +112,51 @@ export default function PropertyDetail() {
             <h1 className="text-4xl font-black text-slate-900 mb-4">{p.title}</h1>
             <p className="text-xl font-bold text-slate-500 mb-8">{p.location?.locality}, {p.location?.city}</p>
             
-            <div className="grid grid-cols-3 gap-6 bg-slate-50 p-8 rounded-[32px] mb-12">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-6 bg-slate-50 p-8 rounded-[32px] mb-12">
                <div>
                   <p className="text-[10px] font-black text-slate-400 uppercase">Price</p>
-                  <p className="text-2xl font-black text-blue-600">₹{p.pricing?.amount}</p>
+                  <p className="text-2xl font-black text-blue-600">₹{p.price || p.pricing?.amount}</p>
                </div>
                <div>
                   <p className="text-[10px] font-black text-slate-400 uppercase">BHK</p>
-                  <p className="text-2xl font-black text-slate-900">{p.features?.bhk}</p>
+                  <p className="text-2xl font-black text-slate-900">{p.filters?.bhk?.replace(/_BHK/g, '') || p.features?.bhk || '—'}</p>
+               </div>
+               <div>
+                  <p className="text-[10px] font-black text-slate-400 uppercase">Status</p>
+                  <p className="text-xl font-black text-slate-900">{p.filters?.possession?.replace(/_/g, ' ') || '—'}</p>
                </div>
                <div>
                   <p className="text-[10px] font-black text-slate-400 uppercase">Area</p>
-                  <p className="text-2xl font-black text-slate-900">{p.features?.areaSqFt} sqft</p>
+                  <p className="text-xl font-black text-slate-900">{p.areaSqFt || p.features?.areaSqFt || '—'} sqft</p>
                </div>
+            </div>
+
+            <h2 className="text-2xl font-black text-slate-900 mb-4">Specifications</h2>
+            <div className="grid grid-cols-2 gap-4 mb-12">
+              {[
+                ['Furnishing', p.filters?.furnishing?.replace(/_/g, ' ') || '—'],
+                ['Facing', p.filters?.facing || '—'],
+                ['Age', p.filters?.age?.replace(/_/g, ' ') || '—'],
+                ['Posted By', p.filters?.postedBy || '—'],
+              ].map(([l, v]) => (
+                <div key={l} className="flex justify-between p-4 border-b border-slate-100">
+                  <span className="font-bold text-slate-400 text-sm">{l}</span>
+                  <span className="font-black text-slate-900 text-sm">{v}</span>
+                </div>
+              ))}
             </div>
 
             <h2 className="text-2xl font-black text-slate-900 mb-4">Description</h2>
             <p className="text-slate-600 font-medium whitespace-pre-wrap leading-relaxed mb-12">{p.description}</p>
 
-            {p.amenities && p.amenities.length > 0 && (
+            {(p.filters?.amenities?.length > 0 || p.amenities?.length > 0) && (
               <div className="mb-12">
                 <h2 className="text-2xl font-black text-slate-900 mb-6">Amenities</h2>
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                   {p.amenities.map(item => (
+                   {(p.filters?.amenities || p.amenities).map(item => (
                       <div key={item} className="flex items-center gap-3 bg-slate-50 p-4 rounded-2xl">
                          <div className="w-2 h-2 bg-blue-600 rounded-full"></div>
-                         <span className="font-bold text-slate-700">{item}</span>
+                         <span className="font-bold text-slate-700">{item.replace(/_/g, ' ')}</span>
                       </div>
                    ))}
                 </div>

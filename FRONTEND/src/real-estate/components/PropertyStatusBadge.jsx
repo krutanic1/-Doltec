@@ -1,14 +1,25 @@
 import React from 'react';
 
-const colors = {
-  draft: 'bg-gray-100 text-gray-700',
-  pending_review: 'bg-yellow-100 text-yellow-800',
-  approved: 'bg-emerald-100 text-emerald-800',
-  published: 'bg-blue-100 text-blue-800',
-  rejected: 'bg-red-100 text-red-800',
-  archived: 'bg-slate-100 text-slate-800',
+const BADGE_MAP = {
+  PUBLISHED: { label: 'Live',     bg: '#d1fae5', color: '#065f46', dot: '#10b981' },
+  PENDING:   { label: 'Pending',  bg: '#fef3c7', color: '#92400e', dot: '#f59e0b' },
+  DRAFT:     { label: 'Draft',    bg: '#f1f5f9', color: '#475569', dot: '#94a3b8' },
+  REJECTED:  { label: 'Rejected', bg: '#fee2e2', color: '#991b1b', dot: '#ef4444' },
 };
 
 export default function PropertyStatusBadge({ status }) {
-  return <span className={`inline-flex rounded-full px-3 py-1 text-xs font-medium ${colors[status] || colors.draft}`}>{status}</span>;
+  const cfg = BADGE_MAP[status] || BADGE_MAP.DRAFT;
+  return (
+    <span style={{
+      display: 'inline-flex', alignItems: 'center', gap: 5,
+      padding: '3px 10px', borderRadius: 30,
+      background: cfg.bg, color: cfg.color,
+      fontSize: 10, fontWeight: 800,
+      textTransform: 'uppercase', letterSpacing: '.08em',
+      fontFamily: 'Inter,sans-serif',
+    }}>
+      <span style={{ width: 6, height: 6, borderRadius: '50%', background: cfg.dot, display: 'inline-block' }} />
+      {cfg.label}
+    </span>
+  );
 }

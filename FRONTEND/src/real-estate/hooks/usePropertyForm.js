@@ -3,21 +3,29 @@ import { useMemo, useState } from 'react';
 const initialState = {
   title: '',
   description: '',
-  type: 'buy',
-  category: 'apartment',
+  category: 'RESIDENTIAL', // maps to segment/category
+  propertyType: 'APARTMENT',
   price: { amount: '', currency: 'INR' },
   areaSqFt: '',
-  bhk: '',
-  bathrooms: '',
-  furnishing: 'unfurnished',
-  amenities: '',
   locality: '',
   city: '',
   state: '',
-  posterName: '',
-  posterEmail: '',
-  posterPhone: '',
-  status: 'draft',
+  status: 'DRAFT',
+  filters: {
+    intent: 'BUY',
+    segment: 'RESIDENTIAL',
+    propertyType: 'APARTMENT',
+    bhk: '2_BHK',
+    possession: 'READY_TO_MOVE',
+    age: 'NEW',
+    postedBy: 'OWNER',
+    amenities: [],
+    furnishing: 'UNFURNISHED',
+    facing: 'NORTH',
+    parking: '1',
+    availability: 'IMMEDIATE',
+    readyToMove: true,
+  }
 };
 
 export default function usePropertyForm(seed = {}) {
@@ -42,7 +50,21 @@ export default function usePropertyForm(seed = {}) {
         const key = name.split('.')[1];
         return { ...current, price: { ...current.price, [key]: value } };
       }
+      if (name.startsWith('filters.')) {
+        const key = name.split('.')[1];
+        return { ...current, filters: { ...current.filters, [key]: value } };
+      }
       return { ...current, [name]: value };
+    });
+  }
+
+  function toggleAmenity(val) {
+    setValues(prev => {
+      const current = prev.filters.amenities || [];
+      const updated = current.includes(val) 
+        ? current.filter(x => x !== val) 
+        : [...current, val];
+      return { ...prev, filters: { ...prev.filters, amenities: updated } };
     });
   }
 
@@ -52,22 +74,21 @@ export default function usePropertyForm(seed = {}) {
 
   function toFormData() {
     const formData = new FormData();
-    Object.entries(values).forEach(([key, value]) => {
-      if (key === 'price') {
-        formData.append('price[amount]', value.amount);
-        formData.append('price[currency]', value.currency || 'INR');
-        return;
-      }
-      if (Array.isArray(value)) {
-        value.forEach((item) => formData.append(key, item));
-        return;
-      }
-      formData.append(key, value ?? '');
-    });
+    
+    // Package all non-file fields into a JSON string
+    const data = {
+      title: values.title,
+      description: values.description,
+      city: values.city,
+      locality: values.locality,
+      category: values.category,
+      propertyType: values.propertyType,
+      price: values.price.amount,
+      status: values.status,
+      filters: values.filters
+    };
 
-    if (values.amenities) {
-      formData.set('amenities', values.amenities);
-    }
+    formData.append('data', JSON.stringify(data));
 
     images.forEach((image) => formData.append('images', image));
     return formData;
@@ -77,6 +98,7 @@ export default function usePropertyForm(seed = {}) {
     values,
     setValues,
     setField,
+    toggleAmenity,
     images,
     onFiles,
     loading,

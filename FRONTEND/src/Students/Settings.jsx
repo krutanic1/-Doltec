@@ -143,9 +143,9 @@ const Settings = () => {
               className="toggle-icon"
             >
               {!showPassword ? (
-                <i class="fa fa-eye-slash"></i>
+                <i className="fa fa-eye-slash"></i>
               ) : (
-                <i class="fa fa-eye"></i>
+                <i className="fa fa-eye"></i>
               )}
             </span>
           </div>
@@ -162,9 +162,9 @@ const Settings = () => {
               className="toggle-icon"
             >
               {!showConfirmPassword ? (
-                <i class="fa fa-eye-slash"></i>
+                <i className="fa fa-eye-slash"></i>
               ) : (
-                <i class="fa fa-eye"></i>
+                <i className="fa fa-eye"></i>
               )}
             </span>
           </div>

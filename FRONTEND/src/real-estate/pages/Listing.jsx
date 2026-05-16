@@ -1,222 +1,402 @@
-/* ─────────────────────────────────────────────────────
-   src/real-estate/pages/Listing.jsx
-   Filter sidebar + properties grid
-───────────────────────────────────────────────────── */
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { listProperties } from '../services/propertiesApi';
 import PropertyCard from '../components/PropertyCard';
-
-const BUDGETS = [
-  { label: 'Any Budget', min: '', max: '' },
-  { label: 'Under ₹50L',    min: '',         max: '5000000'  },
-  { label: '₹50L – ₹1Cr',  min: '5000000',  max: '10000000' },
-  { label: '₹1Cr – ₹3Cr',  min: '10000000', max: '30000000' },
-  { label: '₹3Cr+',         min: '30000000', max: ''         },
-];
-const BHK_OPTIONS  = ['1', '2', '3', '4', '4+'];
-const PROP_TYPES   = ['apartment', 'villa', 'plot', 'commercial'];
-const FURNISHED    = ['furnished', 'semi-furnished', 'unfurnished'];
-const POSTED_BY    = ['owner', 'agent'];
+import MarketIntelligenceSidebar from '../components/MarketIntelligenceSidebar';
+import CompareBar from '../components/CompareBar';
+import EmptyState from '../components/EmptyState';
+import {
+  INTENT_OPTIONS, SEGMENT_OPTIONS, PROPERTY_TYPE_OPTIONS,
+  BHK_OPTIONS, BUDGET_SLABS, POSSESSION_OPTIONS,
+  AMENITIES_OPTIONS, ALL_PROPERTY_TYPES,
+} from '../constants/filterOptions';
 
 const S = {
-  sidebar: { width: 260, flexShrink: 0, background: '#fff', border: '1px solid #e2e8f0', borderRadius: 16, padding: '24px 20px', alignSelf: 'flex-start', position: 'sticky', top: 80 },
-  sectionTitle: { fontSize: 11, fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.15em', marginBottom: 14, marginTop: 24 },
+  font: 'Inter,sans-serif',
+  label: { fontSize: 10, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '.1em', color: '#94a3b8', display: 'block', marginBottom: 8 },
   chip: (active) => ({
-    padding: '6px 14px', borderRadius: 999, border: '1px solid',
-    borderColor: active ? '#2563eb' : '#e2e8f0',
-    background: active ? '#eff6ff' : '#fff',
-    color: active ? '#2563eb' : '#475569',
-    fontSize: 13, fontWeight: 600, cursor: 'pointer',
+    display: 'inline-flex', alignItems: 'center', gap: 6,
+    padding: '7px 14px', borderRadius: 30,
+    border: `1.5px solid ${active ? '#2563eb' : '#e2e8f0'}`,
+    background: active ? '#2563eb' : '#fff',
+    color: active ? '#fff' : '#475569',
+    fontSize: 12, fontWeight: 700, cursor: 'pointer',
+    whiteSpace: 'nowrap', fontFamily: 'Inter,sans-serif',
+    transition: 'all .15s',
   }),
-  checkRow: { display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12, cursor: 'pointer', fontSize: 14, color: '#334155', fontWeight: 500 },
+  sideLabel: { fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '.1em', color: '#94a3b8', marginBottom: 10, display: 'block' },
 };
 
-function toggle(arr, val) {
-  return arr.includes(val) ? arr.filter(x => x !== val) : [...arr, val];
+function FilterSection({ title, children }) {
+  return (
+    <div style={{ paddingBottom: 20, marginBottom: 20, borderBottom: '1px solid #f1f5f9' }}>
+      <p style={S.sideLabel}>{title}</p>
+      {children}
+    </div>
+  );
 }
 
 export default function Listing() {
   const [searchParams, setSearchParams] = useSearchParams();
-  const [properties, setProperties] = useState([]);
-  const [loading, setLoading]   = useState(true);
-  const [error, setError]       = useState('');
-  const [page, setPage]         = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
-  const [count, setCount]       = useState(0);
+  const [properties, setProperties]   = useState([]);
+  const [loading, setLoading]         = useState(true);
+  const [error, setError]             = useState('');
+  const [count, setCount]             = useState(0);
+  const [mobileFilterOpen, setMobileFilterOpen] = useState(false);
+  const [selectedCompare, setSelectedCompare]   = useState([]);
 
-  // Filters state
-  const [type,       setType]       = useState(searchParams.get('type') || 'buy');
-  const [budget,     setBudget]     = useState(0);
-  const [bhk,        setBhk]        = useState([]);
-  const [propTypes,  setPropTypes]  = useState([]);
-  const [furnishing, setFurnishing] = useState([]);
-  const [postedBy,   setPostedBy]   = useState([]);
-  const [sort,       setSort]       = useState('newest');
+  const [filters, setFilters] = useState({
+    intent: searchParams.get('intent') || 'BUY',
+    segment: searchParams.get('segment') || 'RESIDENTIAL',
+    propertyType: searchParams.get('propertyType') || '',
+    bhk: searchParams.get('bhk') || '',
+    budget: searchParams.get('budget') || '',
+    possession: searchParams.get('possession') || '',
+    postedBy: searchParams.get('postedBy') || '',
+    furnishing: searchParams.get('furnishing') || '',
+    amenities: searchParams.get('amenities')?.split(',').filter(Boolean) || [],
+  });
+
   const city = searchParams.get('city') || '';
-  const q    = searchParams.get('q')    || '';
-  const cityLabel = city ? city.charAt(0).toUpperCase() + city.slice(1) : 'India';
+  const q    = searchParams.get('q') || '';
+  const sort = searchParams.get('sort') || 'newest';
 
-  const fetchListings = async () => {
+  const updateFilter = (key, value) => {
+    const next = { ...filters, [key]: value };
+    setFilters(next);
+    const p = new URLSearchParams(searchParams);
+    if (value && (!Array.isArray(value) || value.length > 0)) {
+      p.set(key, Array.isArray(value) ? value.join(',') : value);
+    } else { p.delete(key); }
+    setSearchParams(p);
+  };
+
+  const toggleAmenity = (val) => {
+    const curr = filters.amenities;
+    updateFilter('amenities', curr.includes(val) ? curr.filter(x => x !== val) : [...curr, val]);
+  };
+
+  const clearAll = () => {
+    const reset = { intent: 'BUY', segment: 'RESIDENTIAL', propertyType: '', bhk: '', budget: '', possession: '', postedBy: '', furnishing: '', amenities: [] };
+    setFilters(reset);
+    setSearchParams({ intent: 'BUY', segment: 'RESIDENTIAL' });
+  };
+
+  const fetchListings = useCallback(async () => {
     setLoading(true); setError('');
     try {
-      const params = { page, limit: 12, status: 'published' };
-      if (city)    params.city   = city;
-      if (q)       params.search = q;
-      if (type && type !== 'all') params.type = type;
-      if (propTypes.length === 1) params.category = propTypes[0];
-      if (furnishing.length === 1) params.furnishing = furnishing[0];
-      if (budget > 0) {
-        const b = BUDGETS[budget];
-        if (b.min) params.minPrice = b.min;
-        if (b.max) params.maxPrice = b.max;
+      const params = { ...filters, sort };
+      if (city) params.city = city;
+      if (q)    params.q    = q;
+      if (filters.budget) {
+        const slab = BUDGET_SLABS[filters.intent]?.find(s => s.label === filters.budget);
+        if (slab) { params.minPrice = slab.min; params.maxPrice = slab.max; }
       }
-      if (bhk.length) params.bhk = bhk.filter(b => b !== '4+').join(',') || undefined;
-      if (sort === 'price_asc')  params.sort = 'price_asc';
-      if (sort === 'price_desc') params.sort = 'price_desc';
-
       const res = await listProperties(params);
       const items = Array.isArray(res) ? res : res?.data || [];
       setProperties(items);
-      setTotalPages(res?.totalPages || 1);
       setCount(res?.totalResults || res?.count || items.length);
-    } catch {
-      setError('Could not load listings. Please retry.');
-      setProperties([]);
-    } finally { setLoading(false); }
+    } catch { setError('Failed to load properties. Please try again.'); setProperties([]); }
+    finally { setLoading(false); }
+  }, [filters, city, q, sort]);
+
+  useEffect(() => { fetchListings(); }, [fetchListings]);
+
+  const handleCompare = (p) => {
+    if (selectedCompare.find(x => x._id === p._id)) setSelectedCompare(prev => prev.filter(x => x._id !== p._id));
+    else if (selectedCompare.length < 3) setSelectedCompare(prev => [...prev, p]);
   };
 
-  useEffect(() => { fetchListings(); }, [page, searchParams, type, budget, bhk, propTypes, furnishing, postedBy, sort]); // eslint-disable-line
+  const activeCount = Object.values(filters).filter(v => v && (Array.isArray(v) ? v.length > 0 : v !== 'BUY' && v !== 'RESIDENTIAL')).length;
 
-  return (
-    <div style={{ background: '#f8fafc', minHeight: '100vh' }}>
-      {/* ── Filter Bar (sticky) ───────────────────────── */}
-      <div style={{ background: '#fff', borderBottom: '1px solid #e2e8f0', position: 'sticky', top: 64, zIndex: 40 }}>
-        <div style={{ maxWidth: 1280, margin: '0 auto', padding: '0 32px', display: 'flex', alignItems: 'center', gap: 12, height: 56, overflowX: 'auto' }}>
-          {['buy','rent'].map(t => (
-            <button key={t} onClick={() => { setType(t); setPage(1); }} style={S.chip(type === t)}>
-              {t === 'buy' ? 'Buy' : 'Rent'}
-            </button>
-          ))}
-          <div style={{ width: 1, height: 24, background: '#e2e8f0', margin: '0 4px' }} />
-          <select value={budget} onChange={e => { setBudget(Number(e.target.value)); setPage(1); }}
-            style={{ border: '1px solid #e2e8f0', borderRadius: 999, padding: '6px 14px', fontSize: 13, fontWeight: 600, color: '#475569', background: '#fff', cursor: 'pointer' }}>
-            {BUDGETS.map((b, i) => <option key={b.label} value={i}>{b.label}</option>)}
-          </select>
-          <select value={sort} onChange={e => setSort(e.target.value)}
-            style={{ border: '1px solid #e2e8f0', borderRadius: 999, padding: '6px 14px', fontSize: 13, fontWeight: 600, color: '#475569', background: '#fff', cursor: 'pointer' }}>
-            <option value="newest">Newest First</option>
-            <option value="price_asc">Price: Low to High</option>
-            <option value="price_desc">Price: High to Low</option>
-          </select>
-          <button onClick={() => { setBudget(0); setBhk([]); setPropTypes([]); setFurnishing([]); setPostedBy([]); setPage(1); }}
-            style={{ fontSize: 12, color: '#94a3b8', background: 'none', border: 'none', cursor: 'pointer', fontWeight: 600, marginLeft: 'auto' }}>
-            Reset ✕
-          </button>
-        </div>
+  const FilterSidebar = () => (
+    <aside style={{ fontFamily: S.font }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 24, paddingBottom: 16, borderBottom: '1px solid #e2e8f0' }}>
+        <span style={{ fontSize: 13, fontWeight: 800, color: '#0f172a', textTransform: 'uppercase', letterSpacing: '.08em' }}>Filters</span>
+        <button onClick={clearAll} style={{ fontSize: 11, fontWeight: 700, color: '#2563eb', background: 'none', border: 'none', cursor: 'pointer', padding: '4px 8px', borderRadius: 6 }}>Clear All</button>
       </div>
 
-      {/* ── Main Content ──────────────────────────────── */}
-      <div style={{ maxWidth: 1280, margin: '0 auto', padding: '32px 32px', display: 'flex', gap: 28, alignItems: 'flex-start' }}>
+      {/* Intent */}
+      <FilterSection title="Looking For">
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+          {INTENT_OPTIONS.map(o => (
+            <button key={o.value} onClick={() => updateFilter('intent', o.value)} style={S.chip(filters.intent === o.value)}>{o.label}</button>
+          ))}
+        </div>
+      </FilterSection>
 
-        {/* Sidebar */}
-        <aside style={S.sidebar}>
-          <p style={{ fontSize: 15, fontWeight: 800, color: '#0f172a', marginBottom: 4 }}>Filters</p>
+      {/* Segment */}
+      <FilterSection title="Segment">
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+          {SEGMENT_OPTIONS.map(o => (
+            <button key={o.value} onClick={() => updateFilter('segment', o.value)} style={S.chip(filters.segment === o.value)}>{o.label}</button>
+          ))}
+        </div>
+      </FilterSection>
 
-          <p style={S.sectionTitle}>BHK</p>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
-            {BHK_OPTIONS.map(b => (
-              <button key={b} onClick={() => setBhk(toggle(bhk, b))} style={S.chip(bhk.includes(b))}>{b} BHK</button>
+      {/* Property Type */}
+      <FilterSection title="Property Type">
+        <select
+          value={filters.propertyType}
+          onChange={e => updateFilter('propertyType', e.target.value)}
+          style={{
+            width: '100%', background: '#f8fafc', border: '1.5px solid #e2e8f0',
+            borderRadius: 10, padding: '10px 14px', fontFamily: S.font,
+            fontSize: 13, fontWeight: 600, color: '#334155', outline: 'none', cursor: 'pointer',
+          }}
+        >
+          <option value="">Any Type</option>
+          {(PROPERTY_TYPE_OPTIONS[filters.segment] || ALL_PROPERTY_TYPES).map(o => (
+            <option key={o.value} value={o.value}>{o.label}</option>
+          ))}
+        </select>
+      </FilterSection>
+
+      {/* Budget */}
+      <FilterSection title="Budget Range">
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+          {(BUDGET_SLABS[filters.intent] || []).map(slab => (
+            <button key={slab.label} onClick={() => updateFilter('budget', filters.budget === slab.label ? '' : slab.label)}
+              style={{
+                textAlign: 'left', padding: '10px 14px', borderRadius: 10,
+                border: `1.5px solid ${filters.budget === slab.label ? '#2563eb' : '#e2e8f0'}`,
+                background: filters.budget === slab.label ? '#eff6ff' : '#fff',
+                color: filters.budget === slab.label ? '#2563eb' : '#475569',
+                fontSize: 12, fontWeight: 700, cursor: 'pointer', fontFamily: S.font, transition: 'all .15s',
+              }}
+            >{slab.label}</button>
+          ))}
+        </div>
+      </FilterSection>
+
+      {/* BHK */}
+      <FilterSection title="Configuration">
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2,1fr)', gap: 6 }}>
+          {BHK_OPTIONS.map(o => (
+            <button key={o.value} onClick={() => updateFilter('bhk', filters.bhk === o.value ? '' : o.value)}
+              style={{
+                padding: '9px 8px', borderRadius: 9, border: `1.5px solid ${filters.bhk === o.value ? '#0f172a' : '#e2e8f0'}`,
+                background: filters.bhk === o.value ? '#0f172a' : '#fff',
+                color: filters.bhk === o.value ? '#fff' : '#475569',
+                fontSize: 11, fontWeight: 800, cursor: 'pointer', fontFamily: S.font, transition: 'all .15s',
+              }}
+            >{o.label}</button>
+          ))}
+        </div>
+      </FilterSection>
+
+      {/* Possession */}
+      <FilterSection title="Possession">
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+          {POSSESSION_OPTIONS.map(o => (
+            <label key={o.value} style={{ display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer' }}
+              onClick={() => updateFilter('possession', o.value)}>
+              <div style={{
+                width: 18, height: 18, borderRadius: '50%', flexShrink: 0,
+                border: `2px solid ${filters.possession === o.value ? '#2563eb' : '#cbd5e1'}`,
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+              }}>
+                {filters.possession === o.value && <div style={{ width: 8, height: 8, borderRadius: '50%', background: '#2563eb' }} />}
+              </div>
+              <span style={{ fontSize: 13, fontWeight: 600, color: '#334155' }}>{o.label}</span>
+            </label>
+          ))}
+        </div>
+      </FilterSection>
+
+      {/* Amenities */}
+      <FilterSection title="Amenities">
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+          {AMENITIES_OPTIONS.slice(0, 8).map(o => (
+            <label key={o.value} style={{ display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer' }}
+              onClick={() => toggleAmenity(o.value)}>
+              <div style={{
+                width: 18, height: 18, borderRadius: 5, flexShrink: 0,
+                border: `2px solid ${filters.amenities.includes(o.value) ? '#2563eb' : '#cbd5e1'}`,
+                background: filters.amenities.includes(o.value) ? '#2563eb' : 'transparent',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+              }}>
+                {filters.amenities.includes(o.value) && <svg width="10" height="10" fill="none" stroke="white" viewBox="0 0 24 24"><path strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7"/></svg>}
+              </div>
+              <span style={{ fontSize: 13, fontWeight: 600, color: '#334155' }}>{o.label}</span>
+            </label>
+          ))}
+        </div>
+      </FilterSection>
+    </aside>
+  );
+
+  return (
+    <div style={{ background: '#f8fafc', minHeight: '100vh', fontFamily: S.font }}>
+
+      {/* ── Control Bar ──────────────────────────────────── */}
+      <div style={{
+        position: 'sticky', top: 68, zIndex: 100,
+        background: '#fff', borderBottom: '1px solid #e2e8f0',
+        boxShadow: '0 2px 12px rgba(0,0,0,.05)',
+      }}>
+        <div style={{ maxWidth: 1380, margin: '0 auto', padding: '14px 24px', display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
+          {/* Search */}
+          <div style={{ flex: 1, minWidth: 240, display: 'flex', alignItems: 'center', gap: 8, background: '#f8fafc', border: '1.5px solid #e2e8f0', borderRadius: 10, padding: '0 14px' }}>
+            <svg width="15" height="15" fill="none" stroke="#94a3b8" viewBox="0 0 24 24" style={{ flexShrink: 0 }}>
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+            </svg>
+            <input type="text" placeholder={`Search in ${city}…`}
+              defaultValue={q}
+              onChange={e => { const p = new URLSearchParams(searchParams); if (e.target.value) p.set('q', e.target.value); else p.delete('q'); setSearchParams(p); }}
+              style={{ border: 'none', background: 'transparent', outline: 'none', fontFamily: S.font, fontSize: 13, fontWeight: 500, color: '#334155', padding: '11px 0', flex: 1 }}
+            />
+          </div>
+
+          {/* Intent chips */}
+          <div style={{ display: 'flex', gap: 6, overflowX: 'auto' }} className="re-no-scrollbar">
+            {INTENT_OPTIONS.map(o => (
+              <button key={o.value} onClick={() => updateFilter('intent', o.value)} style={S.chip(filters.intent === o.value)}>{o.label}</button>
             ))}
           </div>
 
-          <p style={S.sectionTitle}>Property Type</p>
-          {PROP_TYPES.map(t => (
-            <label key={t} style={S.checkRow}>
-              <input type="checkbox" checked={propTypes.includes(t)} onChange={() => setPropTypes(toggle(propTypes, t))} />
-              {t.charAt(0).toUpperCase() + t.slice(1)}
-            </label>
-          ))}
+          <div style={{ width: 1, height: 24, background: '#e2e8f0', flexShrink: 0 }} />
 
-          <p style={S.sectionTitle}>Furnishing</p>
-          {FURNISHED.map(f => (
-            <label key={f} style={S.checkRow}>
-              <input type="checkbox" checked={furnishing.includes(f)} onChange={() => setFurnishing(toggle(furnishing, f))} />
-              {f.charAt(0).toUpperCase() + f.slice(1)}
-            </label>
-          ))}
+          {/* Mobile filter toggle */}
+          <button onClick={() => setMobileFilterOpen(!mobileFilterOpen)} style={{
+            display: 'flex', alignItems: 'center', gap: 6, padding: '9px 16px',
+            borderRadius: 10, border: `1.5px solid ${activeCount > 0 ? '#2563eb' : '#e2e8f0'}`,
+            background: activeCount > 0 ? '#eff6ff' : '#fff',
+            color: activeCount > 0 ? '#2563eb' : '#475569',
+            fontSize: 12, fontWeight: 700, cursor: 'pointer', fontFamily: S.font,
+          }}>
+            <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"/>
+            </svg>
+            Filters {activeCount > 0 && `(${activeCount})`}
+          </button>
 
-          <p style={S.sectionTitle}>Posted By</p>
-          {POSTED_BY.map(pb => (
-            <label key={pb} style={S.checkRow}>
-              <input type="checkbox" checked={postedBy.includes(pb)} onChange={() => setPostedBy(toggle(postedBy, pb))} />
-              {pb.charAt(0).toUpperCase() + pb.slice(1)}
-            </label>
-          ))}
-        </aside>
+          {/* Sort */}
+          <select value={sort}
+            onChange={e => { const p = new URLSearchParams(searchParams); p.set('sort', e.target.value); setSearchParams(p); }}
+            style={{
+              border: '1.5px solid #e2e8f0', borderRadius: 10, padding: '9px 14px',
+              fontFamily: S.font, fontSize: 12, fontWeight: 700, color: '#334155',
+              background: '#fff', outline: 'none', cursor: 'pointer',
+            }}>
+            <option value="newest">Latest First</option>
+            <option value="price_asc">Price: Low to High</option>
+            <option value="price_desc">Price: High to Low</option>
+          </select>
 
-        {/* Grid */}
-        <div style={{ flex: 1, minWidth: 0 }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 24 }}>
+          {activeCount > 0 && (
+            <button onClick={clearAll} style={{ fontSize: 12, fontWeight: 700, color: '#64748b', background: 'none', border: 'none', cursor: 'pointer', padding: '8px 4px' }}>Reset</button>
+          )}
+        </div>
+      </div>
+
+      {/* ── Main 3-Column Grid ───────────────────────────── */}
+      <div style={{ maxWidth: 1380, margin: '0 auto', padding: '32px 24px 80px', display: 'grid', gridTemplateColumns: '260px 1fr 280px', gap: 28, alignItems: 'start' }} className="re-listing-grid">
+
+        {/* Left: Filter Rail */}
+        <div style={{ background: '#fff', borderRadius: 16, border: '1px solid #e2e8f0', padding: '24px 20px', position: 'sticky', top: 130 }}>
+          <FilterSidebar />
+        </div>
+
+        {/* Center: Results */}
+        <main>
+          {/* Results header */}
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 24, flexWrap: 'wrap', gap: 12 }}>
             <div>
-              <h1 style={{ fontSize: 22, fontWeight: 800, color: '#0f172a' }}>
-                {loading ? 'Searching...' : `${count > 0 ? count : 'No'} Properties in ${cityLabel}`}
+              <h1 style={{ fontSize: 22, fontWeight: 900, color: '#0f172a', margin: '0 0 6px', letterSpacing: '-.02em' }}>
+                {loading ? 'Searching…' : `${count.toLocaleString()} Properties in ${city || 'All India'}`}
               </h1>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 6 }}>
-                <div style={{ width: 8, height: 8, borderRadius: '50%', background: '#22c55e' }} />
-                <span style={{ fontSize: 11, fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Live Verified</span>
+              <div style={{ display: 'flex', gap: 8 }}>
+                <span style={{ fontSize: 10, fontWeight: 700, color: '#10b981', background: '#d1fae5', padding: '3px 10px', borderRadius: 30, display: 'inline-flex', alignItems: 'center', gap: 5 }}>
+                  <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#10b981', display: 'inline-block' }} />99% Trust Accuracy
+                </span>
+                <span style={{ fontSize: 10, fontWeight: 700, color: '#2563eb', background: '#dbeafe', padding: '3px 10px', borderRadius: 30 }}>Updated 2 mins ago</span>
               </div>
             </div>
           </div>
 
-          {error && (
-            <div style={{ background: '#fef2f2', border: '1px solid #fecaca', borderRadius: 14, padding: '24px 32px', textAlign: 'center', marginBottom: 24 }}>
-              <p style={{ color: '#991b1b', fontWeight: 600, marginBottom: 12 }}>{error}</p>
-              <button onClick={fetchListings} style={{ padding: '8px 20px', background: '#dc2626', color: '#fff', border: 'none', borderRadius: 8, fontWeight: 700, cursor: 'pointer' }}>Retry</button>
+          {/* Active filter chips */}
+          {activeCount > 0 && (
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: 20 }}>
+              {Object.entries(filters).map(([key, val]) => {
+                if (!val || val === 'BUY' || val === 'RESIDENTIAL' || (Array.isArray(val) && val.length === 0)) return null;
+                const labels = Array.isArray(val) ? val : [val];
+                return labels.map(l => (
+                  <button key={l} onClick={() => Array.isArray(val) ? toggleAmenity(l) : updateFilter(key, '')} style={{
+                    display: 'inline-flex', alignItems: 'center', gap: 6,
+                    padding: '5px 12px', borderRadius: 30,
+                    background: '#0f172a', color: '#fff',
+                    border: 'none', fontSize: 11, fontWeight: 700, cursor: 'pointer', fontFamily: S.font,
+                  }}>
+                    {l.replace(/_/g, ' ')}
+                    <svg width="10" height="10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M6 18L18 6M6 6l12 12"/></svg>
+                  </button>
+                ));
+              })}
             </div>
           )}
 
-          {loading ? (
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: 24 }}>
-              {Array.from({ length: 6 }).map((_, i) => (
-                <div key={i} style={{ background: '#fff', border: '1px solid #e2e8f0', borderRadius: 16, overflow: 'hidden' }}>
-                  <div style={{ aspectRatio: '16/10', background: '#e2e8f0' }} />
-                  <div style={{ padding: 20 }}>
-                    <div style={{ height: 12, background: '#e2e8f0', borderRadius: 6, marginBottom: 10, width: '40%' }} />
-                    <div style={{ height: 18, background: '#e2e8f0', borderRadius: 6, marginBottom: 20 }} />
-                    <div style={{ height: 36, background: '#f1f5f9', borderRadius: 6 }} />
-                  </div>
-                </div>
+          {/* Grid */}
+          {error ? (
+            <div style={{ background: '#fff5f5', border: '1px solid #fecaca', borderRadius: 16, padding: '40px', textAlign: 'center' }}>
+              <p style={{ color: '#991b1b', fontWeight: 700, marginBottom: 16 }}>{error}</p>
+              <button onClick={fetchListings} style={{ background: '#dc2626', color: '#fff', border: 'none', padding: '10px 24px', borderRadius: 10, fontWeight: 700, cursor: 'pointer', fontFamily: S.font }}>Retry</button>
+            </div>
+          ) : loading ? (
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2,1fr)', gap: 16 }}>
+              {[1,2,3,4,5,6].map(i => (
+                <div key={i} style={{ background: '#e2e8f0', borderRadius: 18, height: 360, animation: 'shimmer 1.4s infinite' }} />
               ))}
             </div>
           ) : properties.length > 0 ? (
-            <>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: 24 }}>
-                {properties.map(p => <PropertyCard key={p._id} property={p} />)}
-              </div>
-              {totalPages > 1 && (
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 12, marginTop: 48 }}>
-                  <button disabled={page <= 1} onClick={() => setPage(p => p - 1)}
-                    style={{ width: 42, height: 42, border: '1px solid #e2e8f0', borderRadius: 10, background: '#fff', cursor: 'pointer', fontSize: 20, opacity: page <= 1 ? 0.3 : 1 }}>‹</button>
-                  <span style={{ fontSize: 14, fontWeight: 700, color: '#0f172a' }}>Page {page} / {totalPages}</span>
-                  <button disabled={page >= totalPages} onClick={() => setPage(p => p + 1)}
-                    style={{ width: 42, height: 42, border: '1px solid #e2e8f0', borderRadius: 10, background: '#fff', cursor: 'pointer', fontSize: 20, opacity: page >= totalPages ? 0.3 : 1 }}>›</button>
-                </div>
-              )}
-            </>
-          ) : !error && (
-            <div style={{ background: '#fff', border: '1px solid #e2e8f0', borderRadius: 20, padding: '64px 40px', textAlign: 'center' }}>
-              <div style={{ fontSize: 40, marginBottom: 16 }}>🔍</div>
-              <h3 style={{ fontSize: 20, fontWeight: 800, color: '#0f172a', marginBottom: 10 }}>No properties found in {cityLabel}</h3>
-              <p style={{ color: '#64748b', lineHeight: 1.7, marginBottom: 28 }}>Try adjusting your filters or browsing all of India.</p>
-              <button onClick={() => { setSearchParams({}); setBudget(0); setBhk([]); setPropTypes([]); }}
-                style={{ padding: '12px 28px', background: '#2563eb', color: '#fff', border: 'none', borderRadius: 10, fontWeight: 700, cursor: 'pointer' }}>
-                Browse All India
-              </button>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2,1fr)', gap: 16 }} className="re-props-grid">
+              {properties.map(p => (
+                <PropertyCard key={p._id} property={p} onCompare={handleCompare} isComparing={selectedCompare.some(x => x._id === p._id)} />
+              ))}
             </div>
+          ) : (
+            <EmptyState clearFilters={clearAll} />
           )}
-        </div>
+        </main>
+
+        {/* Right: Market Sidebar */}
+        <MarketIntelligenceSidebar city={city} />
       </div>
+
+      <CompareBar
+        selectedProperties={selectedCompare}
+        onRemove={id => setSelectedCompare(prev => prev.filter(x => x._id !== id))}
+        onClear={() => setSelectedCompare([])}
+        onCompare={() => console.log('Comparing:', selectedCompare)}
+      />
+
+      {/* Mobile Filter Sheet */}
+      {mobileFilterOpen && (
+        <>
+          <div onClick={() => setMobileFilterOpen(false)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,.5)', zIndex: 300 }} />
+          <div style={{
+            position: 'fixed', bottom: 0, left: 0, right: 0,
+            background: '#fff', borderRadius: '20px 20px 0 0', zIndex: 301,
+            maxHeight: '85vh', overflowY: 'auto', padding: '24px 20px 40px',
+          }}>
+            <div style={{ width: 40, height: 4, borderRadius: 2, background: '#e2e8f0', margin: '0 auto 20px' }} />
+            <FilterSidebar />
+            <button onClick={() => setMobileFilterOpen(false)} style={{
+              width: '100%', padding: '14px', background: '#2563eb', color: '#fff',
+              border: 'none', borderRadius: 12, fontWeight: 700, fontSize: 14, cursor: 'pointer', fontFamily: S.font,
+            }}>Apply Filters</button>
+          </div>
+        </>
+      )}
+
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+        @keyframes shimmer { 0%,100%{opacity:.7}50%{opacity:.4} }
+        .re-no-scrollbar{scrollbar-width:none}.re-no-scrollbar::-webkit-scrollbar{display:none}
+        @media(max-width:1100px){.re-listing-grid{grid-template-columns:220px 1fr !important}}
+        @media(max-width:900px){.re-listing-grid{grid-template-columns:1fr !important} .re-listing-grid>:first-child{display:none} .re-listing-grid>:last-child{display:none}}
+        @media(max-width:640px){.re-props-grid{grid-template-columns:1fr !important}}
+      `}</style>
     </div>
   );
 }

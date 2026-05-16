@@ -1,27 +1,49 @@
-/* ─────────────────────────────────────────────────────
-   src/real-estate/pages/PropertyDetail.jsx
-───────────────────────────────────────────────────── */
 import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { getProperty } from '../services/propertiesApi';
 
 const WA = '919324504318';
 
-function fmt(n) {
+const fmt = (n) => {
   const v = Number(n || 0);
   if (!v) return 'Price on Request';
   if (v >= 10000000) return `₹${(v / 10000000).toFixed(2)} Cr`;
   if (v >= 100000)   return `₹${(v / 100000).toFixed(2)} L`;
   return `₹${v.toLocaleString('en-IN')}`;
+};
+
+const S = { font: 'Inter,sans-serif' };
+
+const CheckIcon = () => (
+  <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M5 13l4 4L19 7"/>
+  </svg>
+);
+
+function LoadingSkeleton() {
+  const box = (h, w = '100%', r = 10) => (
+    <div style={{ height: h, width: w, borderRadius: r, background: '#e2e8f0', animation: 'shimmer 1.4s infinite' }} />
+  );
+  return (
+    <div style={{ maxWidth: 1240, margin: '0 auto', padding: '100px 24px 40px', fontFamily: S.font }}>
+      {box(480, '100%', 18)}
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 340px', gap: 40, marginTop: 32 }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+          {box(32, '60%')} {box(20, '40%')} {box(120)} {box(200)}
+        </div>
+        <div>{box(400)}</div>
+      </div>
+    </div>
+  );
 }
 
 export default function PropertyDetail() {
   const { slug } = useParams();
   const [property, setProperty] = useState(null);
-  const [loading,  setLoading]  = useState(true);
-  const [error,    setError]    = useState('');
-  const [mainImg,  setMainImg]  = useState(0);
-  const [form, setForm] = useState({ name: '', phone: '', message: '' });
+  const [loading, setLoading]   = useState(true);
+  const [error, setError]       = useState('');
+  const [mainImg, setMainImg]   = useState(0);
+  const [form, setForm]         = useState({ name: '', phone: '' });
 
   useEffect(() => {
     setLoading(true);
@@ -30,161 +52,231 @@ export default function PropertyDetail() {
       .catch(e  => { setError(e?.response?.data?.message || e.message); setLoading(false); });
   }, [slug]);
 
-  if (loading) return (
-    <div style={{ maxWidth: 1280, margin: '0 auto', padding: '48px 32px' }}>
-      <div style={{ display: 'grid', gridTemplateColumns: '3fr 2fr', gap: 16, marginBottom: 32 }}>
-        <div style={{ aspectRatio: '16/9', background: '#e2e8f0', borderRadius: 16 }} />
-        <div style={{ display: 'grid', gridTemplateRows: '1fr 1fr 1fr', gap: 8 }}>
-          {[1,2,3].map(i => <div key={i} style={{ background: '#e2e8f0', borderRadius: 10 }} />)}
-        </div>
-      </div>
-    </div>
-  );
+  if (loading) return <LoadingSkeleton />;
 
   if (error) return (
-    <div style={{ maxWidth: 600, margin: '80px auto', padding: '40px', background: '#fef2f2', border: '1px solid #fecaca', borderRadius: 16, textAlign: 'center' }}>
-      <p style={{ color: '#991b1b', fontWeight: 600 }}>{error}</p>
-      <Link to="/real-estate/properties" style={{ display: 'inline-block', marginTop: 16, color: '#2563eb', fontWeight: 700 }}>← Back to Listings</Link>
+    <div style={{ maxWidth: 560, margin: '120px auto', padding: '0 24px', textAlign: 'center', fontFamily: S.font }}>
+      <div style={{ width: 72, height: 72, borderRadius: '50%', background: '#fee2e2', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 20px', color: '#dc2626' }}>
+        <svg width="32" height="32" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01M3.34 16c-.77 1.333.192 3 1.732 3h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16z"/>
+        </svg>
+      </div>
+      <h2 style={{ fontSize: 22, fontWeight: 900, color: '#0f172a', margin: '0 0 10px' }}>Property not found</h2>
+      <p style={{ color: '#64748b', margin: '0 0 28px' }}>{error}</p>
+      <Link to="/real-estate/properties" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: '#2563eb', color: '#fff', padding: '12px 28px', borderRadius: 12, fontWeight: 700, textDecoration: 'none' }}>
+        ← Back to Listings
+      </Link>
     </div>
   );
 
   if (!property) return null;
 
-  const images   = property.images || [];
-  const title    = property.title  || 'Property';
-  const location = [property.locality, property.city, property.state].filter(Boolean).join(', ') || 'India';
+  const images   = property.media || property.images || [];
+  const title    = property.title || 'Exclusive Property';
+  const location = [property.locality, property.city].filter(Boolean).join(', ') || 'Prime Location';
   const price    = property.price?.amount ?? 0;
-  const pricePerSqft = price && property.areaSqFt ? Math.round(price / property.areaSqFt) : null;
+  const ppsf     = price && property.areaSqFt ? Math.round(price / property.areaSqFt) : null;
+  const amenities = property.filters?.amenities || ['Power Backup', 'Gym', 'Swimming Pool', 'Security', 'Club House', 'Parking'];
 
-  const handleEnquiry = (e) => {
-    e.preventDefault();
-    const wa = `https://wa.me/${WA}?text=${encodeURIComponent(`Hi, I'm interested in: ${title}\nLocation: ${location}\nPrice: ${fmt(price)}\n\nName: ${form.name}\nPhone: ${form.phone}\n${form.message ? `Message: ${form.message}` : ''}`)}`;
-    window.open(wa, '_blank');
+  const contactWA = () => {
+    window.open(`https://wa.me/${WA}?text=${encodeURIComponent(`Hi, I'm interested in: ${title}\nLocation: ${location}\nPrice: ${fmt(price)}\n\nName: ${form.name}\nPhone: ${form.phone}`)}`, '_blank');
   };
 
   return (
-    <div style={{ background: '#f8fafc', minHeight: '100vh' }}>
-      <div style={{ maxWidth: 1280, margin: '0 auto', padding: '40px 32px' }}>
+    <div style={{ background: '#f8fafc', minHeight: '100vh', fontFamily: S.font, paddingBottom: 80 }}>
+      <div style={{ maxWidth: 1240, margin: '0 auto', padding: '96px 24px 0' }}>
 
         {/* Breadcrumb */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 24, fontSize: 13, color: '#94a3b8' }}>
-          <Link to="/real-estate" style={{ color: '#2563eb', textDecoration: 'none' }}>Home</Link>
-          <span>›</span>
-          <Link to="/real-estate/properties" style={{ color: '#2563eb', textDecoration: 'none' }}>Listings</Link>
-          <span>›</span>
-          <span style={{ color: '#64748b', fontWeight: 500 }}>{title}</span>
-        </div>
+        <nav style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 24, fontSize: 12, fontWeight: 600 }}>
+          {[
+            { label: 'Home', to: '/real-estate' },
+            { label: 'Properties', to: '/real-estate/properties' },
+            { label: title, to: null },
+          ].map((b, i, arr) => (
+            <React.Fragment key={b.label}>
+              {b.to
+                ? <Link to={b.to} style={{ color: '#64748b', textDecoration: 'none' }} onMouseOver={e => e.currentTarget.style.color = '#2563eb'} onMouseOut={e => e.currentTarget.style.color = '#64748b'}>{b.label}</Link>
+                : <span style={{ color: '#0f172a', fontWeight: 700, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: 220 }}>{b.label}</span>
+              }
+              {i < arr.length - 1 && <span style={{ color: '#cbd5e1' }}>/</span>}
+            </React.Fragment>
+          ))}
+        </nav>
 
         {/* Gallery */}
-        {images.length > 0 && (
-          <div style={{ display: 'grid', gridTemplateColumns: '3fr 2fr', gap: 12, marginBottom: 40, borderRadius: 20, overflow: 'hidden' }}>
-            <img src={images[mainImg]?.url || images[mainImg]} alt={title}
-              style={{ width: '100%', aspectRatio: '16/9', objectFit: 'cover', display: 'block', cursor: 'pointer' }} />
-            <div style={{ display: 'grid', gridTemplateRows: 'repeat(3, 1fr)', gap: 12 }}>
-              {images.slice(1, 4).map((img, i) => (
-                <div key={i} style={{ position: 'relative' }}>
-                  <img src={img?.url || img} alt={`View ${i + 2}`}
-                    onClick={() => setMainImg(i + 1)}
-                    style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block', cursor: 'pointer' }} />
-                  {i === 2 && images.length > 4 && (
-                    <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.55)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 700, fontSize: 16, cursor: 'pointer' }}>
-                      +{images.length - 4} more
-                    </div>
-                  )}
-                </div>
-              ))}
-            </div>
+        <div style={{ display: 'grid', gridTemplateColumns: '3fr 1fr', gridTemplateRows: '1fr 1fr', gap: 10, height: 480, marginBottom: 40 }} className="re-gallery-grid">
+          <div style={{ gridRow: '1 / 3', borderRadius: 18, overflow: 'hidden', background: '#e2e8f0', cursor: 'zoom-in' }}>
+            <img
+              src={images[mainImg]?.url || images[mainImg] || 'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=1200&q=80'}
+              alt={title} style={{ width: '100%', height: '100%', objectFit: 'cover', transition: 'transform .6s' }}
+              onMouseOver={e => e.currentTarget.style.transform = 'scale(1.03)'}
+              onMouseOut={e => e.currentTarget.style.transform = 'scale(1)'}
+            />
           </div>
-        )}
-
-        {/* Content + Sidebar */}
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 340px', gap: 32, alignItems: 'flex-start' }}>
-
-          {/* Main Content */}
-          <div>
-            {/* Badges + Title */}
-            <div style={{ display: 'flex', gap: 8, marginBottom: 14 }}>
-              {property.category && <span style={{ background: '#eff6ff', color: '#2563eb', fontSize: 11, fontWeight: 700, padding: '3px 10px', borderRadius: 6, textTransform: 'uppercase' }}>{property.category}</span>}
-              {property.type     && <span style={{ background: '#f0fdf4', color: '#16a34a', fontSize: 11, fontWeight: 700, padding: '3px 10px', borderRadius: 6, textTransform: 'uppercase' }}>{property.type}</span>}
+          {images.slice(1, 3).map((img, i) => (
+            <div key={i} onClick={() => setMainImg(i + 1)} style={{ borderRadius: 14, overflow: 'hidden', background: '#e2e8f0', cursor: 'pointer' }}>
+              <img src={img?.url || img} alt={`View ${i + 2}`} style={{ width: '100%', height: '100%', objectFit: 'cover', transition: 'transform .5s' }}
+                onMouseOver={e => e.currentTarget.style.transform = 'scale(1.05)'}
+                onMouseOut={e => e.currentTarget.style.transform = 'scale(1)'}
+              />
             </div>
-            <h1 style={{ fontSize: 28, fontWeight: 900, color: '#0f172a', marginBottom: 8, letterSpacing: '-0.5px' }}>{title}</h1>
-            <p style={{ fontSize: 14, color: '#64748b', marginBottom: 28 }}>📍 {location}</p>
+          ))}
+          {images.length < 2 && [0, 1].slice(images.length - 1).map(i => (
+            <div key={i} style={{ borderRadius: 14, background: '#e2e8f0' }} />
+          ))}
+        </div>
 
-            {/* Key Facts */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16, background: '#fff', border: '1px solid #e2e8f0', borderRadius: 14, padding: '20px 24px', marginBottom: 32 }}>
+        {/* Main layout */}
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 340px', gap: 40, alignItems: 'start' }} className="re-detail-grid">
+
+          {/* LEFT: Details */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
+
+            {/* Title block */}
+            <div style={{ background: '#fff', borderRadius: 18, border: '1px solid #e2e8f0', padding: '28px 28px 24px' }}>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: 16 }}>
+                <span style={{ background: '#2563eb', color: '#fff', fontSize: 10, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '.08em', padding: '3px 12px', borderRadius: 30 }}>Verified</span>
+                <span style={{ background: '#0f172a', color: '#fff', fontSize: 10, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '.08em', padding: '3px 12px', borderRadius: 30 }}>{property.filters?.segment || 'Residential'}</span>
+                {property.filters?.possession === 'READY_TO_MOVE' && (
+                  <span style={{ background: '#10b981', color: '#fff', fontSize: 10, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '.08em', padding: '3px 12px', borderRadius: 30 }}>Ready to Move</span>
+                )}
+              </div>
+              <h1 style={{ fontSize: 'clamp(22px, 3vw, 32px)', fontWeight: 900, color: '#0f172a', margin: '0 0 10px', letterSpacing: '-.03em', lineHeight: 1.2 }}>{title}</h1>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6, color: '#64748b', fontSize: 14, fontWeight: 600 }}>
+                <svg width="15" height="15" fill="none" stroke="#2563eb" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a2 2 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+                </svg>
+                {location}
+              </div>
+            </div>
+
+            {/* Quick specs */}
+            <div style={{ background: '#fff', borderRadius: 18, border: '1px solid #e2e8f0', padding: '24px 28px', display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 20 }} className="re-specs-grid">
               {[
-                ['BHK', property.bhk ? `${property.bhk} BHK` : '—'],
-                ['Baths', property.bathrooms || '—'],
-                ['Area', property.areaSqFt ? `${property.areaSqFt} ft²` : '—'],
-                ['Furnishing', property.furnishing || '—'],
-              ].map(([l, v]) => (
-                <div key={l}>
-                  <p style={{ fontSize: 11, fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 4 }}>{l}</p>
-                  <p style={{ fontSize: 15, fontWeight: 700, color: '#334155', textTransform: 'capitalize' }}>{v}</p>
+                { label: 'Configuration', value: property.filters?.bhk?.replace(/_/g, ' ') || '3 BHK' },
+                { label: 'Super Area', value: `${property.areaSqFt || '1500'} sqft` },
+                { label: 'Possession', value: property.possessionDate || 'Dec 2026' },
+                { label: 'Furnishing', value: property.filters?.furnishing?.replace(/_/g, ' ') || 'Semi-Furnished' },
+              ].map(s => (
+                <div key={s.label}>
+                  <p style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '.1em', color: '#94a3b8', margin: '0 0 6px' }}>{s.label}</p>
+                  <p style={{ fontSize: 16, fontWeight: 800, color: '#0f172a', margin: 0 }}>{s.value}</p>
                 </div>
               ))}
             </div>
 
             {/* Description */}
-            {property.description && (
-              <section style={{ background: '#fff', border: '1px solid #e2e8f0', borderRadius: 14, padding: '24px 28px', marginBottom: 24 }}>
-                <h2 style={{ fontSize: 17, fontWeight: 800, color: '#0f172a', marginBottom: 14 }}>Overview</h2>
-                <p style={{ fontSize: 14, color: '#475569', lineHeight: 1.8, whiteSpace: 'pre-line' }}>{property.description}</p>
-              </section>
-            )}
-
-            {/* Amenities */}
-            {property.amenities?.length > 0 && (
-              <section style={{ background: '#fff', border: '1px solid #e2e8f0', borderRadius: 14, padding: '24px 28px', marginBottom: 24 }}>
-                <h2 style={{ fontSize: 17, fontWeight: 800, color: '#0f172a', marginBottom: 16 }}>Amenities</h2>
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10 }}>
-                  {property.amenities.map(a => (
-                    <span key={a} style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: 8, padding: '8px 16px', fontSize: 13, fontWeight: 600, color: '#334155' }}>
-                      ✓ {a}
-                    </span>
-                  ))}
-                </div>
-              </section>
-            )}
-          </div>
-
-          {/* Sticky Sidebar */}
-          <aside style={{ background: '#fff', border: '1px solid #e2e8f0', borderRadius: 16, padding: '28px 24px', position: 'sticky', top: 80 }}>
-            <p style={{ fontSize: 28, fontWeight: 900, color: '#0f172a', marginBottom: 4 }}>{fmt(price)}</p>
-            {pricePerSqft && <p style={{ fontSize: 13, color: '#64748b', marginBottom: 20 }}>₹{pricePerSqft.toLocaleString('en-IN')} / sq.ft</p>}
-
-            <div style={{ borderTop: '1px solid #f1f5f9', paddingTop: 20, marginBottom: 20 }}>
-              <p style={{ fontSize: 12, fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 6 }}>Listed by</p>
-              <p style={{ fontSize: 15, fontWeight: 700, color: '#0f172a' }}>{property.posterName || 'Doltec Estates'}</p>
-              <span style={{ display: 'inline-block', marginTop: 4, background: '#eff6ff', color: '#2563eb', fontSize: 11, fontWeight: 700, padding: '2px 8px', borderRadius: 4 }}>VERIFIED</span>
+            <div style={{ background: '#fff', borderRadius: 18, border: '1px solid #e2e8f0', padding: '28px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 18 }}>
+                <div style={{ width: 4, height: 22, background: '#2563eb', borderRadius: 2 }} />
+                <h3 style={{ fontSize: 18, fontWeight: 800, color: '#0f172a', margin: 0 }}>Overview</h3>
+              </div>
+              <p style={{ color: '#475569', lineHeight: 1.75, fontSize: 15, margin: 0 }}>
+                {property.description || 'This premium property offers modern living in a prime locality with world-class amenities and excellent connectivity to major business hubs. The project is developed by a reputed builder with a proven track record of timely delivery.'}
+              </p>
             </div>
 
-            <a href={`https://wa.me/${WA}?text=${encodeURIComponent(`Hi, interested in: ${title}`)}`}
-              target="_blank" rel="noreferrer"
-              style={{ display: 'block', width: '100%', padding: '12px', background: '#25D366', color: '#fff', border: 'none', borderRadius: 10, fontWeight: 700, fontSize: 14, textAlign: 'center', textDecoration: 'none', marginBottom: 10 }}>
-              💬 WhatsApp Owner
-            </a>
-
-            <div style={{ borderTop: '1px solid #f1f5f9', paddingTop: 20, marginTop: 8 }}>
-              <p style={{ fontSize: 14, fontWeight: 700, color: '#0f172a', marginBottom: 14 }}>Schedule a Visit</p>
-              <form onSubmit={handleEnquiry}>
-                {['name', 'phone'].map(field => (
-                  <input key={field} required type={field === 'phone' ? 'tel' : 'text'}
-                    placeholder={field === 'name' ? 'Your Name' : 'Phone Number'}
-                    value={form[field]} onChange={e => setForm(f => ({ ...f, [field]: e.target.value }))}
-                    style={{ display: 'block', width: '100%', border: '1px solid #e2e8f0', borderRadius: 8, padding: '10px 14px', fontSize: 14, marginBottom: 10, outline: 'none', boxSizing: 'border-box' }} />
+            {/* Amenities */}
+            <div style={{ background: '#fff', borderRadius: 18, border: '1px solid #e2e8f0', padding: '28px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 20 }}>
+                <div style={{ width: 4, height: 22, background: '#2563eb', borderRadius: 2 }} />
+                <h3 style={{ fontSize: 18, fontWeight: 800, color: '#0f172a', margin: 0 }}>Amenities</h3>
+              </div>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 14 }}>
+                {amenities.map(a => (
+                  <div key={a} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                    <div style={{
+                      width: 32, height: 32, borderRadius: 9, background: '#eff6ff',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#2563eb', flexShrink: 0,
+                    }}><CheckIcon /></div>
+                    <span style={{ fontSize: 13, fontWeight: 600, color: '#334155' }}>{a.replace(/_/g, ' ')}</span>
+                  </div>
                 ))}
-                <textarea placeholder="Message (optional)" value={form.message}
-                  onChange={e => setForm(f => ({ ...f, message: e.target.value }))}
-                  rows={3} style={{ display: 'block', width: '100%', border: '1px solid #e2e8f0', borderRadius: 8, padding: '10px 14px', fontSize: 14, marginBottom: 12, resize: 'vertical', outline: 'none', boxSizing: 'border-box' }} />
-                <button type="submit" style={{ width: '100%', padding: '12px', background: '#2563eb', color: '#fff', border: 'none', borderRadius: 10, fontWeight: 700, fontSize: 14, cursor: 'pointer' }}>
-                  Send Enquiry
-                </button>
-              </form>
+              </div>
+            </div>
+          </div>
+
+          {/* RIGHT: Pricing & Enquiry */}
+          <aside style={{ display: 'flex', flexDirection: 'column', gap: 16, position: 'sticky', top: 96 }}>
+
+            {/* Price card */}
+            <div style={{
+              background: '#0f172a', borderRadius: 20,
+              padding: '28px 24px', color: '#fff',
+              borderBottom: '4px solid #2563eb',
+              boxShadow: '0 20px 50px rgba(0,0,0,.15)',
+            }}>
+              <p style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '.1em', color: '#64748b', margin: '0 0 8px' }}>Price</p>
+              <h2 style={{ fontSize: 38, fontWeight: 900, margin: '0 0 6px', letterSpacing: '-.03em' }}>{fmt(price)}</h2>
+              {ppsf && <p style={{ fontSize: 13, color: '#94a3b8', margin: '0 0 24px', fontWeight: 500 }}>₹{ppsf.toLocaleString()}/sqft</p>}
+
+              <div style={{ borderTop: '1px solid rgba(255,255,255,.08)', paddingTop: 20, display: 'flex', flexDirection: 'column', gap: 12, marginBottom: 24 }}>
+                {[{ l: 'EMI Starts at', v: '₹45k / mo*' }, { l: 'Booking Amount', v: '₹5.0 L' }].map(r => (
+                  <div key={r.l} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <span style={{ fontSize: 12, color: '#64748b', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '.06em' }}>{r.l}</span>
+                    <span style={{ fontSize: 14, fontWeight: 800 }}>{r.v}</span>
+                  </div>
+                ))}
+              </div>
+
+              {/* Enquiry form */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                <input type="text" placeholder="Your Name" value={form.name} onChange={e => setForm({ ...form, name: e.target.value })}
+                  style={{ background: 'rgba(255,255,255,.07)', border: '1px solid rgba(255,255,255,.1)', borderRadius: 10, padding: '12px 14px', fontFamily: S.font, fontSize: 13, fontWeight: 500, color: '#fff', outline: 'none' }}
+                />
+                <input type="tel" placeholder="Phone Number" value={form.phone} onChange={e => setForm({ ...form, phone: e.target.value })}
+                  style={{ background: 'rgba(255,255,255,.07)', border: '1px solid rgba(255,255,255,.1)', borderRadius: 10, padding: '12px 14px', fontFamily: S.font, fontSize: 13, fontWeight: 500, color: '#fff', outline: 'none' }}
+                />
+                <button onClick={contactWA} style={{
+                  background: '#2563eb', color: '#fff', border: 'none',
+                  padding: '14px', borderRadius: 12, fontFamily: S.font,
+                  fontSize: 14, fontWeight: 700, cursor: 'pointer', transition: 'background .15s',
+                }}
+                  onMouseOver={e => e.currentTarget.style.background = '#1d4ed8'}
+                  onMouseOut={e => e.currentTarget.style.background = '#2563eb'}
+                >Contact Owner</button>
+                <a href={`https://wa.me/${WA}?text=Hi, I am interested in ${encodeURIComponent(title)}`}
+                  target="_blank" rel="noopener noreferrer"
+                  style={{
+                    display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10,
+                    padding: '13px', borderRadius: 12, background: 'rgba(255,255,255,.07)',
+                    border: '1px solid rgba(255,255,255,.1)', color: '#4ade80', textDecoration: 'none',
+                    fontWeight: 700, fontSize: 14, fontFamily: S.font, transition: 'background .15s',
+                  }}
+                  onMouseOver={e => e.currentTarget.style.background = 'rgba(74,222,128,.12)'}
+                  onMouseOut={e => e.currentTarget.style.background = 'rgba(255,255,255,.07)'}
+                >
+                  <svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L0 24l6.335-1.662c1.72.937 3.659 1.431 5.63 1.432h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg>
+                  Chat on WhatsApp
+                </a>
+              </div>
+            </div>
+
+            {/* Safety tips */}
+            <div style={{ background: '#fff', borderRadius: 16, border: '1px solid #e2e8f0', padding: '20px 20px' }}>
+              <h4 style={{ fontSize: 11, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '.1em', color: '#0f172a', margin: '0 0 14px' }}>🔒 Safety Tips</h4>
+              <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: 10 }}>
+                {['Never pay booking amount without site visit', 'Verify RERA registration number', 'Check for legal title of the property'].map(tip => (
+                  <li key={tip} style={{ display: 'flex', gap: 10, fontSize: 12, fontWeight: 500, color: '#64748b', lineHeight: 1.5 }}>
+                    <span style={{ color: '#2563eb', fontWeight: 800, flexShrink: 0 }}>!</span>
+                    {tip}
+                  </li>
+                ))}
+              </ul>
             </div>
           </aside>
         </div>
       </div>
+
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+        @keyframes shimmer{0%,100%{opacity:.8}50%{opacity:.4}}
+        @media(max-width:960px){.re-detail-grid{grid-template-columns:1fr !important}}
+        @media(max-width:800px){.re-gallery-grid{grid-template-columns:1fr !important; grid-template-rows:auto !important; height:300px !important}}
+        @media(max-width:800px){.re-gallery-grid>:not(:first-child){display:none}}
+        @media(max-width:640px){.re-specs-grid{grid-template-columns:repeat(2,1fr) !important}}
+      `}</style>
     </div>
   );
 }

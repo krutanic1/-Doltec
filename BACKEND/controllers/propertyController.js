@@ -4,23 +4,72 @@ const cloudinary = require("../middleware/cloudinary");
 
 exports.getProperties = async (req, res) => {
   try {
-    const { city, intent, segment, minPrice, maxPrice, bhk, q } = req.query;
+    const { 
+      city, q, minPrice, maxPrice,
+      intent, segment, propertyType, bhk, 
+      possession, age, postedBy, amenities, 
+      furnishing, facing, parking, availability 
+    } = req.query;
+
     const query = { status: { $ne: 'REJECTED' } };
 
-    if (city) query['location.city'] = { $regex: city, $options: 'i' };
-    if (intent) query.intent = intent;
-    if (segment) query.segment = segment;
-    if (bhk) query['features.bhk'] = Number(bhk);
-    if (minPrice || maxPrice) {
-      query['pricing.amount'] = {};
-      if (minPrice) query['pricing.amount'].$gte = Number(minPrice);
-      if (maxPrice) query['pricing.amount'].$lte = Number(maxPrice);
+    // Search and Location
+    if (city) query['city'] = { $regex: city, $options: 'i' };
+    if (q) {
+      query.$or = [
+        { title: { $regex: q, $options: 'i' } },
+        { locality: { $regex: q, $options: 'i' } },
+        { description: { $regex: q, $options: 'i' } }
+      ];
     }
-    if (q) query.title = { $regex: q, $options: 'i' };
 
-    const properties = await Property.find(query).populate('poster', 'name email phone');
+    // Price Range
+    if (minPrice || maxPrice) {
+      query['price'] = {};
+      if (minPrice) query['price'].$gte = Number(minPrice);
+      if (maxPrice) query['price'].$lte = Number(maxPrice);
+    }
+
+    // Structured Filters (AND logic with support for old and new schema)
+    const andConditions = [];
+
+    if (intent) {
+      andConditions.push({ $or: [{ 'filters.intent': intent }, { intent: intent }] });
+    }
+    if (segment) {
+      andConditions.push({ $or: [{ 'filters.segment': segment }, { segment: segment }, { category: segment }] });
+    }
+    if (propertyType) {
+      andConditions.push({ $or: [{ 'filters.propertyType': propertyType }, { propertyType: propertyType }] });
+    }
+    if (bhk) {
+      const bhkDigit = bhk.split('_')[0]; // Convert '3_BHK' to '3'
+      andConditions.push({ $or: [{ 'filters.bhk': bhk }, { 'features.bhk': bhkDigit }, { 'features.bhk': bhk }] });
+    }
+    if (possession) andConditions.push({ 'filters.possession': possession });
+    if (age) andConditions.push({ 'filters.age': age });
+    if (postedBy) andConditions.push({ 'filters.postedBy': postedBy });
+    if (furnishing) andConditions.push({ 'filters.furnishing': furnishing });
+    if (facing) andConditions.push({ 'filters.facing': facing });
+    if (parking) andConditions.push({ 'filters.parking': parking });
+    if (availability) andConditions.push({ 'filters.availability': availability });
+
+    if (andConditions.length > 0) {
+      query.$and = andConditions;
+    }
+
+    // Multi-select containment for amenities
+    if (amenities) {
+      const amenitiesList = Array.isArray(amenities) ? amenities : amenities.split(',');
+      query['filters.amenities'] = { $all: amenitiesList };
+    }
+
+    console.log('Property Query:', JSON.stringify(query, null, 2));
+    const properties = await Property.find(query).populate('poster', 'name email phone').sort({ createdAt: -1 });
+    console.log('Results found:', properties.length);
     res.json(properties);
   } catch (err) {
+    console.error('Get Properties Error:', err);
     res.status(500).send('Server error');
   }
 };
@@ -37,6 +86,18 @@ exports.createProperty = async (req, res) => {
     data.poster = req.user.id;
     data.slug = slugify(data.title, { lower: true }) + '-' + Date.now();
     
+    // Validation
+    if (!data.filters) {
+      return res.status(400).json({ msg: 'Property filters are required' });
+    }
+    
+    // Normalize and sanitize filters
+    const validIntents = ['BUY', 'RENT'];
+    const validSegments = ['RESIDENTIAL', 'COMMERCIAL', 'PLOTS_LAND', 'PROJECTS', 'NEW_LAUNCH'];
+    
+    if (!validIntents.includes(data.filters.intent)) data.filters.intent = 'BUY';
+    if (!validSegments.includes(data.filters.segment)) data.filters.segment = 'RESIDENTIAL';
+
     // Handle Media Upload
     data.media = [];
     if (req.files && req.files.images) {

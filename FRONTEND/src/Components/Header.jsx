@@ -101,6 +101,7 @@ const Header = () => {
                   <li onClick={() => toggleDropdown("what_we_do")}>WHAT WE DO</li>
                   <li onClick={() => toggleDropdown("who_we_are")}>WHO WE ARE</li>
                   <li><Link to="/AllJobs">JOBS</Link></li>
+                  <li><Link to="/real-estate">REAL ESTATE</Link></li>
                   <li onClick={() => toggleDropdown()}>
                     <Link className=" hover:text-white" to="/About">ABOUT US</Link>
                   </li>
@@ -108,10 +109,15 @@ const Header = () => {
               </nav>
 
               <div className="header-actions">
-                <div className="hamburger"><i onClick={toggleMobileMenu} class="fa fa-bars" aria-hidden="true"></i></div>
+                <div className="hamburger"><i onClick={toggleMobileMenu} className="fa fa-bars" aria-hidden="true"></i></div>
                 <div className="theme-toggle" onClick={() => {toggleDropdown()}}>
                   <Link to="/"> <ToggleComponent /> </Link>
                 </div>
+                {localStorage.getItem('token') ? (
+                  <Link to="/real-estate/dashboard" className="bg-blue-600 text-white px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider hover:bg-blue-700 transition-all">Account</Link>
+                ) : (
+                  <Link to="/real-estate/login" className="bg-slate-900 text-white px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider hover:bg-blue-600 transition-all">Login</Link>
+                )}
               </div>
             </div>
           </div>
@@ -129,22 +135,22 @@ const Header = () => {
                     <ul>
                       <li onClick={toggleMobileMenu}>
                       <Link to="/Overview">
-                        <span><i class="fa fa-caret-right"></i></span>  Overview 
+                        <span><i className="fa fa-caret-right"></i></span>  Overview 
                       </Link>
                       </li>
                       <li onClick={toggleMobileMenu}>
                       <Link to="/Industries">
-                        <span><i class="fa fa-caret-right"></i></span> INDUSTRIES
+                        <span><i className="fa fa-caret-right"></i></span> INDUSTRIES
                       </Link>
                       </li>
                       <li onClick={toggleMobileMenu}>
                       <Link to="/Services">
-                        <span><i class="fa fa-caret-right"></i></span> SERVICES
+                        <span><i className="fa fa-caret-right"></i></span> SERVICES
                       </Link>
                       </li>
                       <li onClick={toggleMobileMenu}>
                       <Link to="/Product">
-                        <span><i class="fa fa-caret-right"></i></span> PRODUCT AND PLATFORM
+                        <span><i className="fa fa-caret-right"></i></span> PRODUCT AND PLATFORM
                       </Link>
                       </li>
                     </ul>
@@ -156,22 +162,22 @@ const Header = () => {
                     <ul>
                       <li onClick={toggleMobileMenu}>
                       <Link to="/Mission">
-                        <span><i class="fa fa-caret-right"></i></span> OUR MISSION
+                        <span><i className="fa fa-caret-right"></i></span> OUR MISSION
                       </Link>
                       </li>
                       <li onClick={toggleMobileMenu}>
                       <Link to="/Vission">
-                        <span><i class="fa fa-caret-right"></i></span> OUR VISSION
+                        <span><i className="fa fa-caret-right"></i></span> OUR VISSION
                       </Link>
                       </li>
                       <li onClick={toggleMobileMenu}>
                       <Link to="/Project">
-                        <span><i class="fa fa-caret-right"></i></span> OUR PROJECT
+                        <span><i className="fa fa-caret-right"></i></span> OUR PROJECT
                       </Link>
                       </li>
                       <li onClick={toggleMobileMenu}>
                       <Link to="/About">
-                        <span><i class="fa fa-caret-right"></i></span> ABOUT US
+                        <span><i className="fa fa-caret-right"></i></span> ABOUT US
                       </Link>
                       </li>
                     </ul>

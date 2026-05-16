@@ -10,12 +10,21 @@ export default function ManageProperties() {
     const fetchMyProperties = async () => {
       try {
         const token = localStorage.getItem('token');
+        if (!token) {
+          window.location.href = '/real-estate/login';
+          return;
+        }
         const res = await axios.get('http://localhost:5000/api/v1/properties/my-properties', {
           headers: { Authorization: `Bearer ${token}` }
         });
         setProperties(res.data);
       } catch (err) {
         console.error('Failed to fetch my properties', err);
+        if (err.response?.status === 401) {
+          localStorage.removeItem('token');
+          localStorage.removeItem('user');
+          window.location.href = '/real-estate/login';
+        }
       } finally {
         setLoading(false);
       }

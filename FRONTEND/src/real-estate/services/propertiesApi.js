@@ -11,16 +11,22 @@ export async function getProperty(slug) {
 }
 
 export async function createProperty(formData) {
-  const res = await api.post('/properties', formData, {
-    headers: { 'Content-Type': 'multipart/form-data' },
-  });
-  return res.data;
+  try {
+    const res = await api.post('/properties', formData);
+    return res.data;
+  } catch (err) {
+    console.error('createProperty error:', err);
+    if (err.response) {
+      console.error('Response status:', err.response.status);
+      console.error('Response URL:', err.config.url);
+      console.error('Base URL:', err.config.baseURL);
+    }
+    throw err;
+  }
 }
 
 export async function updateProperty(id, formData) {
-  const res = await api.put(`/properties/${id}`, formData, {
-    headers: { 'Content-Type': 'multipart/form-data' },
-  });
+  const res = await api.put(`/properties/${id}`, formData);
   return res.data;
 }
 

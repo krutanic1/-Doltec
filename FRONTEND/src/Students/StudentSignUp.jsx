@@ -130,7 +130,7 @@ const StudentSignUp = () => {
               <span
                   onClick={handleTogglePasswordVisibility}
                   className="toggle-icon">
-                  {!showPassword ? <i class="fa fa-eye-slash"></i> : <i class="fa fa-eye"></i>}
+                  {!showPassword ? <i className="fa fa-eye-slash"></i> : <i className="fa fa-eye"></i>}
                 </span>
               {/* <label htmlFor="password" className="signup-label">Password</label> */}
             </div>
@@ -150,7 +150,7 @@ const StudentSignUp = () => {
                   onClick={handleToggleConfirmPasswordVisibility}
                   className="toggle-icon"
                 >
-                  {!showConfirmPassword ? <i class="fa fa-eye-slash"></i> : <i class="fa fa-eye"></i>}
+                  {!showConfirmPassword ? <i className="fa fa-eye-slash"></i> : <i className="fa fa-eye"></i>}
                 </span>
               {/* <label htmlFor="confirmPassword" className="signup-label">Confirm Password</label> */}
             </div>
