@@ -63,10 +63,10 @@ const Recruitment = () => {
         <Link to="/" className="featured-label featured-recruitment-link">
           RECRUITMENT
         </Link>
-        <span className="featured-separator">/</span>
-        <Link to="/real-estate" className="featured-real-estate-link">
+        {/* <span className="featured-separator">/</span> */}
+        {/* <Link to="/real-estate" className="featured-real-estate-link">
           REAL ESTATE
-        </Link>
+        </Link> */}
       </div>   
       <div className="recruitment-intro">              
         <div className="intro-actions">
