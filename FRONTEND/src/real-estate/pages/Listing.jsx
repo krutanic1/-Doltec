@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { useSearchParams } from 'react-router-dom';
-import { listProperties, listCities } from '../services/propertiesApi';
+import { useNavigate, useSearchParams } from 'react-router-dom';
+import { listProperties, listCities, listSavedProperties, saveProperty, unsaveProperty } from '../services/propertiesApi';
 import PropertyCard from '../components/PropertyCard';
 import MarketIntelligenceSidebar from '../components/MarketIntelligenceSidebar';
 import CompareBar from '../components/CompareBar';
@@ -44,6 +44,7 @@ function FilterSection({ title, children }) {
 }
 
 export default function Listing() {
+  const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const [properties, setProperties]   = useState([]);
   const [loading, setLoading]         = useState(true);
@@ -56,9 +57,21 @@ export default function Listing() {
   const [cityOptions, setCityOptions] = useState([]);
   const [cityInput, setCityInput] = useState('');
   const [showCityDropdown, setShowCityDropdown] = useState(false);
+  const [savedIds, setSavedIds] = useState([]);
 
   useEffect(() => {
     listCities().then(setCityOptions).catch(console.error);
+  }, []);
+
+  useEffect(() => {
+    if (!localStorage.getItem('token')) return;
+
+    listSavedProperties()
+      .then((res) => {
+        const items = Array.isArray(res) ? res : res?.data || [];
+        setSavedIds(items.map((item) => item._id).filter(Boolean));
+      })
+      .catch(() => setSavedIds([]));
   }, []);
 
   const [filters, setFilters] = useState({
@@ -166,6 +179,30 @@ export default function Listing() {
   const handleCompare = (p) => {
     if (selectedCompare.find(x => x._id === p._id)) setSelectedCompare(prev => prev.filter(x => x._id !== p._id));
     else if (selectedCompare.length < 3) setSelectedCompare(prev => [...prev, p]);
+  };
+
+  const handleToggleSave = async (property) => {
+    if (!localStorage.getItem('token')) {
+      navigate('/real-estate/login');
+      return;
+    }
+
+    const isSaved = savedIds.includes(property._id);
+    try {
+      if (isSaved) {
+        await unsaveProperty(property._id);
+        setSavedIds((current) => current.filter((id) => id !== property._id));
+      } else {
+        await saveProperty(property._id);
+        setSavedIds((current) => [...current, property._id]);
+      }
+    } catch (err) {
+      if (err.response?.status === 401) {
+        navigate('/real-estate/login');
+      } else {
+        console.error('Failed to update saved properties:', err);
+      }
+    }
   };
 
   const activeCount = Object.values(filters).filter(v => v && (Array.isArray(v) ? v.length > 0 : v !== 'BUY' && v !== 'RESIDENTIAL')).length;
@@ -485,12 +522,6 @@ export default function Listing() {
               <h1 style={{ fontSize: 22, fontWeight: 900, color: '#0f172a', margin: '0 0 6px', letterSpacing: '-.02em' }}>
                 {loading ? 'Searching…' : `${count.toLocaleString()} Properties in ${city || 'All India'}`}
               </h1>
-              <div style={{ display: 'flex', gap: 8 }}>
-                <span style={{ fontSize: 10, fontWeight: 700, color: '#10b981', background: '#d1fae5', padding: '3px 10px', borderRadius: 30, display: 'inline-flex', alignItems: 'center', gap: 5 }}>
-                  <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#10b981', display: 'inline-block' }} />99% Trust Accuracy
-                </span>
-                <span style={{ fontSize: 10, fontWeight: 700, color: '#2563eb', background: '#dbeafe', padding: '3px 10px', borderRadius: 30 }}>Updated 2 mins ago</span>
-              </div>
             </div>
           </div>
 
@@ -530,7 +561,14 @@ export default function Listing() {
           ) : properties.length > 0 ? (
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2,1fr)', gap: 16 }} className="re-props-grid">
               {properties.map(p => (
-                <PropertyCard key={p._id} property={p} onCompare={handleCompare} isComparing={selectedCompare.some(x => x._id === p._id)} />
+                <PropertyCard
+                  key={p._id}
+                  property={p}
+                  onCompare={handleCompare}
+                  isComparing={selectedCompare.some(x => x._id === p._id)}
+                  isSaved={savedIds.includes(p._id)}
+                  onToggleSave={handleToggleSave}
+                />
               ))}
             </div>
           ) : (
@@ -546,7 +584,12 @@ export default function Listing() {
         selectedProperties={selectedCompare}
         onRemove={id => setSelectedCompare(prev => prev.filter(x => x._id !== id))}
         onClear={() => setSelectedCompare([])}
-        onCompare={() => console.log('Comparing:', selectedCompare)}
+        onCompare={() => {
+          const slugs = selectedCompare.map((item) => item.slug).filter(Boolean).join(',');
+          if (slugs) {
+            navigate(`/real-estate/compare?slugs=${encodeURIComponent(slugs)}`);
+          }
+        }}
       />
 
       {/* Mobile Filter Sheet */}

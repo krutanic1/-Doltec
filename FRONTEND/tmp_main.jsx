@@ -1,0 +1,84 @@
+﻿import __vite__cjsImport0_react_jsxDevRuntime from "/node_modules/.vite/deps/react_jsx-dev-runtime.js?v=4504e681"; const jsxDEV = __vite__cjsImport0_react_jsxDevRuntime["jsxDEV"];
+import __vite__cjsImport1_react from "/node_modules/.vite/deps/react.js?v=4504e681"; const StrictMode = __vite__cjsImport1_react["StrictMode"];
+import __vite__cjsImport2_reactDom_client from "/node_modules/.vite/deps/react-dom_client.js?v=4504e681"; const createRoot = __vite__cjsImport2_reactDom_client["createRoot"];
+import "/src/index.css";
+import App from "/src/App.jsx";
+import { GoogleOAuthProvider } from "/node_modules/.vite/deps/@react-oauth_google.js?v=4504e681";
+import "/src/Style/Header.css";
+import "/src/Style/Footer.css";
+import "/src/Style/Contactus.css";
+import "/src/Style/ToggleComponent.css";
+import "/src/Style/Recruitment.css";
+import "/src/Style/StudentLogin.css";
+import "/src/Style/StudentSignUp.css";
+import "/src/Style/CompanyLogin.css";
+import "/src/Style/CompanySignup.css";
+import "/src/Style/HRLogin.css";
+import "/src/Style/StudentHeader.css";
+import "/src/Style/Resume.css";
+import "/src/Style/Settings.css";
+import "/src/Style/Admin.css";
+import "/src/Style/Adminlogin.css";
+import "/src/Style/Createhr.css";
+import "/src/Style/HRHome.css";
+import "/src/Style/HRHeader.css";
+import "/src/Style/CompanyJoblist.css";
+import "/src/Style/JobApplications.css";
+import "/src/Style/AdminContactresponse.css";
+import "/src/Style/CompanyJob.css";
+import "/src/Style/CompanyHeader.css";
+import "/src/Style/Landingpage.css";
+import "/src/Style/Joblist.css";
+import "/src/Style/AssignedJobs.css";
+import "/src/Style/AdminCompanyJoblist.css";
+import "/src/Style/CompanyHRSelected.css";
+import "/src/Style/UserDashboard.css";
+import "/src/Style/AdminDashboard.css";
+import "/src/Style/Appliedjoblist.css";
+import "/src/Style/Overview.css";
+import "/src/Style/RejectedApplication.css";
+import "/src/Style/CompanyInterviewProcess.css";
+import "/src/Style/CompanyRejectedCandidates.css";
+import "/src/Style/InterviewProcessHR.css";
+import "/src/Style/CompanyHiredCandidates.css";
+import "/src/Style/HrRejectedCandidate.css";
+import "/src/Style/Chooseaplan.css";
+import "/src/Style/Selectaplan.css";
+import "/src/Style/PageNotFound.css";
+import "/src/Style/PrivateChats.css";
+import "/src/Style/Hero_Landingpage.css";
+import "/src/Style/Howitworks_landingpage.css";
+import "/src/Style/FeatureRoles_landingpage.css";
+import "/src/Style/PlatformFeatures_landingpage.css";
+import "/src/Style/SuccessStories_landingpage.css";
+import "/src/Style/Resources_landingpage.css";
+import "/src/Style/Footer_landingpage.css";
+import "/src/Style/Resources.css";
+import "/src/Style/Landing.css";
+import "/src/Style/CommunitySection.css";
+import "/src/Style/AllJobsPage.css";
+import "/src/Style/Pricing.css";
+import "/src/Style/RealEstate.css";
+import "/src/Style/AdminRealEstate.css";
+import "/src/Style/Loginwithotp.css";
+import "/src/Style/CommunityDashboard.css";
+import "/src/Style/CommunityLogin.css";
+import "/src/Style/CommunitySignUp.css";
+import "/src/Style/CommunityPosts.css";
+createRoot(document.getElementById("root")).render(
+  /* @__PURE__ */ jsxDEV(StrictMode, { children: /* @__PURE__ */ jsxDEV(GoogleOAuthProvider, { clientId: "960662701648-tdvrafib87gurrcgq9263oi1k2kuppqb.apps.googleusercontent.com", children: /* @__PURE__ */ jsxDEV(App, {}, void 0, false, {
+    fileName: "E:/DOLTEC/FRONTEND/src/main.jsx",
+    lineNumber: 77,
+    columnNumber: 7
+  }, this) }, void 0, false, {
+    fileName: "E:/DOLTEC/FRONTEND/src/main.jsx",
+    lineNumber: 76,
+    columnNumber: 5
+  }, this) }, void 0, false, {
+    fileName: "E:/DOLTEC/FRONTEND/src/main.jsx",
+    lineNumber: 75,
+    columnNumber: 3
+  }, this)
+);
+
+//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJtYXBwaW5ncyI6IkFBNEVNO0FBNUVOLFNBQVNBLGtCQUFrQjtBQUMzQixTQUFTQyxrQkFBa0I7QUFDM0IsT0FBTztBQUNQLE9BQU9DLFNBQVM7QUFDaEIsU0FBU0MsMkJBQTJCO0FBRXBDLE9BQU87QUFDUCxPQUFPO0FBRVAsT0FBTztBQUNQLE9BQU87QUFDUCxPQUFPO0FBQ1AsT0FBTztBQUNQLE9BQU87QUFDUCxPQUFPO0FBQ1AsT0FBTztBQUNQLE9BQU87QUFDUCxPQUFPO0FBQ1AsT0FBTztBQUNQLE9BQU87QUFDUCxPQUFPO0FBQ1AsT0FBTztBQUNQLE9BQU87QUFDUCxPQUFPO0FBQ1AsT0FBTztBQUNQLE9BQU87QUFDUCxPQUFPO0FBQ1AsT0FBTztBQUNQLE9BQU87QUFDUCxPQUFPO0FBQ1AsT0FBTztBQUNQLE9BQU87QUFDUCxPQUFPO0FBRVAsT0FBTztBQUNQLE9BQU87QUFDUCxPQUFPO0FBQ1AsT0FBTztBQUNQLE9BQU87QUFDUCxPQUFPO0FBQ1AsT0FBTztBQUNQLE9BQU87QUFDUCxPQUFPO0FBQ1AsT0FBTztBQUNQLE9BQU87QUFDUCxPQUFPO0FBQ1AsT0FBTztBQUNQLE9BQU87QUFDUCxPQUFPO0FBQ1AsT0FBTztBQUVQLE9BQU87QUFDUCxPQUFPO0FBQ1AsT0FBTztBQUNQLE9BQU87QUFDUCxPQUFPO0FBQ1AsT0FBTztBQUNQLE9BQU87QUFDUCxPQUFPO0FBQ1AsT0FBTztBQUNQLE9BQU87QUFFUCxPQUFPO0FBQ1AsT0FBTztBQUNQLE9BQU87QUFDUCxPQUFPO0FBRVAsT0FBTztBQUNQLE9BQU87QUFDUCxPQUFPO0FBQ1AsT0FBTztBQUNQLE9BQU87QUFFUEYsV0FBV0csU0FBU0MsZUFBZSxNQUFNLENBQUMsRUFBRUM7QUFBQUEsRUFDMUMsdUJBQUMsY0FDQyxpQ0FBQyx1QkFBb0IsVUFBUyw0RUFDNUIsaUNBQUMsU0FBRDtBQUFBO0FBQUE7QUFBQTtBQUFBLFNBQUksS0FETjtBQUFBO0FBQUE7QUFBQTtBQUFBLFNBRUUsS0FISjtBQUFBO0FBQUE7QUFBQTtBQUFBLFNBSUE7QUFDRiIsIm5hbWVzIjpbIlN0cmljdE1vZGUiLCJjcmVhdGVSb290IiwiQXBwIiwiR29vZ2xlT0F1dGhQcm92aWRlciIsImRvY3VtZW50IiwiZ2V0RWxlbWVudEJ5SWQiLCJyZW5kZXIiXSwiaWdub3JlTGlzdCI6W10sInNvdXJjZXMiOlsibWFpbi5qc3giXSwic291cmNlc0NvbnRlbnQiOlsiaW1wb3J0IHsgU3RyaWN0TW9kZSB9IGZyb20gJ3JlYWN0J1xyXG5pbXBvcnQgeyBjcmVhdGVSb290IH0gZnJvbSAncmVhY3QtZG9tL2NsaWVudCdcclxuaW1wb3J0ICcuL2luZGV4LmNzcydcclxuaW1wb3J0IEFwcCBmcm9tICcuL0FwcC5qc3gnXHJcbmltcG9ydCB7IEdvb2dsZU9BdXRoUHJvdmlkZXIgfSBmcm9tICdAcmVhY3Qtb2F1dGgvZ29vZ2xlJztcclxuXHJcbmltcG9ydCAnLi9TdHlsZS9IZWFkZXIuY3NzJ1xyXG5pbXBvcnQgJy4vU3R5bGUvRm9vdGVyLmNzcydcclxuLy8gaW1wb3J0ICcuL1N0eWxlL0Ryb3BEb3duUGFnZXMuY3NzJ1xyXG5pbXBvcnQgJy4vU3R5bGUvQ29udGFjdHVzLmNzcydcclxuaW1wb3J0ICcuL1N0eWxlL1RvZ2dsZUNvbXBvbmVudC5jc3MnXHJcbmltcG9ydCAnLi9TdHlsZS9SZWNydWl0bWVudC5jc3MnXHJcbmltcG9ydCAnLi9TdHlsZS9TdHVkZW50TG9naW4uY3NzJ1xyXG5pbXBvcnQgJy4vU3R5bGUvU3R1ZGVudFNpZ25VcC5jc3MnXHJcbmltcG9ydCAnLi9TdHlsZS9Db21wYW55TG9naW4uY3NzJ1xyXG5pbXBvcnQgJy4vU3R5bGUvQ29tcGFueVNpZ251cC5jc3MnXHJcbmltcG9ydCAnLi9TdHlsZS9IUkxvZ2luLmNzcydcclxuaW1wb3J0ICcuL1N0eWxlL1N0dWRlbnRIZWFkZXIuY3NzJ1xyXG5pbXBvcnQgJy4vU3R5bGUvUmVzdW1lLmNzcydcclxuaW1wb3J0ICcuL1N0eWxlL1NldHRpbmdzLmNzcydcclxuaW1wb3J0ICcuL1N0eWxlL0FkbWluLmNzcydcclxuaW1wb3J0ICcuL1N0eWxlL0FkbWlubG9naW4uY3NzJ1xyXG5pbXBvcnQgJy4vU3R5bGUvQ3JlYXRlaHIuY3NzJ1xyXG5pbXBvcnQgJy4vU3R5bGUvSFJIb21lLmNzcydcclxuaW1wb3J0ICcuL1N0eWxlL0hSSGVhZGVyLmNzcydcclxuaW1wb3J0ICcuL1N0eWxlL0NvbXBhbnlKb2JsaXN0LmNzcydcclxuaW1wb3J0ICcuL1N0eWxlL0pvYkFwcGxpY2F0aW9ucy5jc3MnXHJcbmltcG9ydCAnLi9TdHlsZS9BZG1pbkNvbnRhY3RyZXNwb25zZS5jc3MnXHJcbmltcG9ydCAnLi9TdHlsZS9Db21wYW55Sm9iLmNzcydcclxuaW1wb3J0ICcuL1N0eWxlL0NvbXBhbnlIZWFkZXIuY3NzJ1xyXG5pbXBvcnQgJy4vU3R5bGUvTGFuZGluZ3BhZ2UuY3NzJ1xyXG5pbXBvcnQgJy4vU3R5bGUvSm9ibGlzdC5jc3MnXHJcbmltcG9ydCAnLi9TdHlsZS9Bc3NpZ25lZEpvYnMuY3NzJ1xyXG4vLyBpbXBvcnQgJy4vU3R5bGUvQ29tcGFueVByb2ZpbGUuY3NzJ1xyXG5pbXBvcnQgJy4vU3R5bGUvQWRtaW5Db21wYW55Sm9ibGlzdC5jc3MnXHJcbmltcG9ydCAnLi9TdHlsZS9Db21wYW55SFJTZWxlY3RlZC5jc3MnXHJcbmltcG9ydCAnLi9TdHlsZS9Vc2VyRGFzaGJvYXJkLmNzcydcclxuaW1wb3J0ICcuL1N0eWxlL0FkbWluRGFzaGJvYXJkLmNzcydcclxuaW1wb3J0ICcuL1N0eWxlL0FwcGxpZWRqb2JsaXN0LmNzcydcclxuaW1wb3J0ICcuL1N0eWxlL092ZXJ2aWV3LmNzcydcclxuaW1wb3J0ICcuL1N0eWxlL1JlamVjdGVkQXBwbGljYXRpb24uY3NzJ1xyXG5pbXBvcnQgJy4vU3R5bGUvQ29tcGFueUludGVydmlld1Byb2Nlc3MuY3NzJ1xyXG5pbXBvcnQgJy4vU3R5bGUvQ29tcGFueVJlamVjdGVkQ2FuZGlkYXRlcy5jc3MnXHJcbmltcG9ydCAnLi9TdHlsZS9JbnRlcnZpZXdQcm9jZXNzSFIuY3NzJ1xyXG5pbXBvcnQgJy4vU3R5bGUvQ29tcGFueUhpcmVkQ2FuZGlkYXRlcy5jc3MnO1xyXG5pbXBvcnQgJy4vU3R5bGUvSHJSZWplY3RlZENhbmRpZGF0ZS5jc3MnO1xyXG5pbXBvcnQgXCIuL1N0eWxlL0Nob29zZWFwbGFuLmNzc1wiXHJcbmltcG9ydCBcIi4vU3R5bGUvU2VsZWN0YXBsYW4uY3NzXCJcclxuaW1wb3J0IFwiLi9TdHlsZS9QYWdlTm90Rm91bmQuY3NzXCJcclxuaW1wb3J0IFwiLi9TdHlsZS9Qcml2YXRlQ2hhdHMuY3NzXCJcclxuXHJcbmltcG9ydCBcIi4vU3R5bGUvSGVyb19MYW5kaW5ncGFnZS5jc3NcIlxyXG5pbXBvcnQgXCIuL1N0eWxlL0hvd2l0d29ya3NfbGFuZGluZ3BhZ2UuY3NzXCJcclxuaW1wb3J0IFwiLi9TdHlsZS9GZWF0dXJlUm9sZXNfbGFuZGluZ3BhZ2UuY3NzXCJcclxuaW1wb3J0IFwiLi9TdHlsZS9QbGF0Zm9ybUZlYXR1cmVzX2xhbmRpbmdwYWdlLmNzc1wiXHJcbmltcG9ydCBcIi4vU3R5bGUvU3VjY2Vzc1N0b3JpZXNfbGFuZGluZ3BhZ2UuY3NzXCJcclxuaW1wb3J0IFwiLi9TdHlsZS9SZXNvdXJjZXNfbGFuZGluZ3BhZ2UuY3NzXCJcclxuaW1wb3J0IFwiLi9TdHlsZS9Gb290ZXJfbGFuZGluZ3BhZ2UuY3NzXCJcclxuaW1wb3J0IFwiLi9TdHlsZS9SZXNvdXJjZXMuY3NzXCJcclxuaW1wb3J0IFwiLi9TdHlsZS9MYW5kaW5nLmNzc1wiXHJcbmltcG9ydCBcIi4vU3R5bGUvQ29tbXVuaXR5U2VjdGlvbi5jc3NcIlxyXG5cclxuaW1wb3J0IFwiLi9TdHlsZS9BbGxKb2JzUGFnZS5jc3NcIlxyXG5pbXBvcnQgXCIuL1N0eWxlL1ByaWNpbmcuY3NzXCJcclxuaW1wb3J0IFwiLi9TdHlsZS9SZWFsRXN0YXRlLmNzc1wiXHJcbmltcG9ydCBcIi4vU3R5bGUvQWRtaW5SZWFsRXN0YXRlLmNzc1wiXHJcblxyXG5pbXBvcnQgXCIuL1N0eWxlL0xvZ2lud2l0aG90cC5jc3NcIlxyXG5pbXBvcnQgXCIuL1N0eWxlL0NvbW11bml0eURhc2hib2FyZC5jc3NcIlxyXG5pbXBvcnQgXCIuL1N0eWxlL0NvbW11bml0eUxvZ2luLmNzc1wiXHJcbmltcG9ydCBcIi4vU3R5bGUvQ29tbXVuaXR5U2lnblVwLmNzc1wiXHJcbmltcG9ydCBcIi4vU3R5bGUvQ29tbXVuaXR5UG9zdHMuY3NzXCJcclxuXHJcbmNyZWF0ZVJvb3QoZG9jdW1lbnQuZ2V0RWxlbWVudEJ5SWQoJ3Jvb3QnKSkucmVuZGVyKFxyXG4gIDxTdHJpY3RNb2RlPlxyXG4gICAgPEdvb2dsZU9BdXRoUHJvdmlkZXIgY2xpZW50SWQ9XCI5NjA2NjI3MDE2NDgtdGR2cmFmaWI4N2d1cnJjZ3E5MjYzb2kxazJrdXBwcWIuYXBwcy5nb29nbGV1c2VyY29udGVudC5jb21cIj5cclxuICAgICAgPEFwcCAvPlxyXG4gICAgICA8L0dvb2dsZU9BdXRoUHJvdmlkZXI+XHJcbiAgPC9TdHJpY3RNb2RlPlxyXG4pXHJcbiJdLCJmaWxlIjoiRTovRE9MVEVDL0ZST05URU5EL3NyYy9tYWluLmpzeCJ9

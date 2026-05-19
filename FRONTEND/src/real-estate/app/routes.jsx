@@ -10,6 +10,10 @@ const PostProperty = lazy(() => import('../pages/PostProperty'));
 const Dashboard = lazy(() => import('../pages/Dashboard'));
 const Saved = lazy(() => import('../pages/Saved'));
 const AdminIndex = lazy(() => import('../pages/Admin/Index'));
+const WorkspaceDashboard = lazy(() => import('../pages/Workspace/WorkspaceDashboard'));
+const WorkspaceProperties = lazy(() => import('../pages/Workspace/WorkspaceProperties'));
+const WorkspaceInquiries = lazy(() => import('../pages/Workspace/WorkspaceInquiries'));
+const WorkspaceLeads = lazy(() => import('../pages/Workspace/WorkspaceLeads'));
 
 const routes = (
   <>
@@ -22,6 +26,10 @@ const routes = (
     <Route path="dashboard" element={<Dashboard />} />
     <Route path="saved" element={<Saved />} />
     <Route path="admin" element={<AdminIndex />} />
+    <Route path="workspace" element={<WorkspaceDashboard />} />
+    <Route path="workspace/properties" element={<WorkspaceProperties />} />
+    <Route path="workspace/inquiries" element={<WorkspaceInquiries />} />
+    <Route path="workspace/leads" element={<WorkspaceLeads />} />
   </>
 );
 

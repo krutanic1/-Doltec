@@ -117,6 +117,42 @@ export default function Dashboard() {
           </div>
         </div>
 
+        {/* Workspace Switcher Callout Banner */}
+        <div style={{
+          background: 'linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%)',
+          border: '1px solid #bfdbfe',
+          borderRadius: 16,
+          padding: '16px 20px',
+          marginBottom: 32,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          flexWrap: 'wrap',
+          gap: 16,
+          boxShadow: '0 4px 20px rgba(37,99,235,.05)'
+        }}>
+          <div>
+            <h4 style={{ margin: '0 0 4px', fontSize: 14, fontWeight: 900, color: '#1e40af', textTransform: 'uppercase', letterSpacing: '.06em' }}>Advanced Seller & Dealer Workspace</h4>
+            <p style={{ margin: 0, fontSize: 13, color: '#1e3a8a', opacity: 0.85 }}>Access multi-tenant team management, listing packages, inquiry workflows, and live campaign analytics.</p>
+          </div>
+          <Link to="/real-estate/workspace" style={{
+            background: '#2563eb',
+            color: '#fff',
+            textDecoration: 'none',
+            fontSize: 13,
+            fontWeight: 800,
+            padding: '10px 18px',
+            borderRadius: 10,
+            boxShadow: '0 4px 12px rgba(37,99,235,.2)',
+            transition: 'all 0.2s'
+          }}
+            onMouseOver={e => e.currentTarget.style.background = '#1d4ed8'}
+            onMouseOut={e => e.currentTarget.style.background = '#2563eb'}
+          >
+            Launch Workspace Console →
+          </Link>
+        </div>
+
         {/* Stats Grid */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 16, marginBottom: 40 }} className="re-stats-grid">
           {STATS.map((s, i) => (

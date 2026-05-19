@@ -4,8 +4,9 @@ import Cookies from 'js-cookie';
 
 const authStore = createAuthStore.getState ? createAuthStore : null;
 
+const envBase = (import.meta.env.VITE_API_URL || '').replace(/\/$/, '');
 const instance = axios.create({
-  baseURL: `${import.meta.env.VITE_API_URL}/api/v1`,
+  baseURL: `${envBase}/api/v1`,
   timeout: 60000,
 });
 

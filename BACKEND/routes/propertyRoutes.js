@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const propertyController = require('../controllers/propertyController');
+const leadUnlockController = require('../controllers/leadUnlockController');
 const auth = require('../middleware/auth');
 
 // @route   GET api/v1/properties
@@ -8,6 +9,7 @@ const auth = require('../middleware/auth');
 // @access  Public
 router.get('/', propertyController.getProperties);
 router.get('/cities', propertyController.getCities);
+router.get('/saved', auth, propertyController.getSavedProperties);
 
 // @route   GET api/v1/properties/:slug
 // @desc    Get property by slug
@@ -15,11 +17,16 @@ router.get('/cities', propertyController.getCities);
 router.get('/my-properties', auth, propertyController.getMyProperties);
 router.get('/:slug', propertyController.getPropertyBySlug);
 router.put('/:slug', auth, propertyController.updateProperty);
+router.post('/:id/save', auth, propertyController.saveProperty);
+router.delete('/:id/save', auth, propertyController.unsaveProperty);
 
 // @route   POST api/v1/properties
 // @desc    Create a new property
 // @access  Private
 router.post('/', auth, propertyController.createProperty);
 router.patch('/:id/moderate', auth, propertyController.moderateProperty);
+
+// Unlock Contact details for property (requires auth)
+router.post('/:propertyId/unlock-contact', auth, leadUnlockController.unlockContact);
 
 module.exports = router;

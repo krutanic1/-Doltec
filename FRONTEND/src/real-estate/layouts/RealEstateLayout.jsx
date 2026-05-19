@@ -39,6 +39,14 @@ const S = {
 
 function REHeader() {
   const nav = useNavigate();
+  const user = (() => {
+    try {
+      return JSON.parse(localStorage.getItem('user') || 'null');
+    } catch {
+      return null;
+    }
+  })();
+
   return (
     <header style={S.header}>
       <div style={S.inner}>
@@ -47,7 +55,7 @@ function REHeader() {
           <span style={S.logoText}>Doltec</span>
           <span style={S.logoBadge}>ESTATES</span>
         </Link>
-
+ 
         {/* Nav */}
         <nav style={S.nav}>
           {[['Buy', '/real-estate?type=buy'], ['Rent', '/real-estate?type=rent'],
@@ -55,10 +63,40 @@ function REHeader() {
           ].map(([label, to]) => (
             <Link key={label} to={to} style={S.navLink}>{label}</Link>
           ))}
+            <Link to="/real-estate/workspace" style={{ ...S.navLink, color: '#e2e8f0' }}>Workspace</Link>
         </nav>
-
+ 
         {/* CTA */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+          {user ? (
+            <Link to="/real-estate/dashboard" style={{
+              display: 'flex', alignItems: 'center', gap: 8, textDecoration: 'none',
+              color: 'rgba(255,255,255,0.85)', fontSize: 13, fontWeight: 700
+            }}>
+              <div style={{
+                width: 28, height: 28, borderRadius: '50%',
+                background: 'linear-gradient(135deg, #2563eb, #1d4ed8)',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                color: 'white', fontWeight: 800, fontSize: 11,
+              }}>
+                {user.name?.charAt(0)?.toUpperCase() || 'U'}
+              </div>
+              <span className="re-desktop-only">My Account</span>
+            </Link>
+          ) : (
+            <Link to="/real-estate/auth/login" style={{
+              color: 'rgba(255,255,255,0.85)', fontSize: 13, fontWeight: 700,
+              textDecoration: 'none', transition: 'color .15s',
+            }}
+              onMouseOver={e => e.currentTarget.style.color = '#fff'}
+              onMouseOut={e => e.currentTarget.style.color = 'rgba(255,255,255,0.85)'}
+            >
+              Sign In
+            </Link>
+          )}
+
+          <div style={{ width: 1, height: 16, background: 'rgba(255,255,255,0.15)' }} />
+
           <button style={S.postBtn} onClick={() => nav('/real-estate/post')}>
             Post Property <span style={{ color: '#4ade80', fontWeight: 900 }}>FREE</span>
           </button>

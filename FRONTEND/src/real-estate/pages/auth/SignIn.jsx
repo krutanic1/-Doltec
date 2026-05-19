@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 
 const S = { font: 'Inter,sans-serif' };
 
@@ -14,6 +14,7 @@ const Logo = () => (
 
 export default function SignIn() {
   const navigate  = useNavigate();
+  const location = useLocation();
   const [form, setForm]       = useState({ email: '', password: '' });
   const [loading, setLoading] = useState(false);
   const [error, setError]     = useState('');
@@ -32,7 +33,8 @@ export default function SignIn() {
       useAuthStore.getState().setUser(user);
       localStorage.setItem('user', JSON.stringify(user));
       localStorage.setItem('token', token);
-      navigate('/real-estate/dashboard');
+      const returnTo = location?.state?.from || '/real-estate/dashboard';
+      navigate(returnTo);
     } catch (err) {
       console.error('Login error:', err);
       setError(err.response?.data?.msg || err.response?.data?.message || err.message || 'Failed to login');

@@ -13,6 +13,7 @@ const initialState = {
   locationUrl: '',
   locationCoordinates: null,
   status: 'DRAFT',
+  tier: 'PLAIN',
   filters: {
     intent: 'BUY',
     segment: 'RESIDENTIAL',
@@ -91,6 +92,7 @@ export default function usePropertyForm(seed = {}) {
       propertyType: values.propertyType,
       price: values.price.amount,
       status: values.status,
+      tier: values.tier || 'PLAIN',
       filters: values.filters
     };
 

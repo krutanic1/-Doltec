@@ -18,16 +18,27 @@ const Company = require('./models/CompanyUser');
 const Community = require('./routes/Community');
 const UserPayment = require('./routes/UserPayment');
 const RealEstateRoute = require('./routes/RealEstateRoute');
+const SellerWorkspaceRoute = require('./routes/sellerWorkspaceRoutes');
 const { connectDB } = require('./db');
+const requestContext = require('./middleware/requestContext');
+const notFound = require('./middleware/notFound');
+const errorHandler = require('./middleware/errorHandler');
+const logger = require('./utils/logger');
 
 
 const app = express();
 const os = require('os');
 app.use(fileUpload({ useTempFiles: true, tempFileDir: os.tmpdir() }));
 app.use(cookieParser());
+app.use(requestContext);
 
 app.use((req, res, next) => {
-  console.log(`${req.method} ${req.url}`);
+  logger.info('Incoming request', {
+    requestId: req.requestId,
+    method: req.method,
+    path: req.url,
+    orgId: req.context?.orgId || null,
+  });
   next();
 });
 
@@ -43,7 +54,7 @@ app.use(async (req, res, next) => {
     next();
   } catch (error) {
     dbConnectPromise = null;
-    console.error('MongoDB connection error:', error);
+    logger.error('MongoDB connection error', error, { requestId: req.requestId });
     res.status(503).json({ message: 'Database unavailable' });
   }
 });
@@ -258,11 +269,21 @@ app.use('/', ApplicationRoute);
 app.use('/', Thought);
 app.use('/', UserPayment);
 app.use('/',CompanyPayment);
-app.use('/', Community)
-app.use('/', RealEstateRoute)
+app.use('/api/v1/seller-workspace', SellerWorkspaceRoute);
+app.use('/api/v1/workspace', SellerWorkspaceRoute);
+
+app.use('/', Community);
+app.use('/', RealEstateRoute);
 app.use('/api/v1/auth', require('./routes/authRoutes'));
 app.use('/api/v1/properties', require('./routes/propertyRoutes'));
 app.use('/api/v1/leads', require('./routes/leadRoutes'));
+app.use('/api/v1/inquiries', require('./routes/inquiryRoutes'));
+app.use('/api/v1/listings', require('./routes/listingRoutes'));
+app.use('/api/v1/owner', require('./routes/ownerRoutes'));
+
+// 404 + error handler should be the last middleware
+app.use(notFound);
+app.use(errorHandler);
 
 app.get("/", (req, res) => {
   res.send("Welcome to the Backend Server!");

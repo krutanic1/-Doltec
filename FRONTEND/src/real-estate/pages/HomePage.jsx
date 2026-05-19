@@ -28,6 +28,12 @@ const WHY_US = [
   { icon: '↑', title: 'Market Intelligence', desc: 'Data-driven insights on locality trends, pricing, and infrastructure.' },
 ];
 
+const QUICK_ACTIONS = [
+  { title: 'Saved Properties', desc: 'Revisit shortlisted listings in one place.', to: '/real-estate/saved', cta: 'Open Saved' },
+  { title: 'Compare Listings', desc: 'Side-by-side property comparison for faster decisions.', to: '/real-estate/compare', cta: 'Compare Now' },
+  { title: 'Post Property', desc: 'Publish your listing and start collecting leads.', to: '/real-estate/post-property', cta: 'List Free' },
+];
+
 const S = {
   font: 'Inter,sans-serif',
 };
@@ -37,7 +43,7 @@ export default function HomePage() {
   const [tab, setTab] = useState('BUY');
   const [q, setQ] = useState('');
 
-  const { data, loading } = usePropertyList({ limit: 4, status: 'published' });
+  const { data, loading } = usePropertyList({ limit: 4, status: 'APPROVED' });
   const properties = Array.isArray(data) ? data : data?.data || [];
 
   const doSearch = () => {
@@ -147,6 +153,34 @@ export default function HomePage() {
               <p style={{ fontSize: 12, color: '#64748b', fontWeight: 600, margin: 0, textTransform: 'uppercase', letterSpacing: '.08em' }}>{s.label}</p>
             </div>
           ))}
+        </div>
+      </section>
+
+      {/* ── QUICK ACTIONS ───────────────────────────────── */}
+      <section style={{ padding: '0 24px 80px' }}>
+        <div style={{ maxWidth: 1100, margin: '0 auto' }}>
+          <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', marginBottom: 24, gap: 16, flexWrap: 'wrap' }}>
+            <div>
+              <p style={{ fontSize: 11, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '.15em', color: '#2563eb', margin: '0 0 8px' }}>New Tools</p>
+              <h2 style={{ fontSize: 30, fontWeight: 900, color: '#0f172a', margin: 0, letterSpacing: '-.03em' }}>Saved and compare are now live</h2>
+              <p style={{ fontSize: 15, color: '#64748b', margin: '8px 0 0', fontWeight: 500 }}>Jump straight into the new flows from the homepage.</p>
+            </div>
+          </div>
+
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16 }} className="re-quick-grid">
+            {QUICK_ACTIONS.map((action) => (
+              <div key={action.title} style={{ background: '#fff', border: '1px solid #e2e8f0', borderRadius: 20, padding: 24, boxShadow: '0 10px 30px rgba(15,23,42,.04)' }}>
+                <div style={{ width: 52, height: 52, borderRadius: 16, background: '#eff6ff', border: '1px solid #bfdbfe', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#2563eb', fontSize: 20, fontWeight: 900, marginBottom: 16 }}>
+                  {action.title[0]}
+                </div>
+                <h3 style={{ fontSize: 18, fontWeight: 900, color: '#0f172a', margin: '0 0 8px' }}>{action.title}</h3>
+                <p style={{ color: '#64748b', fontSize: 14, lineHeight: 1.6, margin: '0 0 18px' }}>{action.desc}</p>
+                <button onClick={() => navigate(action.to)} style={{ background: '#2563eb', color: '#fff', border: 'none', padding: '12px 16px', borderRadius: 12, fontWeight: 800, cursor: 'pointer', width: '100%' }}>
+                  {action.cta}
+                </button>
+              </div>
+            ))}
+          </div>
         </div>
       </section>
 
@@ -296,7 +330,7 @@ export default function HomePage() {
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
         @keyframes pulse { 0%,100%{opacity:1}50%{opacity:.5} }
-        @media (max-width:1024px){.re-card-grid,.re-city-grid{grid-template-columns:repeat(2,1fr)!important}}
+        @media (max-width:1024px){.re-card-grid,.re-city-grid,.re-quick-grid{grid-template-columns:repeat(2,1fr)!important}}
         @media (max-width:720px){
           .re-why-grid{grid-template-columns:1fr!important;gap:48px!important}
           section:first-of-type { padding: 80px 0 60px !important; }
@@ -306,7 +340,7 @@ export default function HomePage() {
           .re-search-row > * { width: 100% !important; }
           .re-search-tabs { justify-content: center; }
         }
-        @media (max-width:500px){.re-card-grid,.re-city-grid{grid-template-columns:1fr!important}}
+        @media (max-width:500px){.re-card-grid,.re-city-grid,.re-quick-grid{grid-template-columns:1fr!important}}
       `}</style>
     </div>
   );

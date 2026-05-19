@@ -15,6 +15,8 @@ export async function getProperty(slug) {
   return res.data;
 }
 
+export const getPropertyBySlug = getProperty;
+
 export async function createProperty(formData) {
   try {
     const res = await api.post('/properties', formData);
@@ -42,5 +44,20 @@ export async function deleteProperty(id) {
 
 export async function moderateProperty(id, payload) {
   const res = await api.patch(`/properties/${id}/moderate`, payload);
+  return res.data;
+}
+
+export async function listSavedProperties() {
+  const res = await api.get('/properties/saved');
+  return res.data;
+}
+
+export async function saveProperty(id) {
+  const res = await api.post(`/properties/${id}/save`);
+  return res.data;
+}
+
+export async function unsaveProperty(id) {
+  const res = await api.delete(`/properties/${id}/save`);
   return res.data;
 }
