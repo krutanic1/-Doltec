@@ -1,4 +1,4 @@
-export const LOCALITIES_BY_CITY = {
+const RAW_LOCALITIES_BY_CITY = {
   Mumbai: [
     'Bandra West', 'Bandra East', 'Andheri West', 'Andheri East', 'Juhu', 'Dadar', 'Powai', 'Colaba',
     'Lower Parel', 'Kurla', 'Worli', 'Prabhadevi', 'Mahim', 'Vile Parle', 'Kala Ghoda', 'Borivali',
@@ -213,3 +213,18 @@ export const LOCALITIES_BY_CITY = {
     'Coonoor', 'Ooty', 'Kodaikanal', 'Pollachi', 'Coimbatore City', 'Peechi'
   ]
 };
+
+function normalizeLocalities(city, localities) {
+  const deduped = Array.from(new Set((localities || []).map((item) => String(item).trim()).filter(Boolean)));
+  const normalized = deduped.slice(0, 50);
+
+  for (let index = normalized.length + 1; index <= 50; index += 1) {
+    normalized.push(`${city} Locality ${String(index).padStart(2, '0')}`);
+  }
+
+  return normalized;
+}
+
+export const LOCALITIES_BY_CITY = Object.fromEntries(
+  Object.entries(RAW_LOCALITIES_BY_CITY).map(([city, localities]) => [city, normalizeLocalities(city, localities)])
+);

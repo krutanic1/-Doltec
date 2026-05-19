@@ -120,7 +120,6 @@ export default function PropertyForm({ form, onSubmit, currentStep, setCurrentSt
   const [showLocalityDropdown, setShowLocalityDropdown] = React.useState(false);
 
   React.useEffect(() => {
-<<<<<<< HEAD
     listCities()
       .then(apiCities => {
         const merged = Array.from(new Set([...(apiCities || []), ...INDIAN_CITIES]));
@@ -130,10 +129,7 @@ export default function PropertyForm({ form, onSubmit, currentStep, setCurrentSt
         console.error(err);
         setCityOptions([...INDIAN_CITIES].sort());
       });
-=======
-    listCities().then(setCityOptions).catch(console.error);
-    
-    // Auto-select Posted By based on user role and skip manual input field
+
     try {
       const userRole = getUserRole();
       let mappedPostedBy = 'OWNER';
@@ -143,7 +139,6 @@ export default function PropertyForm({ form, onSubmit, currentStep, setCurrentSt
     } catch (e) {
       console.error('Error auto-selecting user role:', e);
     }
->>>>>>> eaabefc5d7e7d302dcc503ea997566e21dd84adb
   }, []);
 
   const handleSegmentChange = (e) => {
