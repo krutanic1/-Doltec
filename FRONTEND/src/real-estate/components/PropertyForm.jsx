@@ -13,7 +13,9 @@ import {
   POSTED_BY_OPTIONS,
 } from '../constants/filterOptions';
 import CustomSelect from './CustomSelect';
-import { listCities } from '../services/propertiesApi';
+import { listCities, listLocalities } from '../services/propertiesApi';
+import { INDIAN_CITIES } from '../data/indianCities';
+import { LOCALITIES_BY_CITY } from '../data/localitiesByCity';
 
 const FONT = 'Inter, -apple-system, sans-serif';
 
@@ -113,9 +115,19 @@ export default function PropertyForm({ form, onSubmit, currentStep, setCurrentSt
   const [locationLookupState, setLocationLookupState] = React.useState({ loading: false, message: '' });
   const [cityOptions, setCityOptions] = React.useState([]);
   const [showCityDropdown, setShowCityDropdown] = React.useState(false);
+  const [localityOptions, setLocalityOptions] = React.useState([]);
+  const [showLocalityDropdown, setShowLocalityDropdown] = React.useState(false);
 
   React.useEffect(() => {
-    listCities().then(setCityOptions).catch(console.error);
+    listCities()
+      .then(apiCities => {
+        const merged = Array.from(new Set([...(apiCities || []), ...INDIAN_CITIES]));
+        setCityOptions(merged.sort());
+      })
+      .catch(err => {
+        console.error(err);
+        setCityOptions([...INDIAN_CITIES].sort());
+      });
   }, []);
 
   const handleSegmentChange = (e) => {
@@ -166,6 +178,22 @@ export default function PropertyForm({ form, onSubmit, currentStep, setCurrentSt
       },
       { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
     );
+  };
+
+  const fetchLocalitiesForCity = async (city) => {
+    if (!city) {
+      setLocalityOptions([]);
+      return;
+    }
+    try {
+      const apiLocalities = await listLocalities(city);
+      const fallback = LOCALITIES_BY_CITY[city] || [];
+      const merged = Array.from(new Set([...(apiLocalities || []), ...fallback]));
+      setLocalityOptions(merged.sort());
+    } catch (err) {
+      console.error('Failed to load localities', err);
+      setLocalityOptions((LOCALITIES_BY_CITY[city] || []).slice().sort());
+    }
   };
 
   return (
@@ -259,17 +287,12 @@ export default function PropertyForm({ form, onSubmit, currentStep, setCurrentSt
               Location
             </h2>
             <div style={grid2} className="re-form-grid">
-              <Field label="Locality / Area">
-                <input style={inputStyle} placeholder="e.g. Bandra West"
-                  value={values.locality} onChange={e => setField('locality', e.target.value)}
-                  onFocus={onFocus} onBlur={onBlur} required />
-              </Field>
               <Field label="City">
                 <div style={{ position: 'relative' }}>
                   <input style={inputStyle} placeholder="e.g. Mumbai"
                     value={values.city} 
-                    onChange={e => { setField('city', e.target.value); setShowCityDropdown(true); }}
-                    onFocus={() => setShowCityDropdown(true)} 
+                    onChange={e => { const v = e.target.value; setField('city', v); setShowCityDropdown(true); fetchLocalitiesForCity(v); }}
+                    onFocus={() => { setShowCityDropdown(true); fetchLocalitiesForCity(values.city); }} 
                     required />
                   
                   {showCityDropdown && (
@@ -282,7 +305,7 @@ export default function PropertyForm({ form, onSubmit, currentStep, setCurrentSt
                       <div style={{ padding: '6px 12px', fontSize: 10, fontWeight: 800, color: '#94a3b8', textTransform: 'uppercase' }}>Available Cities</div>
                       {cityOptions.filter(c => c.toLowerCase().includes(values.city?.toLowerCase() || '')).map(c => (
                         <div key={c} 
-                          onClick={() => { setField('city', c); setShowCityDropdown(false); }}
+                          onClick={() => { setField('city', c); setShowCityDropdown(false); fetchLocalitiesForCity(c); }}
                           style={{ padding: '10px 12px', fontSize: 13, fontWeight: 600, color: '#334155', cursor: 'pointer' }}
                           onMouseOver={e => e.currentTarget.style.background = '#f8fafc'}
                           onMouseOut={e => e.currentTarget.style.background = 'transparent'}
@@ -292,6 +315,52 @@ export default function PropertyForm({ form, onSubmit, currentStep, setCurrentSt
                     </div>
                   )}
                   {showCityDropdown && <div onClick={() => setShowCityDropdown(false)} style={{ position: 'fixed', inset: 0, zIndex: 999 }} />}
+                </div>
+              </Field>
+              <Field label="Locality / Area">
+                <div style={{ position: 'relative' }}>
+                  <input style={inputStyle} placeholder="e.g. Bandra West"
+                    value={values.locality} onChange={e => { const v = e.target.value; setField('locality', v); setShowLocalityDropdown(true); }}
+                    onFocus={() => setShowLocalityDropdown(true)} onBlur={onBlur} required />
+
+                  {showLocalityDropdown && localityOptions.length > 0 && (
+                    <div style={{
+                      position: 'absolute', top: '105%', left: 0, right: 0,
+                      background: '#fff', borderRadius: 12, border: '1px solid #e2e8f0',
+                      boxShadow: '0 10px 25px rgba(0,0,0,.1)', zIndex: 1000,
+                      maxHeight: 300, overflowY: 'auto', padding: '6px 0'
+                    }}>
+                      {localityOptions
+                        .filter(l => l.toLowerCase().includes((values.locality || '').toLowerCase()))
+                        .slice(0, 50)
+                        .map(l => (
+                        <div key={l}
+                          onClick={() => { setField('locality', l); setShowLocalityDropdown(false); }}
+                          style={{ padding: '10px 12px', fontSize: 13, fontWeight: 600, color: '#334155', cursor: 'pointer' }}
+                          onMouseOver={e => e.currentTarget.style.background = '#f8fafc'}
+                          onMouseOut={e => e.currentTarget.style.background = 'transparent'}
+                        >{l}</div>
+                      ))}
+                      {localityOptions.filter(l => l.toLowerCase().includes((values.locality || '').toLowerCase())).length === 0 && (
+                        <div style={{ padding: '10px 12px', fontSize: 12, color: '#94a3b8' }}>
+                          No localities found. Continue typing to add a new one.
+                        </div>
+                      )}
+                    </div>
+                  )}
+                  {showLocalityDropdown && localityOptions.length === 0 && (
+                    <div style={{
+                      position: 'absolute', top: '105%', left: 0, right: 0,
+                      background: '#fff', borderRadius: 12, border: '1px solid #e2e8f0',
+                      boxShadow: '0 10px 25px rgba(0,0,0,.1)', zIndex: 1000,
+                      padding: '10px 12px'
+                    }}>
+                      <div style={{ fontSize: 12, color: '#94a3b8' }}>
+                        Select a city first to see available localities
+                      </div>
+                    </div>
+                  )}
+                  {showLocalityDropdown && <div onClick={() => setShowLocalityDropdown(false)} style={{ position: 'fixed', inset: 0, zIndex: 999 }} />}
                 </div>
               </Field>
             </div>

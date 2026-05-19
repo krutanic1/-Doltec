@@ -10,6 +10,11 @@ export async function listCities() {
   return res.data;
 }
 
+export async function listLocalities(city) {
+  const res = await api.get('/properties/localities', { params: { city } });
+  return res.data;
+}
+
 export async function getProperty(slug) {
   const res = await api.get(`/properties/${encodeURIComponent(slug)}`);
   return res.data;

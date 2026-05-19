@@ -299,6 +299,22 @@ exports.getCities = async (req, res) => {
   }
 };
 
+exports.getLocalities = async (req, res) => {
+  try {
+    const { city } = req.query;
+    const filter = { status: { $ne: 'REJECTED' } };
+    if (city) {
+      // Match city case-insensitively
+      filter.city = { $regex: city, $options: 'i' };
+    }
+    const localities = await Property.distinct('locality', filter);
+    res.json(localities.filter(Boolean));
+  } catch (err) {
+    console.error('Get Localities Error:', err);
+    res.status(500).send('Server error');
+  }
+};
+
 exports.moderateProperty = async (req, res) => {
   try {
     const { status, reviewNote } = req.body;
