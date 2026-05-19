@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const authController = require('../controllers/authController');
+const leadUnlockController = require('../controllers/leadUnlockController');
 
 // @route   POST api/v1/auth/register
 // @desc    Register user
@@ -11,5 +12,11 @@ router.post('/register', authController.register);
 // @desc    Authenticate user & get token
 // @access  Public
 router.post('/login', authController.login);
+router.post('/refresh', authController.refresh);
+router.post('/logout', authController.logout);
+
+// Lead capture flow registration and login
+router.post('/register-and-unlock', leadUnlockController.registerAndUnlock);
+router.post('/login-and-unlock', leadUnlockController.loginAndUnlock);
 
 module.exports = router;

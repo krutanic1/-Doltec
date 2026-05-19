@@ -16,6 +16,7 @@ import CustomSelect from './CustomSelect';
 import { listCities, listLocalities } from '../services/propertiesApi';
 import { INDIAN_CITIES } from '../data/indianCities';
 import { LOCALITIES_BY_CITY } from '../data/localitiesByCity';
+import { getUserRole } from '../utils/access';
 
 const FONT = 'Inter, -apple-system, sans-serif';
 
@@ -119,6 +120,7 @@ export default function PropertyForm({ form, onSubmit, currentStep, setCurrentSt
   const [showLocalityDropdown, setShowLocalityDropdown] = React.useState(false);
 
   React.useEffect(() => {
+<<<<<<< HEAD
     listCities()
       .then(apiCities => {
         const merged = Array.from(new Set([...(apiCities || []), ...INDIAN_CITIES]));
@@ -128,6 +130,20 @@ export default function PropertyForm({ form, onSubmit, currentStep, setCurrentSt
         console.error(err);
         setCityOptions([...INDIAN_CITIES].sort());
       });
+=======
+    listCities().then(setCityOptions).catch(console.error);
+    
+    // Auto-select Posted By based on user role and skip manual input field
+    try {
+      const userRole = getUserRole();
+      let mappedPostedBy = 'OWNER';
+      if (userRole === 'AGENT') mappedPostedBy = 'AGENT';
+      else if (userRole === 'BUILDER') mappedPostedBy = 'BUILDER';
+      setField('filters.postedBy', mappedPostedBy);
+    } catch (e) {
+      console.error('Error auto-selecting user role:', e);
+    }
+>>>>>>> eaabefc5d7e7d302dcc503ea997566e21dd84adb
   }, []);
 
   const handleSegmentChange = (e) => {
@@ -241,9 +257,6 @@ export default function PropertyForm({ form, onSubmit, currentStep, setCurrentSt
               <input style={inputStyle} type="number" placeholder="e.g. 1200"
                 value={values.areaSqFt || ''} onChange={e => setField('areaSqFt', e.target.value)}
                 onFocus={onFocus} onBlur={onBlur} />
-            </Field>
-            <Field label="Posted By">
-              <CustomSelect value={values.filters?.postedBy || 'OWNER'} onChange={e => setField('filters.postedBy', e.target.value)} options={POSTED_BY_OPTIONS} />
             </Field>
           </div>
         </div>
@@ -505,6 +518,112 @@ export default function PropertyForm({ form, onSubmit, currentStep, setCurrentSt
               <span style={{ fontSize: 13, fontWeight: 700, color: '#15803d' }}>{preview.imageCount} image{preview.imageCount > 1 ? 's' : ''} selected and ready</span>
             </div>
           )}
+        </div>
+      )}
+
+      {/* ── STEP 4: Choose Listing Plan ─────────────────────── */}
+      {currentStep === 4 && (
+        <div style={sectionStyle}>
+          <h2 style={sectionTitleStyle}>
+            <span style={sectionNumStyle}>6</span>
+            Choose Listing Promotion Plan
+          </h2>
+          <p style={{ margin: 0, fontSize: 13, color: '#64748b', lineHeight: 1.5 }}>
+            Promoted listings get up to 10× higher conversions and direct buyer inquiries. Choose the listing tier that matches your goals.
+          </p>
+
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }} className="re-form-grid">
+            {[
+              {
+                id: 'PLAIN',
+                name: 'Basic (Standard)',
+                cost: 'Free',
+                desc: 'Standard organic reach. Keep your listing active indefinitely without fees.',
+                badge: { bg: '#f1f5f9', text: '#475569', label: 'Basic' },
+              },
+              {
+                id: 'BASIC',
+                name: 'Silver Booster',
+                cost: '1 Credit',
+                desc: '30-day moderate reach boost. Highlighted styling in property searches.',
+                badge: { bg: 'linear-gradient(135deg, #f8fafc 0%, #cbd5e1 100%)', text: '#475569', label: 'Silver' },
+              },
+              {
+                id: 'PLATINUM',
+                name: 'Gold Project Spotlight',
+                cost: '3 Credits',
+                desc: '30-day top-priority boost. Guaranteed highlighted visibility in keyword queries.',
+                badge: { bg: 'linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%)', text: '#d97706', label: 'Gold ⭐' },
+              },
+              {
+                id: 'PREMIUM',
+                name: 'Platinum Elite Spotlight',
+                cost: '5 Credits',
+                desc: '30-day homepage spotlights and absolute top search ranking.',
+                badge: { bg: 'linear-gradient(135deg, #f8fafc 0%, #cbd5e1 100%)', text: '#0f172a', label: 'Platinum 💎' },
+              },
+            ].map((plan) => {
+              const active = (values.tier || 'PLAIN') === plan.id;
+              return (
+                <div
+                  key={plan.id}
+                  onClick={() => setField('tier', plan.id)}
+                  style={{
+                    border: `2px solid ${active ? '#2563eb' : '#e2e8f0'}`,
+                    borderRadius: 16,
+                    padding: 20,
+                    cursor: 'pointer',
+                    background: active ? '#eff6ff' : '#fff',
+                    transition: 'all .15s ease',
+                    position: 'relative',
+                    boxShadow: active ? '0 8px 24px rgba(37,99,235,.1)' : 'none',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    justifyContent: 'space-between',
+                    minHeight: 150,
+                  }}
+                  onMouseOver={(e) => {
+                    if (!active) e.currentTarget.style.borderColor = '#bfdbfe';
+                  }}
+                  onMouseOut={(e) => {
+                    if (!active) e.currentTarget.style.borderColor = '#e2e8f0';
+                  }}
+                >
+                  <div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+                      <span style={{ fontWeight: 800, color: '#0f172a', fontSize: 15 }}>{plan.name}</span>
+                      <span
+                        style={{
+                          padding: '3px 8px',
+                          borderRadius: 6,
+                          fontSize: 10,
+                          fontWeight: 700,
+                          background: plan.badge.bg,
+                          color: plan.badge.text,
+                          border: '1px solid #cbd5e1',
+                        }}
+                      >
+                        {plan.badge.label}
+                      </span>
+                    </div>
+                    <p style={{ margin: '0 0 16px', fontSize: 13, color: '#64748b', lineHeight: 1.5 }}>
+                      {plan.desc}
+                    </p>
+                  </div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 'auto', paddingTop: 10, borderTop: '1px solid #cbd5e1' }}>
+                    <span style={{ fontSize: 13, fontWeight: 700, color: active ? '#2563eb' : '#475569' }}>
+                      Cost: {plan.cost}
+                    </span>
+                    {active && (
+                      <span style={{ fontSize: 12, fontWeight: 800, color: '#2563eb', display: 'flex', alignItems: 'center', gap: 4 }}>
+                        ✓ Selected
+                      </span>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
         </div>
       )}
 

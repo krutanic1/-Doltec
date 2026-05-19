@@ -35,7 +35,15 @@ export default function SignUp() {
       navigate('/real-estate/dashboard');
     } catch (err) {
       console.error('Registration error:', err);
-      setError(err.response?.data?.msg || err.response?.data?.message || err.message || 'Failed to register');
+      const server = err.response?.data || {};
+      const serverMsg = server.msg || server.message || err.message || 'Failed to register';
+      if (server.field === 'email') {
+        setError(`${serverMsg} Try signing in or use a different email.`);
+      } else if (server.field === 'phone') {
+        setError(`${serverMsg} Use a different phone number or recover the existing account.`);
+      } else {
+        setError(serverMsg);
+      }
     } finally {
       setLoading(false);
     }

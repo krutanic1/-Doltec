@@ -8,7 +8,8 @@ const NAV = [
   { label: 'Rent', to: '/real-estate/properties?intent=RENT' },
   { label: 'New Projects', to: '/real-estate/properties?segment=PROJECTS' },
   { label: 'Commercial', to: '/real-estate/properties?segment=COMMERCIAL' },
-  { label: 'Insights', to: '#' },
+  { label: 'Saved', to: '/real-estate/saved' },
+  { label: 'Compare', to: '/real-estate/compare' },
 ];
 
 export default function RealEstateHeader() {
@@ -71,7 +72,7 @@ export default function RealEstateHeader() {
           {/* Right: Actions */}
           <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0 }}>
             {/* Saved */}
-            <Link to="/real-estate/saved" title="Saved" style={{
+            <Link to="/real-estate/saved" title="Saved properties" style={{
               display: 'flex', alignItems: 'center', justifyContent: 'center',
               width: 38, height: 38, borderRadius: 9, background: '#f8fafc',
               border: '1px solid #e2e8f0', color: '#64748b', textDecoration: 'none', transition: 'all .15s',
@@ -173,6 +174,14 @@ export default function RealEstateHeader() {
               >{n.label}</Link>
             ))}
             <div style={{ height: 1, background: '#f1f5f9', margin: '8px 0' }} />
+            <Link to="/real-estate/saved" style={{
+              background: '#f8fafc', color: '#334155', textDecoration: 'none',
+              padding: '13px', borderRadius: 10, fontWeight: 700, textAlign: 'center', border: '1px solid #e2e8f0', marginBottom: 8,
+            }}>Saved Properties</Link>
+            <Link to="/real-estate/compare" style={{
+              background: '#eff6ff', color: '#2563eb', textDecoration: 'none',
+              padding: '13px', borderRadius: 10, fontWeight: 700, textAlign: 'center', border: '1px solid #bfdbfe', marginBottom: 12,
+            }}>Compare Properties</Link>
             <Link to="/real-estate/post-property" style={{
               background: '#2563eb', color: 'white', textDecoration: 'none',
               padding: '13px', borderRadius: 10, fontWeight: 700, textAlign: 'center',

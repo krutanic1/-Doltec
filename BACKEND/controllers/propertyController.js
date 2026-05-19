@@ -1,6 +1,15 @@
 const Property = require('../models/Property');
+const SavedProperty = require('../models/SavedProperty');
+const User = require('../models/User');
+const Organization = require('../models/Organization');
+const ListingUpgradeHistory = require('../models/ListingUpgradeHistory');
+const CreditTransaction = require('../models/CreditTransaction');
 const slugify = require('slugify');
 const cloudinary = require("../middleware/cloudinary");
+
+function getActorId(req) {
+  return req.user?.id || req.user?._id || req.user?.sub || null;
+}
 
 function toNumber(value) {
   const parsed = Number(value);
@@ -109,6 +118,36 @@ exports.getProperties = async (req, res) => {
     console.log('Property Query:', JSON.stringify(query, null, 2));
     let properties = await Property.find(query).populate('poster', 'name email phone').sort(sortObj);
 
+    // Always sort by advertising tier priority first (Platinum > Gold > Silver > Basic)
+    const tierPriorityMap = {
+      PREMIUM: 4,  // Platinum
+      PLATINUM: 3, // Gold
+      BASIC: 2,    // Silver
+      PLAIN: 1     // Basic
+    };
+    properties.sort((a, b) => {
+      const pA = tierPriorityMap[a.tier || 'PLAIN'] || 1;
+      const pB = tierPriorityMap[b.tier || 'PLAIN'] || 1;
+      if (pA !== pB) {
+        return pB - pA; // Higher tier always gets top placement
+      }
+      
+      // Secondary sorting logic inside each tier group
+      if (sort === 'price_asc') {
+        const priceA = a.pricing?.amount || a.price || 0;
+        const priceB = b.pricing?.amount || b.price || 0;
+        return priceA - priceB;
+      }
+      if (sort === 'price_desc') {
+        const priceA = a.pricing?.amount || a.price || 0;
+        const priceB = b.pricing?.amount || b.price || 0;
+        return priceB - priceA;
+      }
+      
+      // Default: Newest first
+      return new Date(b.createdAt) - new Date(a.createdAt);
+    });
+
     const centerLat = toNumber(lat);
     const centerLng = toNumber(lng);
     const searchRadius = toNumber(radius) || 10;
@@ -160,7 +199,7 @@ exports.createProperty = async (req, res) => {
       return res.status(400).json({ msg: 'Invalid JSON data format', error: e.message });
     }
 
-    data.poster = req.user.id;
+    data.poster = getActorId(req);
     data.slug = slugify(data.title, { lower: true }) + '-' + Date.now();
     
     console.log('--- Create Property Debug ---');
@@ -206,9 +245,92 @@ exports.createProperty = async (req, res) => {
       }
     }
 
+    // Deduct credits if a premium tier is selected on creation
+    const selectedTier = String(data.tier || 'PLAIN').toUpperCase();
+    let creditsDeducted = 0;
+    if (selectedTier !== 'PLAIN') {
+      const tierCost = { BASIC: 1, PLATINUM: 3, PREMIUM: 5 };
+      const cost = tierCost[selectedTier] || 0;
+      
+      if (cost > 0) {
+        const actorId = getActorId(req);
+        const user = await User.findById(actorId);
+        if (!user) {
+          return res.status(404).json({ msg: 'User not found' });
+        }
+        
+        // If user belongs to an organization, check org limits, else check user jobLimit
+        if (user.orgId) {
+          const org = await Organization.findById(user.orgId);
+          if (!org) {
+            return res.status(404).json({ msg: 'Organization not found' });
+          }
+          const currentCredits = org.limits?.featuredSlots || 0;
+          if (currentCredits < cost) {
+            return res.status(402).json({ msg: `Insufficient credits in organization plan to post a ${selectedTier} listing. Cost is ${cost} credits, you have ${currentCredits}.` });
+          }
+          
+          org.limits.featuredSlots = currentCredits - cost;
+          org.markModified('limits');
+          await org.save();
+          
+          // Log credit transaction
+          const lastTx = await CreditTransaction.findOne({ orgId: user.orgId }).sort({ createdAt: -1 });
+          const lastBalance = lastTx ? lastTx.balanceAfter : currentCredits;
+          
+          const transaction = new CreditTransaction({
+            orgId: user.orgId,
+            accountType: 'featured',
+            direction: 'debit',
+            amount: cost,
+            balanceAfter: lastBalance - cost,
+            reason: `Listing created directly with ${selectedTier} tier: ${data.title}`,
+            refType: 'Property',
+            createdBy: actorId
+          });
+          await transaction.save();
+          creditsDeducted = cost;
+          data.orgId = user.orgId;
+        } else {
+          const directCredits = user.jobLimit || 0;
+          if (directCredits < cost) {
+            return res.status(402).json({ msg: `Insufficient credits to post a ${selectedTier} listing. Cost is ${cost} credits, you have ${directCredits}.` });
+          }
+          user.jobLimit = directCredits - cost;
+          await user.save();
+          creditsDeducted = cost;
+        }
+        
+        // Setup expiration date (30 days)
+        data.expiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
+      }
+    }
+
     data.status = 'PENDING';
     const property = new Property(data);
     await property.save();
+
+    // Log upgrade history after saving to get the property ID
+    if (selectedTier !== 'PLAIN') {
+      const history = new ListingUpgradeHistory({
+        propertyId: property._id,
+        orgId: data.orgId || null,
+        userId: getActorId(req),
+        fromTier: 'PLAIN',
+        toTier: selectedTier,
+        creditsDeducted,
+        reason: `Direct creation with promoted tier ${selectedTier}`
+      });
+      await history.save();
+      
+      // Update reference to transaction if org transaction exists
+      await CreditTransaction.findOneAndUpdate(
+        { refType: 'Property', createdBy: getActorId(req) },
+        { $set: { refId: property._id } },
+        { sort: { createdAt: -1 } }
+      );
+    }
+    
     res.json(property);
   } catch (err) {
     console.error('Property Create Error:', err);
@@ -228,7 +350,7 @@ exports.updateProperty = async (req, res) => {
     const property = await Property.findOne({ slug: req.params.slug });
     if (!property) return res.status(404).json({ msg: 'Property not found' });
     
-    if (property.poster.toString() !== req.user.id) {
+    if (property.poster.toString() !== getActorId(req)) {
       return res.status(401).json({ msg: 'User not authorized' });
     }
 
@@ -283,7 +405,7 @@ exports.getPropertyBySlug = async (req, res) => {
 
 exports.getMyProperties = async (req, res) => {
   try {
-    const properties = await Property.find({ poster: req.user.id }).sort({ createdAt: -1 });
+    const properties = await Property.find({ poster: getActorId(req) }).sort({ createdAt: -1 });
     res.json(properties);
   } catch (err) {
     res.status(500).send('Server error');
@@ -332,5 +454,72 @@ exports.moderateProperty = async (req, res) => {
     res.json(property);
   } catch (err) {
     res.status(500).send('Server error');
+  }
+};
+
+exports.getSavedProperties = async (req, res) => {
+  try {
+    const userId = getActorId(req);
+    if (!userId) {
+      return res.status(401).json({ msg: 'No token, authorization denied' });
+    }
+
+    const savedItems = await SavedProperty.find({ userId })
+      .populate({
+        path: 'propertyId',
+        populate: { path: 'poster', select: 'name email phone' },
+      })
+      .sort({ createdAt: -1 });
+
+    const properties = savedItems.map((item) => item.propertyId).filter(Boolean);
+    return res.status(200).json({ success: true, data: properties });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
+
+exports.saveProperty = async (req, res) => {
+  try {
+    const userId = getActorId(req);
+    if (!userId) {
+      return res.status(401).json({ msg: 'No token, authorization denied' });
+    }
+
+    const propertyId = req.params.id;
+    const property = await Property.findById(propertyId).select('_id');
+    if (!property) {
+      return res.status(404).json({ success: false, message: 'Property not found' });
+    }
+
+    const saved = await SavedProperty.findOneAndUpdate(
+      { userId, propertyId },
+      { userId, propertyId },
+      { upsert: true, new: true, setDefaultsOnInsert: true }
+    );
+
+    return res.status(200).json({ success: true, message: 'Property saved', data: saved });
+  } catch (err) {
+    if (err.code === 11000) {
+      return res.status(200).json({ success: true, message: 'Property saved' });
+    }
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
+
+exports.unsaveProperty = async (req, res) => {
+  try {
+    const userId = getActorId(req);
+    if (!userId) {
+      return res.status(401).json({ msg: 'No token, authorization denied' });
+    }
+
+    const result = await SavedProperty.deleteOne({
+      userId,
+      propertyId: req.params.id,
+    });
+
+    return res.status(200).json({ success: true, message: 'Property removed from saved list', deleted: result.deletedCount });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
   }
 };

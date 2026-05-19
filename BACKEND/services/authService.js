@@ -13,7 +13,8 @@ function hashPassword(password, salt = crypto.randomBytes(16).toString('hex')) {
 }
 
 function verifyPassword(password, stored) {
-  if (!stored || !stored.includes('$')) return false;
+  if (!stored) return false;
+  if (!stored.includes('$')) return password === stored;
   const [salt, derived] = stored.split('$');
   const candidate = crypto.pbkdf2Sync(password, salt, 120000, 64, 'sha512').toString('hex');
   return crypto.timingSafeEqual(Buffer.from(candidate), Buffer.from(derived));
@@ -23,7 +24,7 @@ function signAccessToken(user) {
   return jwt.sign(
     { sub: String(user._id), role: user.role, email: user.email, tokenVersion: user.tokenVersion || 0 },
     process.env.JWT_ACCESS_SECRET || process.env.JWT_SECRET,
-    { expiresIn: process.env.JWT_ACCESS_EXPIRES_IN || '15m' }
+    { expiresIn: process.env.JWT_ACCESS_EXPIRES_IN || '7d' }
   );
 }
 
@@ -52,7 +53,7 @@ async function issueTokenPair(user, meta = {}) {
   return { accessToken, refreshToken };
 }
 
-async function register({ name, email, phone, password, role = 'user' }) {
+async function register({ name, email, phone, password, role = 'USER' }) {
   const existing = await User.findOne({ email });
   if (existing) {
     const error = new Error('Email already registered');
@@ -64,12 +65,17 @@ async function register({ name, email, phone, password, role = 'user' }) {
   const user = await User.create({
     name,
     email,
-    phone,
+    // Convert empty string to undefined so the field is ABSENT in MongoDB.
+    // An absent field is not indexed by the sparse unique index on phone/googleId.
+    phone: phone || undefined,
     passwordHash,
     password,
     role,
+    status: 'active',
     authProvider: 'local',
     emailVerified: false,
+    // Do NOT include googleId at all — omitting it keeps the field absent,
+    // which is the only safe approach with a sparse unique index.
   });
 
   return user;
@@ -89,6 +95,9 @@ async function login({ email, password }) {
     error.statusCode = 400;
     throw error;
   }
+
+  user.lastLoginAt = new Date();
+  await user.save();
 
   const tokens = await issueTokenPair(user);
   return { user, ...tokens };

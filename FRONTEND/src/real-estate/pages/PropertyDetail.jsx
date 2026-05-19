@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
-import { getProperty } from '../services/propertiesApi';
-
-const WA = '919324504318';
+import { useNavigate, useParams, Link } from 'react-router-dom';
+import { getProperty, listSavedProperties, saveProperty, unsaveProperty } from '../services/propertiesApi';
+import LoginToUnlockModal from '../components/LoginToUnlockModal';
+import OwnerContactModal from '../components/OwnerContactModal';
+import { unlockPropertyContact } from '../services/leadApi';
 
 const fmt = (n) => {
   const v = Number(n || 0);
@@ -38,12 +39,23 @@ function LoadingSkeleton() {
 }
 
 export default function PropertyDetail() {
+  const navigate = useNavigate();
   const { slug } = useParams();
   const [property, setProperty] = useState(null);
   const [loading, setLoading]   = useState(true);
   const [error, setError]       = useState('');
   const [mainImg, setMainImg]   = useState(0);
-  const [form, setForm]         = useState({ name: '', phone: '' });
+  const [isSaved, setIsSaved]   = useState(false);
+  const [saveBusy, setSaveBusy]  = useState(false);
+
+  // Contact Unlock States
+  const [unlockedOwner, setUnlockedOwner] = useState(null);
+  const [unlocking, setUnlocking] = useState(false);
+  const [showAuthModal, setShowAuthModal] = useState(false);
+  const [showOwnerContactModal, setShowOwnerContactModal] = useState(false);
+  const [unlockError, setUnlockError] = useState('');
+
+  const isLoggedIn = !!localStorage.getItem('token');
 
   useEffect(() => {
     setLoading(true);
@@ -51,6 +63,69 @@ export default function PropertyDetail() {
       .then(res => { setProperty(res?.data || res); setLoading(false); })
       .catch(e  => { setError(e?.response?.data?.message || e.message); setLoading(false); });
   }, [slug]);
+
+  useEffect(() => {
+    if (!property?._id || !isLoggedIn) {
+      setIsSaved(false);
+      return;
+    }
+
+    listSavedProperties()
+      .then((res) => {
+        const items = Array.isArray(res) ? res : res?.data || [];
+        setIsSaved(items.some((item) => item._id === property._id));
+      })
+      .catch(() => setIsSaved(false));
+  }, [property?._id]);
+
+  const toggleSave = async () => {
+    if (!isLoggedIn) {
+      navigate('/real-estate/login');
+      return;
+    }
+
+    if (!property?._id || saveBusy) return;
+    setSaveBusy(true);
+    try {
+      if (isSaved) {
+        await unsaveProperty(property._id);
+        setIsSaved(false);
+      } else {
+        await saveProperty(property._id);
+        setIsSaved(true);
+      }
+    } catch (err) {
+      if (err.response?.status === 401) {
+        navigate('/real-estate/login');
+      }
+    } finally {
+      setSaveBusy(false);
+    }
+  };
+
+  const handleUnlockClick = async () => {
+    if (!isLoggedIn) {
+      setShowAuthModal(true);
+      return;
+    }
+
+    setUnlocking(true);
+    setUnlockError('');
+    try {
+      const res = await unlockPropertyContact(property._id);
+      if (res.success && res.unlockedData) {
+        setUnlockedOwner(res.unlockedData.owner);
+        setShowOwnerContactModal(true);
+      } else {
+        setUnlockError('Could not unlock owner details.');
+      }
+    } catch (err) {
+      console.error(err);
+      setUnlockError(err.response?.data?.message || 'Error unlocking owner details.');
+    } finally {
+      setUnlocking(false);
+    }
+  };
 
   if (loading) return <LoadingSkeleton />;
 
@@ -76,12 +151,9 @@ export default function PropertyDetail() {
   const title    = property.title || 'Exclusive Property';
   const location = [property.locality, property.city].filter(Boolean).join(', ') || 'Prime Location';
   const price    = (property.price?.amount ?? property.price) ?? 0;
-  const ppsf     = price && property.areaSqFt ? Math.round(price / property.areaSqFt) : null;
+  const areaSqFt = property.areaSqFt || property.features?.areaSqFt;
+  const ppsf     = price && areaSqFt ? Math.round(price / areaSqFt) : null;
   const amenities = property.filters?.amenities || ['Power Backup', 'Gym', 'Swimming Pool', 'Security', 'Club House', 'Parking'];
-
-  const contactWA = () => {
-    window.open(`https://wa.me/${WA}?text=${encodeURIComponent(`Hi, I'm interested in: ${title}\nLocation: ${location}\nPrice: ${fmt(price)}\n\nName: ${form.name}\nPhone: ${form.phone}`)}`, '_blank');
-  };
 
   const nextImg = (e) => {
     e.stopPropagation();
@@ -172,13 +244,13 @@ export default function PropertyDetail() {
         </div>
 
         {/* Main layout */}
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 340px', gap: 40, alignItems: 'start' }} className="re-detail-grid">
+        <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) 340px', gap: 40, alignItems: 'start' }} className="re-detail-grid">
 
           {/* LEFT: Details */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
 
             {/* Title block */}
-            <div style={{ background: '#fff', borderRadius: 18, border: '1px solid #e2e8f0', padding: '28px 28px 24px' }}>
+            <div style={{ background: '#fff', color: '#0f172a', borderRadius: 18, border: '1px solid #e2e8f0', padding: '28px 28px 24px' }}>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: 16 }}>
                 <span style={{ background: '#2563eb', color: '#fff', fontSize: 10, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '.08em', padding: '3px 12px', borderRadius: 30 }}>Verified</span>
                 <span style={{ background: '#0f172a', color: '#fff', fontSize: 10, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '.08em', padding: '3px 12px', borderRadius: 30 }}>{property.filters?.segment || 'Residential'}</span>
@@ -186,8 +258,8 @@ export default function PropertyDetail() {
                   <span style={{ background: '#10b981', color: '#fff', fontSize: 10, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '.08em', padding: '3px 12px', borderRadius: 30 }}>Ready to Move</span>
                 )}
               </div>
-              <h1 style={{ fontSize: 'clamp(22px, 3vw, 32px)', fontWeight: 900, color: '#0f172a', margin: '0 0 10px', letterSpacing: '-.03em', lineHeight: 1.2 }}>{title}</h1>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 6, color: '#64748b', fontSize: 14, fontWeight: 600 }}>
+              <h1 style={{ fontSize: 'clamp(22px, 3vw, 32px)', fontWeight: 900, color: '#0f172a', margin: '0 0 10px', letterSpacing: '-.03em', lineHeight: 1.2, overflowWrap: 'break-word', wordWrap: 'break-word', wordBreak: 'break-word' }}>{title}</h1>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6, color: '#64748b', fontSize: 14, fontWeight: 600, overflowWrap: 'break-word', wordWrap: 'break-word', wordBreak: 'break-word' }}>
                 <svg width="15" height="15" fill="none" stroke="#2563eb" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a2 2 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
@@ -197,10 +269,10 @@ export default function PropertyDetail() {
             </div>
 
             {/* Quick specs */}
-            <div style={{ background: '#fff', borderRadius: 18, border: '1px solid #e2e8f0', padding: '24px 28px', display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 20 }} className="re-specs-grid">
+            <div style={{ background: '#fff', color: '#0f172a', borderRadius: 18, border: '1px solid #e2e8f0', padding: '24px 28px', display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 20 }} className="re-specs-grid">
               {[
-                { label: 'Configuration', value: property.filters?.bhk?.replace(/_/g, ' ') || '3 BHK' },
-                { label: 'Super Area', value: `${property.areaSqFt || '1500'} sqft` },
+                { label: 'Configuration', value: property.filters?.bhk?.replace(/_/g, ' ') || property.features?.bhk || '3 BHK' },
+                { label: 'Super Area', value: `${property.areaSqFt || property.features?.areaSqFt || '1500'} sqft` },
                 { label: 'Possession', value: property.possessionDate || 'Dec 2026' },
                 { label: 'Furnishing', value: property.filters?.furnishing?.replace(/_/g, ' ') || 'Semi-Furnished' },
               ].map(s => (
@@ -212,18 +284,18 @@ export default function PropertyDetail() {
             </div>
 
             {/* Description */}
-            <div style={{ background: '#fff', borderRadius: 18, border: '1px solid #e2e8f0', padding: '28px' }}>
+            <div style={{ background: '#fff', color: '#0f172a', borderRadius: 18, border: '1px solid #e2e8f0', padding: '28px' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 18 }}>
                 <div style={{ width: 4, height: 22, background: '#2563eb', borderRadius: 2 }} />
                 <h3 style={{ fontSize: 18, fontWeight: 800, color: '#0f172a', margin: 0 }}>Overview</h3>
               </div>
-              <p style={{ color: '#475569', lineHeight: 1.75, fontSize: 15, margin: 0 }}>
+              <p style={{ color: '#475569', lineHeight: 1.75, fontSize: 15, margin: 0, overflowWrap: 'break-word', wordWrap: 'break-word', wordBreak: 'break-word' }}>
                 {property.description || 'This premium property offers modern living in a prime locality with world-class amenities and excellent connectivity to major business hubs. The project is developed by a reputed builder with a proven track record of timely delivery.'}
               </p>
             </div>
 
             {/* Amenities */}
-            <div style={{ background: '#fff', borderRadius: 18, border: '1px solid #e2e8f0', padding: '28px' }}>
+            <div style={{ background: '#fff', color: '#0f172a', borderRadius: 18, border: '1px solid #e2e8f0', padding: '28px' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 20 }}>
                 <div style={{ width: 4, height: 22, background: '#2563eb', borderRadius: 2 }} />
                 <h3 style={{ fontSize: 18, fontWeight: 800, color: '#0f172a', margin: 0 }}>Amenities</h3>
@@ -256,38 +328,74 @@ export default function PropertyDetail() {
               <h2 style={{ fontSize: 38, fontWeight: 900, margin: '0 0 6px', letterSpacing: '-.03em' }}>{fmt(price)}</h2>
               {ppsf && <p style={{ fontSize: 13, color: '#94a3b8', margin: '0 0 24px', fontWeight: 500 }}>₹{ppsf.toLocaleString()}/sqft</p>}
 
-
-              {/* Enquiry form */}
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-                <input type="text" placeholder="Your Name" value={form.name} onChange={e => setForm({ ...form, name: e.target.value })}
-                  style={{ background: 'rgba(255,255,255,.07)', border: '1px solid rgba(255,255,255,.1)', borderRadius: 10, padding: '12px 14px', fontFamily: S.font, fontSize: 13, fontWeight: 500, color: '#fff', outline: 'none' }}
-                />
-                <input type="tel" placeholder="Phone Number" value={form.phone} onChange={e => setForm({ ...form, phone: e.target.value })}
-                  style={{ background: 'rgba(255,255,255,.07)', border: '1px solid rgba(255,255,255,.1)', borderRadius: 10, padding: '12px 14px', fontFamily: S.font, fontSize: 13, fontWeight: 500, color: '#fff', outline: 'none' }}
-                />
-                <button onClick={contactWA} style={{
-                  background: '#2563eb', color: '#fff', border: 'none',
-                  padding: '14px', borderRadius: 12, fontFamily: S.font,
-                  fontSize: 14, fontWeight: 700, cursor: 'pointer', transition: 'background .15s',
+              <button
+                type="button"
+                onClick={toggleSave}
+                disabled={saveBusy}
+                style={{
+                  width: '100%',
+                  marginBottom: 20,
+                  padding: '12px 14px',
+                  borderRadius: 12,
+                  border: '1px solid rgba(255,255,255,.12)',
+                  background: isSaved ? 'rgba(248,113,113,.16)' : 'rgba(255,255,255,.07)',
+                  color: isSaved ? '#fecaca' : '#fff',
+                  fontFamily: S.font,
+                  fontSize: 13,
+                  fontWeight: 700,
+                  cursor: saveBusy ? 'wait' : 'pointer',
                 }}
-                  onMouseOver={e => e.currentTarget.style.background = '#1d4ed8'}
-                  onMouseOut={e => e.currentTarget.style.background = '#2563eb'}
-                >Contact Owner</button>
-                <a href={`https://wa.me/${WA}?text=Hi, I am interested in ${encodeURIComponent(title)}`}
-                  target="_blank" rel="noopener noreferrer"
-                  style={{
-                    display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10,
-                    padding: '13px', borderRadius: 12, background: 'rgba(255,255,255,.07)',
-                    border: '1px solid rgba(255,255,255,.1)', color: '#4ade80', textDecoration: 'none',
-                    fontWeight: 700, fontSize: 14, fontFamily: S.font, transition: 'background .15s',
-                  }}
-                  onMouseOver={e => e.currentTarget.style.background = 'rgba(74,222,128,.12)'}
-                  onMouseOut={e => e.currentTarget.style.background = 'rgba(255,255,255,.07)'}
-                >
-                  <svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L0 24l6.335-1.662c1.72.937 3.659 1.431 5.63 1.432h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg>
-                  Chat on WhatsApp
-                </a>
+              >
+                {saveBusy ? 'Updating…' : (isSaved ? 'Saved Property' : 'Save Property')}
+              </button>
+
+              {/* Secure Unlock Contact flow in PropertyDetail page */}
+              <div style={{ borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: 20 }}>
+                {unlockedOwner ? (
+                  <button 
+                    onClick={() => setShowOwnerContactModal(true)}
+                    style={{
+                      background: '#16a34a', color: '#fff', border: 'none',
+                      padding: '14px', borderRadius: 12, fontFamily: S.font,
+                      fontSize: 13.5, fontWeight: 800, cursor: 'pointer',
+                      transition: 'background .15s', textTransform: 'uppercase', letterSpacing: '.04em',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, width: '100%'
+                    }}
+                    onMouseOver={e => e.currentTarget.style.background = '#15803d'}
+                    onMouseOut={e => e.currentTarget.style.background = '#16a34a'}
+                  >
+                    <span>📞</span>
+                    Contact Owner
+                  </button>
+                ) : (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, color: '#94a3b8', fontSize: 12, marginBottom: 4 }}>
+                      <span>🛡️</span>
+                      <span>Owner contact verified and active</span>
+                    </div>
+
+                    {unlockError && <p style={{ color: '#f87171', fontSize: 12, margin: '0 0 6px', fontWeight: 600 }}>⚠️ {unlockError}</p>}
+
+                    <button 
+                      onClick={handleUnlockClick}
+                      disabled={unlocking}
+                      style={{
+                        background: unlocking ? '#60a5fa' : '#2563eb', color: '#fff', border: 'none',
+                        padding: '14px', borderRadius: 12, fontFamily: S.font,
+                        fontSize: 13.5, fontWeight: 800, cursor: unlocking ? 'wait' : 'pointer',
+                        transition: 'background .15s', textTransform: 'uppercase', letterSpacing: '.04em',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, width: '100%'
+                      }}
+                      onMouseOver={e => { if (!unlocking) e.currentTarget.style.background = '#1d4ed8'; }}
+                      onMouseOut={e => { if (!unlocking) e.currentTarget.style.background = '#2563eb'; }}
+                    >
+                      <span>🔑</span>
+                      {unlocking ? 'Verifying Identity...' : (isLoggedIn ? 'Reveal Contact Details' : 'Sign in to unlock contact')}
+                    </button>
+                  </div>
+                )}
               </div>
+
             </div>
 
             {/* Safety tips */}
@@ -306,9 +414,29 @@ export default function PropertyDetail() {
         </div>
       </div>
 
+      {/* Auth Modal overlay */}
+      <LoginToUnlockModal 
+        isOpen={showAuthModal}
+        onClose={() => setShowAuthModal(false)}
+        propertyId={property._id}
+        onSuccess={(owner) => { setUnlockedOwner(owner); setShowOwnerContactModal(true); }}
+      />
+
+      {/* Owner Contact Modal Popup */}
+      <OwnerContactModal 
+        isOpen={showOwnerContactModal}
+        onClose={() => setShowOwnerContactModal(false)}
+        owner={unlockedOwner}
+        propertyName={title}
+      />
+
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
         @keyframes shimmer{0%,100%{opacity:.8}50%{opacity:.4}}
+        @keyframes re-fade-in {
+          from { opacity: 0; transform: translateY(6px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
         @media(max-width:960px){
           .re-detail-grid{grid-template-columns:1fr !important}
           .re-detail-grid aside { position: static !important; }
@@ -329,3 +457,16 @@ export default function PropertyDetail() {
     </div>
   );
 }
+
+// Sidebar Button styles
+const quickCallStyle = {
+  background: '#2563eb', color: '#fff', textDecoration: 'none',
+  textAlign: 'center', padding: '10px 12px', borderRadius: 10,
+  fontSize: 12, fontWeight: 700, display: 'block', transition: 'background .15s'
+};
+
+const quickWAStyle = {
+  background: '#16a34a', color: '#fff', textDecoration: 'none',
+  textAlign: 'center', padding: '10px 12px', borderRadius: 10,
+  fontSize: 12, fontWeight: 700, display: 'block', transition: 'background .15s'
+};

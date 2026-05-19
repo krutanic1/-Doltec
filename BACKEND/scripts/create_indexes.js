@@ -9,6 +9,20 @@ async function ensureIndexes() {
   await connectDB();
   // require models to register indexes
   const models = [
+    'Organization',
+    'Permission',
+    'Role',
+    'TeamMember',
+    'PropertyPackage',
+    'Subscription',
+    'Invoice',
+    'Payment',
+    'CreditTransaction',
+    'UpgradeHistory',
+    'FeaturedBooking',
+    'Campaign',
+    'SavedItem',
+    'Notification',
     'Property',
     'SavedProperty',
     'Lead',
@@ -40,7 +54,11 @@ async function ensureIndexes() {
   await mongoose.disconnect();
 }
 
-ensureIndexes().catch((err) => {
-  console.error(err);
-  process.exit(1);
-});
+if (require.main === module) {
+  ensureIndexes().catch((err) => {
+    console.error(err);
+    process.exit(1);
+  });
+}
+
+module.exports = { ensureIndexes };

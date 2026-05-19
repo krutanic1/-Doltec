@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { listProperties, getPropertyBySlug } from '../services/realEstateApi';
+import { listProperties, getPropertyBySlug } from '../services/propertiesApi';
 
 export function usePropertyList(params) {
   const [data, setData] = useState({ data: [], totalCount: 0 });
