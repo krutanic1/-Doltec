@@ -1,4 +1,5 @@
 const express = require("express");
+const auth = require("../middleware/auth");
 const router = express.Router();
 const CommunityUser = require ("../models/CommunityUser")
 const jwt = require("jsonwebtoken");
@@ -89,7 +90,7 @@ router.post("/community-login", async (req, res) => {
     }
 });
 
-router.post("/checkauthcommunitygmail", async (req, res) => {
+router.post("/checkauthcommunitygmail", auth, async (req, res) => {
     console.log("Received request to /checkauthgmail");
   const { email } = req.body;
   console.log("Received email for auth check:", email);
@@ -107,7 +108,7 @@ router.post("/checkauthcommunitygmail", async (req, res) => {
 });
 
 // Get all Community Users
-router.get("/getcommunityuser/:userId", async (req, res) => {
+router.get("/getcommunityuser/:userId", auth, async (req, res) => {
     try {
         const { userId } = req.params;
         if (!userId) {
@@ -134,7 +135,7 @@ router.get("/getcommunityuser/:userId", async (req, res) => {
 });
 
 //upload profile photo
-router.post("/communityprofile", async (req, res) => {
+router.post("/communityprofile", auth, async (req, res) => {
   try {
     const { image , userId } = req.body;
     console.log("Received image for upload:", !!image);

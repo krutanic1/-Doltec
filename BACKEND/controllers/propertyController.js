@@ -39,7 +39,12 @@ exports.getProperties = async (req, res) => {
       lat, lng, radius, sort
     } = req.query;
 
-    const query = { status: req.query.status || 'APPROVED' };
+    const query = {};
+    if (req.query.status && req.query.status !== 'ALL') {
+      query.status = req.query.status;
+    } else if (!req.query.status) {
+      query.status = 'APPROVED';
+    }
 
     // Search and Location
     if (city) query['city'] = { $regex: city, $options: 'i' };
@@ -183,6 +188,22 @@ exports.getProperties = async (req, res) => {
     }
 
     console.log('Results found:', properties.length);
+    
+    if (req.query.page) {
+      const page = parseInt(req.query.page) || 1;
+      const limit = parseInt(req.query.limit) || 10;
+      const skip = (page - 1) * limit;
+      const total = properties.length;
+      const paginated = properties.slice(skip, skip + limit);
+      return res.json({
+        properties: paginated,
+        total,
+        page,
+        limit,
+        pages: Math.ceil(total / limit)
+      });
+    }
+
     res.json(properties);
   } catch (err) {
     console.error('Get Properties Error:', err);

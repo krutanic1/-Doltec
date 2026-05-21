@@ -27,7 +27,9 @@ export const CompanyPrivateRoute = ({ children }) => {
 
 export const AdminPrivateRoute = ({ children }) => {
   const token = Cookies.get("adminToken");
-  if (!token) {
+  const isAdmin = localStorage.getItem("admin") === "true";
+  
+  if (!token && !isAdmin) {
     return <Navigate to="/" replace />;
   }
   return children;

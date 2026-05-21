@@ -1,21 +1,21 @@
-
-
-#studentsignup{
+#studentsignup {
   background-color: rgba(14, 14, 15, 0.8);
-.signup-container {
+}
+
+#studentsignup .signup-container {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
 }
 
 @media (min-width: 768px) {
-  .signup-container {
+  #studentsignup .signup-container {
     flex-direction: row;
   }
 }
 
 /* Form Side */
-.signup-form-wrapper {
+#studentsignup .signup-form-wrapper {
   width: 100%;
   display: flex;
   justify-content: center;
@@ -25,12 +25,12 @@
 }
 
 @media (min-width: 768px) {
-  .signup-form-wrapper {
+  #studentsignup .signup-form-wrapper {
     width: 50%;
   }
 }
 
-.signup-form-container {
+#studentsignup .signup-form-container {
   width: 100%;
   max-width: 400px;
   background: #080808;
@@ -41,19 +41,19 @@
   box-shadow: 0 10px 25px rgba(56, 56, 56, 0.5);
 }
 
-.signup-title {
+#studentsignup .signup-title {
   font-size: 2.25rem;
   font-weight: 800;
   text-align: center;
 }
 
-.signup-subtitle {
+#studentsignup .signup-subtitle {
   text-align: center;
   color: #d1d5db;
   padding-bottom: 20px;
 }
 
-.signup-back-link {
+#studentsignup .signup-back-link {
   color: white;
   display: flex;
   justify-content: flex-end;
@@ -62,20 +62,20 @@
 }
 
 /* Input Fields */
-.signup-input-wrapper {
+#studentsignup .signup-input-wrapper {
   position: relative;
-
-  span{
-    position: absolute;
-    right: 0;
-    top: 0;
-    font-size: 1rem;
-    color: #9ca3af;
-    transition: all 0.2s ease;
-  }
 }
 
-.signup-input {
+#studentsignup .signup-input-wrapper span {
+  position: absolute;
+  right: 0;
+  top: 0;
+  font-size: 1rem;
+  color: #9ca3af;
+  transition: all 0.2s ease;
+}
+
+#studentsignup .signup-input {
   height: 2.5rem;
   width: 100%;
   border-bottom: 2px solid #d1d5db;
@@ -86,18 +86,17 @@
   margin-bottom: 1.5rem;
 }
 
-.signup-label {
+#studentsignup .signup-label {
   position: absolute;
   left: 0;
   top: -0.875rem;
   font-size: 0.875rem;
   color: #9ca3af;
   transition: all 0.2s ease;
-
 }
 
 /* Button */
-.signup-button {
+#studentsignup .signup-button {
   width: 100%;
   padding: 0.5rem 1rem;
   background: linear-gradient(to right, #000000, #00000059);
@@ -111,25 +110,24 @@
 }
 
 /* Footer */
-.signup-footer {
+#studentsignup .signup-footer {
   text-align: center;
   color: #d1d5db;
   padding-top: 10px;
 }
 
-.signup-login-link {
+#studentsignup .signup-login-link {
   margin-left: 0.5rem;
   color: #d1d5db;
   text-decoration: none;
- 
 }
 
-.signup-login-link:hover {
+#studentsignup .signup-login-link:hover {
   text-decoration: none;
 }
 
 /* Image Side */
-.signup-image-side {
+#studentsignup .signup-image-side {
   display: none;
   background-image: url('https://img.freepik.com/free-photo/sign-up-register-online-internet-web-concept_53876-133557.jpg?t=st=1745051490~exp=1745055090~hmac=72243f03e2275b59b4f3b6ab18fd62fffd4267c203cc1e134548967b6046626b&w=740');
   background-size: cover;
@@ -138,9 +136,7 @@
 }
 
 @media (min-width: 768px) {
-  .signup-image-side {
+  #studentsignup .signup-image-side {
     display: flex;
   }
-}
-
 }

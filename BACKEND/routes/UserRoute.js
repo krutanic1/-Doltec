@@ -1,4 +1,5 @@
 const express = require("express");
+const auth = require("../middleware/auth");
 const mongoose = require('mongoose');
 const User = require("../models/User");
 const { sendEmail } = require("../controllers/MailController");
@@ -167,7 +168,7 @@ router.post("/verifyotp", async (req, res) => {
 
 
 //dashboard count
-router.get("/userdashboardcount", async (req, res) => {
+router.get("/userdashboardcount", auth, async (req, res) => {
   const token = req.headers.authorization;
   try {
      if (!token) {
@@ -241,7 +242,7 @@ router.post("/usersignup", async (req, res) => {
   }
 });
 //get all users
-router.get('/allusers', async (req, res) => {
+router.get('/allusers', auth, async (req, res) => {
   try {
     const users = await User.find().select('-password -__v -otp -confirmPassword -profile').sort({ _id:-1}).lean();
     res.status(200).json(users);
@@ -251,7 +252,7 @@ router.get('/allusers', async (req, res) => {
   }
 });
 // Endpoint to fetch user by ID
-router.get('/user', async (req, res) => {
+router.get('/user', auth, async (req, res) => {
   const token = req.headers.authorization;
   try {
      if (!token) { return res.status(403).json({ error: "Access denied. No token provided." }); }
@@ -269,7 +270,7 @@ router.get('/user', async (req, res) => {
   }
 });
 // Endpoint to increment jobLimit for a user
-router.post('/increment-user-job-limit', async (req, res) => {
+router.post('/increment-user-job-limit', auth, async (req, res) => {
   const { userId } = req.body;
 
   if (!userId) {
@@ -294,7 +295,7 @@ router.post('/increment-user-job-limit', async (req, res) => {
 });
 
 //create resume
-router.post("/resumes", async (req, res) => {
+router.post("/resumes", auth, async (req, res) => {
   const token = req.headers.authorization;
   try {
      if (!token) {
@@ -322,7 +323,7 @@ router.post("/resumes", async (req, res) => {
   }
 });
 // get resume by userId
-router.get("/resume", async (req, res) => {
+router.get("/resume", auth, async (req, res) => {
   const token = req.headers.authorization;
   try {
     if (!token) {
@@ -353,7 +354,7 @@ router.get("/resume", async (req, res) => {
 });
 
 // update resume
-router.put("/resumes/:id", async (req, res) => {
+router.put("/resumes/:id", auth, async (req, res) => {
    const token = req.headers.authorization;
   try {
      if (!token) {
@@ -383,7 +384,7 @@ router.put("/resumes/:id", async (req, res) => {
   }
 });
 //chnage password
-router.put("/change-password", async (req, res) => {
+router.put("/change-password", auth, async (req, res) => {
    const token = req.headers.authorization;
   try {
      if (!token) {
@@ -405,7 +406,7 @@ router.put("/change-password", async (req, res) => {
   }
 });
 //upload profile photo
-router.post("/uploadprofile", async (req, res) => {
+router.post("/uploadprofile", auth, async (req, res) => {
     const token = req.headers.authorization;
   try {
      if (!token) {

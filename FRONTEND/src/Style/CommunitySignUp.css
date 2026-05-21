@@ -1,21 +1,21 @@
-
-
-#communitysignup{
+#communitysignup {
   background-color: rgba(14, 14, 15, 0.8);
-.signup-container {
+}
+
+#communitysignup .signup-container {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
 }
 
 @media (min-width: 768px) {
-  .signup-container {
+  #communitysignup .signup-container {
     flex-direction: row;
   }
 }
 
 /* Form Side */
-.signup-form-wrapper {
+#communitysignup .signup-form-wrapper {
   width: 100%;
   display: flex;
   justify-content: center;
@@ -25,12 +25,12 @@
 }
 
 @media (min-width: 768px) {
-  .signup-form-wrapper {
+  #communitysignup .signup-form-wrapper {
     width: 50%;
   }
 }
 
-.signup-form-container {
+#communitysignup .signup-form-container {
   width: 100%;
   max-width: 400px;
   background: #080808;
@@ -41,19 +41,19 @@
   box-shadow: 0 10px 25px rgba(56, 56, 56, 0.5);
 }
 
-.signup-title {
+#communitysignup .signup-title {
   font-size: 2.25rem;
   font-weight: 800;
   text-align: center;
 }
 
-.signup-subtitle {
+#communitysignup .signup-subtitle {
   text-align: center;
   color: #d1d5db;
   padding-bottom: 20px;
 }
 
-.signup-back-link {
+#communitysignup .signup-back-link {
   color: white;
   display: flex;
   justify-content: flex-end;
@@ -62,20 +62,20 @@
 }
 
 /* Input Fields */
-.signup-input-wrapper {
+#communitysignup .signup-input-wrapper {
   position: relative;
-
-  span{
-    position: absolute;
-    right: 0;
-    top: 0;
-    font-size: 1rem;
-    color: #9ca3af;
-    transition: all 0.2s ease;
-  }
 }
 
-.signup-input {
+#communitysignup .signup-input-wrapper span {
+  position: absolute;
+  right: 0;
+  top: 0;
+  font-size: 1rem;
+  color: #9ca3af;
+  transition: all 0.2s ease;
+}
+
+#communitysignup .signup-input {
   height: 2.5rem;
   width: 100%;
   border-bottom: 2px solid #d1d5db;
@@ -86,18 +86,17 @@
   margin-bottom: 1.5rem;
 }
 
-.signup-label {
+#communitysignup .signup-label {
   position: absolute;
   left: 0;
   top: -0.875rem;
   font-size: 0.875rem;
   color: #9ca3af;
   transition: all 0.2s ease;
-
 }
 
 /* Button */
-.signup-button {
+#communitysignup .signup-button {
   width: 100%;
   padding: 0.5rem 1rem;
   background: linear-gradient(to right, #000000, #00000059);
@@ -111,25 +110,24 @@
 }
 
 /* Footer */
-.signup-footer {
+#communitysignup .signup-footer {
   text-align: center;
   color: #d1d5db;
   padding-top: 10px;
 }
 
-.signup-login-link {
+#communitysignup .signup-login-link {
   margin-left: 0.5rem;
   color: #d1d5db;
   text-decoration: none;
- 
 }
 
-.signup-login-link:hover {
+#communitysignup .signup-login-link:hover {
   text-decoration: none;
 }
 
 /* Image Side */
-.signup-image-side {
+#communitysignup .signup-image-side {
   display: none;
   background-image: url('https://images.unsplash.com/photo-1626011789812-d64b02dc1c8e?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&q=80&w=387');
   background-size: cover;
@@ -139,9 +137,7 @@
 }
 
 @media (min-width: 768px) {
-  .signup-image-side {
+  #communitysignup .signup-image-side {
     display: flex;
   }
-}
-
 }

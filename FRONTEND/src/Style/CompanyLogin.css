@@ -1,141 +1,137 @@
-
-#companylogin{
+#companylogin {
   background-color: rgba(14, 14, 15, 0.8);
-  .company-login-container {
-    display: flex;
-    flex-direction: column;
-    min-height: 100vh;
-  }
-  
-  @media (min-width: 768px) {
-    .company-login-container {
-      flex-direction: row;
-    }
-  }
-  
-  /* Left Image Side */
-  .company-login-image {
-    display: none;
-    background-image: url('https://i.pinimg.com/736x/de/1d/fc/de1dfc58876174ccd98e885aae463d18.jpg');
-    background-size: cover;
-    background-position: center;
-    width: 50%;
-  }
-  
-  @media (min-width: 768px) {
-    .company-login-image {
-      display: block;
-    }
-  }
-  
-  /* Right Form Side */
-  .company-login-form-wrapper {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 100%;
-    padding: 1rem;
-    /* background: #000000e5; */
-  }
-  
-  @media (min-width: 768px) {
-    .company-login-form-wrapper {
-      width: 50%;
-    }
-  }
-  
-  .company-login-form-container {
-    background: #080808;
-    box-shadow: 0 10px 25px rgba(56, 56, 56, 0.5);
-    backdrop-filter: blur(8px);
-    padding: 2rem;
-    border-radius: 1rem;
-    width: 100%;
-    max-width: 400px;
-    /* box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5); */
-    color: white;
-  }
-  
-  .back-link {
-    display: flex;
-    justify-content: flex-end;
-    color: white;
-    margin-bottom: 1rem;
-  }
-  
-  .company-login-title {
-    font-size: 1.75rem;
-    font-weight: bold;
-    text-align: center;
-    margin-bottom: 1.5rem;
-    color: white;
-  }
-
-  .password-wrapper {
-    position: relative;
-  }
-  
-  .toggle-icon {
-    position: absolute;
-    right: 12px;
-    top: 8px;
-    font-size: 1.2rem;
-    color: #333;
-    cursor: pointer;
-  }
-  
-  .company-login-input {
-    display: block;
-    width: 100%;
-    padding: 0.75rem;
-    margin-bottom: 1rem;
-    border-bottom: 1px solid #ccc;
-    color: #f7f7f7d5;
-    outline: none;
-    background : transparent;
-  }
-  
-  .forgot-password-link {
-    display: block;
-    margin-bottom: 1.5rem;
-    text-align: right;
-    color: #f0f0f0;
-    font-size: 0.9rem;
-    text-decoration: none;
-  }
-  
-  .forgot-password-link:hover {
-    text-decoration: underline;
-  }
-  
-  .company-login-button {
-    width: 100%;
-    color: white;
-    font-weight: bold;
-    font-size: 1.25rem;
-    padding: 0.75rem;
-    border-radius: 1rem;
-     cursor: pointer;
-    margin-bottom: 1rem;
-    background: linear-gradient(to right, #000000, #00000059);
-    box-shadow: 0 10px 25px rgba(56, 56, 56, 0.5);
-    transition: background 0.3s ease;
-  }
-  
-  .signup-redirect {
-    text-align: center;
-    color: #e0e0e0;
-  }
-  
-  .signup-link {
-    margin-left: 0.5rem;
-    color: #e0e0e0;
-    text-decoration: none;
-  }
-  
-  .signup-link:hover {
-    text-decoration: underline;
-  }
-  
 }
 
+#companylogin .company-login-container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+@media (min-width: 768px) {
+  #companylogin .company-login-container {
+    flex-direction: row;
+  }
+}
+
+/* Left Image Side */
+#companylogin .company-login-image {
+  display: none;
+  background-image: url('https://i.pinimg.com/736x/de/1d/fc/de1dfc58876174ccd98e885aae463d18.jpg');
+  background-size: cover;
+  background-position: center;
+  width: 50%;
+}
+
+@media (min-width: 768px) {
+  #companylogin .company-login-image {
+    display: block;
+  }
+}
+
+/* Right Form Side */
+#companylogin .company-login-form-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  padding: 1rem;
+}
+
+@media (min-width: 768px) {
+  #companylogin .company-login-form-wrapper {
+    width: 50%;
+  }
+}
+
+#companylogin .company-login-form-container {
+  background: #080808;
+  box-shadow: 0 10px 25px rgba(56, 56, 56, 0.5);
+  backdrop-filter: blur(8px);
+  padding: 2rem;
+  border-radius: 1rem;
+  width: 100%;
+  max-width: 400px;
+  color: white;
+}
+
+#companylogin .back-link {
+  display: flex;
+  justify-content: flex-end;
+  color: white;
+  margin-bottom: 1rem;
+}
+
+#companylogin .company-login-title {
+  font-size: 1.75rem;
+  font-weight: bold;
+  text-align: center;
+  margin-bottom: 1.5rem;
+  color: white;
+}
+
+#companylogin .password-wrapper {
+  position: relative;
+}
+
+#companylogin .toggle-icon {
+  position: absolute;
+  right: 12px;
+  top: 8px;
+  font-size: 1.2rem;
+  color: #333;
+  cursor: pointer;
+}
+
+#companylogin .company-login-input {
+  display: block;
+  width: 100%;
+  padding: 0.75rem;
+  margin-bottom: 1rem;
+  border-bottom: 1px solid #ccc;
+  color: #f7f7f7d5;
+  outline: none;
+  background: transparent;
+}
+
+#companylogin .forgot-password-link {
+  display: block;
+  margin-bottom: 1.5rem;
+  text-align: right;
+  color: #f0f0f0;
+  font-size: 0.9rem;
+  text-decoration: none;
+}
+
+#companylogin .forgot-password-link:hover {
+  text-decoration: underline;
+}
+
+#companylogin .company-login-button {
+  width: 100%;
+  color: white;
+  font-weight: bold;
+  font-size: 1.25rem;
+  padding: 0.75rem;
+  border-radius: 1rem;
+  cursor: pointer;
+  margin-bottom: 1rem;
+  background: linear-gradient(to right, #000000, #00000059);
+  box-shadow: 0 10px 25px rgba(56, 56, 56, 0.5);
+  transition: background 0.3s ease;
+}
+
+#companylogin .signup-redirect {
+  text-align: center;
+  color: #e0e0e0;
+}
+
+#companylogin .signup-link {
+  margin-left: 0.5rem;
+  color: #e0e0e0;
+  text-decoration: none;
+}
+
+#companylogin .signup-link:hover {
+  text-decoration: underline;
+}

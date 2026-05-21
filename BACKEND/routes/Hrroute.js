@@ -1,4 +1,5 @@
 const express = require("express");
+const auth = require("../middleware/auth");
 const router = express.Router();
 const Createhr = require("../models/Createhr");
 const Application = require("../models/Application");
@@ -56,7 +57,7 @@ router.post("/checkauthgmail", async (req, res) => {
   }
 });
 
-router.get("/gethr/:hrId", async (req, res) => {
+router.get("/gethr/:hrId", auth, async (req, res) => {
   try {
     const hr = await Createhr.find({HrId:req.params.hrId}).select("-password");
     if (!hr) {
@@ -70,7 +71,7 @@ router.get("/gethr/:hrId", async (req, res) => {
 });
 
 // HR Dashboard Route
-router.get("/hrdashboardcount/:hrId", async (req, res) => {
+router.get("/hrdashboardcount/:hrId", auth, async (req, res) => {
   try {
     const hrId = req.params.hrId;
     if (!hrId) {return res.status(400).json({ error: "hrId is required" });}

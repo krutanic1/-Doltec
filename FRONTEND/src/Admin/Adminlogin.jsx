@@ -28,7 +28,7 @@ const [showPassword, setShowPassword] = useState(false);
       console.log(response.data);
       localStorage.setItem("admin", "true");
       localStorage.setItem("name" , response.data.name);
-      Cookies.set("adminToken", response.data.token, { expires: 1, secure: true, sameSite: "none", path: "/",});
+      Cookies.set("adminToken", response.data.token, { expires: 1, path: "/" });
       alert("Login successful");
       setError(""); 
       setEmail("");

@@ -58,7 +58,7 @@ export default function RealEstateApp() {
   }, []);
 
   return (
-    <div className="re-root-override" style={{ minHeight: '100vh', color: '#0f172a' }}>
+    <div className="re-root-override" style={{ minHeight: '100vh', color: '#0f172a', overflowX: 'hidden', width: '100%' }}>
       <Routes>
         <Route path="/" element={<RealEstateLayout />}>
           <Route index element={<Home />} />

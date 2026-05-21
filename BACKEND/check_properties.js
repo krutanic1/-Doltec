@@ -1,13 +1,21 @@
-const mongoose = require('mongoose');
-const Property = require('./models/Property');
-const dotenv = require('dotenv');
-dotenv.config();
+const mongoose = require("mongoose");
+const Property = require("./models/Property");
+require("dotenv").config();
 
-async function checkProperties() {
-  await mongoose.connect(process.env.DATABASE_URL);
-  const properties = await Property.find().limit(5);
-  console.log(JSON.stringify(properties, null, 2));
-  process.exit();
-}
+const { connectDB } = require("./db");
 
-checkProperties();
+const check = async () => {
+  try {
+    await connectDB();
+    const count = await Property.countDocuments();
+    console.log("Total properties in DB:", count);
+    const sample = await Property.findOne();
+    console.log("Sample property:", sample);
+    process.exit(0);
+  } catch (err) {
+    console.error(err);
+    process.exit(1);
+  }
+};
+
+check();

@@ -9,21 +9,6 @@ const fmt = (n) => {
   return `₹${v.toLocaleString('en-IN')}`;
 };
 
-const HeartIcon = () => (
-  <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"
-      d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
-  </svg>
-);
-
-const LocationIcon = () => (
-  <svg width="13" height="13" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"
-      d="M17.657 16.657L13.414 20.9a2 2 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
-  </svg>
-);
-
 export default function PropertyCard({ property: p, onCompare, isComparing, isSaved, onToggleSave }) {
   const [localSaved, setLocalSaved] = useState(false);
   const [imgIdx, setImgIdx] = useState(0);
@@ -40,119 +25,94 @@ export default function PropertyCard({ property: p, onCompare, isComparing, isSa
   const images   = rawMedia.map(i => i.url || i).filter(Boolean);
   const img      = images[imgIdx] || 'https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=800&q=80';
   const bhk      = p.filters?.bhk?.replace(/_/g, ' ') || '3 BHK';
-  const area     = p.areaSqFt ? `${p.areaSqFt} sqft` : '—';
+  const area     = p.areaSqFt ? `${p.areaSqFt.toLocaleString()} sqft` : '—';
   const poss     = p.possessionDate || 'Dec 2026';
   const saved    = typeof isSaved === 'boolean' ? isSaved : localSaved;
-
-  const isLoggedIn = !!localStorage.getItem('token');
 
   const toggleSaved = (event) => {
     event?.preventDefault();
     event?.stopPropagation();
-    if (onToggleSave) {
-      onToggleSave(p);
-      return;
-    }
-    setLocalSaved((current) => !current);
-  };
-
-  const handleUnlockClick = async () => {
-    if (!isLoggedIn) {
-      setShowAuthModal(true);
-      return;
-    }
-
-    setUnlocking(true);
-    setUnlockError('');
-    try {
-      const res = await unlockPropertyContact(p._id);
-      if (res.success && res.unlockedData) {
-        setUnlockedOwner(res.unlockedData.owner);
-        setShowOwnerContactModal(true);
-      } else {
-        setUnlockError('Could not unlock details.');
-      }
-    } catch (err) {
-      console.error(err);
-      setUnlockError(err.response?.data?.message || 'Error unlocking details.');
-    } finally {
-      setUnlocking(false);
-    }
+    if (onToggleSave) { onToggleSave(p); return; }
+    setLocalSaved(c => !c);
   };
 
   return (
     <article style={{
       background: '#fff',
-      borderRadius: 18,
-      border: '1px solid #e2e8f0',
+      borderRadius: 20,
+      border: '1px solid #e5e7eb',
       overflow: 'hidden',
       display: 'flex', flexDirection: 'column',
-      transition: 'box-shadow .2s, transform .2s',
+      transition: 'box-shadow .28s cubic-bezier(.4,0,.2,1), transform .28s cubic-bezier(.4,0,.2,1)',
       fontFamily: 'Inter,sans-serif',
-      position: 'relative'
+      position: 'relative',
+      boxShadow: '0 2px 12px rgba(0,0,0,.05)',
     }}
-      onMouseOver={e => { e.currentTarget.style.boxShadow = '0 12px 40px rgba(37,99,235,.1)'; e.currentTarget.style.transform = 'translateY(-3px)'; }}
-      onMouseOut={e => { e.currentTarget.style.boxShadow = 'none'; e.currentTarget.style.transform = 'none'; }}
+      onMouseOver={e => { e.currentTarget.style.boxShadow = '0 20px 60px rgba(5,13,26,.12)'; e.currentTarget.style.transform = 'translateY(-5px)'; e.currentTarget.style.borderColor = 'rgba(245,158,11,.25)'; }}
+      onMouseOut={e => { e.currentTarget.style.boxShadow = '0 2px 12px rgba(0,0,0,.05)'; e.currentTarget.style.transform = 'none'; e.currentTarget.style.borderColor = '#e5e7eb'; }}
     >
       {/* Image */}
-      <div style={{ position: 'relative', aspectRatio: '16/10', overflow: 'hidden', background: '#f1f5f9' }}>
+      <div style={{ position: 'relative', aspectRatio: '16/10', overflow: 'hidden', background: '#f3f4f6' }}>
         <Link to={`/real-estate/properties/${slug}`} style={{ display: 'block', width: '100%', height: '100%' }}>
-          <img src={img} alt={title} style={{ width: '100%', height: '100%', objectFit: 'cover', transition: 'transform .5s' }}
-            onMouseOver={e => e.currentTarget.style.transform = 'scale(1.04)'}
+          <img src={img} alt={title} style={{ width: '100%', height: '100%', objectFit: 'cover', transition: 'transform .6s cubic-bezier(.4,0,.2,1)' }}
+            onMouseOver={e => e.currentTarget.style.transform = 'scale(1.06)'}
             onMouseOut={e => e.currentTarget.style.transform = 'scale(1)'}
           />
         </Link>
 
-        {/* Top badges */}
+        {/* Gradient overlay */}
+        <div style={{ position:'absolute', inset:0, background:'linear-gradient(to top, rgba(5,13,26,.55) 0%, transparent 50%)', pointerEvents:'none' }} />
+
+        {/* Badges */}
         <div style={{ position: 'absolute', top: 12, left: 12, display: 'flex', flexDirection: 'column', gap: 6 }}>
           <span style={{
             display: 'inline-flex', alignItems: 'center', gap: 5,
-            background: 'rgba(255,255,255,.95)', backdropFilter: 'blur(8px)',
-            padding: '3px 10px', borderRadius: 30,
-            fontSize: 10, fontWeight: 800, color: '#0f172a', letterSpacing: '.05em', textTransform: 'uppercase',
-            boxShadow: '0 2px 10px rgba(0,0,0,.12)',
+            background: 'rgba(5,13,26,.75)', backdropFilter: 'blur(8px)',
+            padding: '4px 10px', borderRadius: 30,
+            fontSize: 10, fontWeight: 800, color: '#fff', letterSpacing: '.06em', textTransform: 'uppercase',
+            border: '1px solid rgba(255,255,255,.12)',
           }}>
-            <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#2563eb', display: 'inline-block' }} />
+            <span style={{ width: 5, height: 5, borderRadius: '50%', background: '#f59e0b', display: 'inline-block' }} />
             Verified
           </span>
           {p.filters?.possession === 'READY_TO_MOVE' && (
             <span style={{
-              background: '#10b981', color: '#fff',
-              padding: '3px 10px', borderRadius: 30,
-              fontSize: 10, fontWeight: 800, letterSpacing: '.05em', textTransform: 'uppercase',
+              background: 'linear-gradient(135deg,#10b981,#059669)', color: '#fff',
+              padding: '4px 10px', borderRadius: 30, fontSize: 10, fontWeight: 800,
+              letterSpacing: '.06em', textTransform: 'uppercase',
             }}>Ready to Move</span>
           )}
         </div>
 
         {/* Save button */}
-        <button
-          type="button"
-          onClick={toggleSaved}
-          style={{
-            position: 'absolute', top: 12, right: 12,
-            width: 34, height: 34, borderRadius: '50%',
-            background: 'rgba(255,255,255,.9)', backdropFilter: 'blur(8px)',
-            border: 'none', cursor: 'pointer',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            color: saved ? '#ef4444' : '#64748b', boxShadow: '0 2px 8px rgba(0,0,0,.12)',
-            transition: 'all .15s',
-          }}
-        >
-          <HeartIcon />
+        <button type="button" onClick={toggleSaved} style={{
+          position: 'absolute', top: 12, right: 12,
+          width: 36, height: 36, borderRadius: '50%',
+          background: saved ? 'rgba(239,68,68,.9)' : 'rgba(5,13,26,.6)',
+          backdropFilter: 'blur(8px)', border: '1px solid rgba(255,255,255,.15)',
+          cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
+          color: '#fff', boxShadow: '0 2px 10px rgba(0,0,0,.2)',
+          transition: 'all .2s',
+        }}>
+          <svg width="15" height="15" fill={saved ? '#fff' : 'none'} stroke="#fff" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"
+              d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
+          </svg>
         </button>
 
-        {/* Image strip */}
+        {/* Price overlay on image */}
+        <div style={{ position: 'absolute', bottom: 12, left: 12 }}>
+          <p style={{ fontSize: 18, fontWeight: 900, color: '#fff', margin: 0, letterSpacing: '-.02em', textShadow: '0 2px 8px rgba(0,0,0,.3)' }}>{fmt(price)}</p>
+          {ppsf > 0 && <p style={{ fontSize: 10, color: 'rgba(255,255,255,.7)', margin: '2px 0 0', fontWeight: 600 }}>@₹{ppsf.toLocaleString()}/sqft</p>}
+        </div>
+
+        {/* Image strip nav */}
         {images.length > 1 && (
-          <div style={{
-            position: 'absolute', bottom: 0, left: 0, right: 0,
-            padding: '20px 12px 10px',
-            background: 'linear-gradient(transparent, rgba(0,0,0,.4))',
-            display: 'flex', gap: 4,
-          }}>
+          <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, display: 'flex', gap: 3, padding: '0 12px 8px' }}>
             {images.slice(0, 5).map((_, i) => (
               <div key={i} onMouseOver={() => setImgIdx(i)} style={{
-                flex: 1, height: 3, borderRadius: 2,
-                background: i === imgIdx ? '#fff' : 'rgba(255,255,255,.35)',
+                flex: 1, height: 2.5, borderRadius: 2,
+                background: i === imgIdx ? '#f59e0b' : 'rgba(255,255,255,.3)',
                 cursor: 'pointer', transition: 'background .15s',
               }} />
             ))}
@@ -162,95 +122,80 @@ export default function PropertyCard({ property: p, onCompare, isComparing, isSa
 
       {/* Body */}
       <div style={{ padding: '16px 18px 18px', display: 'flex', flexDirection: 'column', flex: 1 }}>
-        {/* Builder row */}
-        <div style={{ display: 'flex', alignItems: 'center', marginBottom: 8 }}>
-          <span style={{ fontSize: 11, fontWeight: 700, color: '#2563eb', textTransform: 'uppercase', letterSpacing: '.06em' }}>{builder}</span>
-        </div>
+        {/* Builder */}
+        <span style={{
+          fontSize: 10, fontWeight: 800, color: '#d97706',
+          textTransform: 'uppercase', letterSpacing: '.1em', marginBottom: 6, display: 'block',
+        }}>{builder}</span>
 
         {/* Title & Location */}
         <Link to={`/real-estate/properties/${slug}`} style={{ textDecoration: 'none' }}>
           <h3 style={{
-            fontSize: 15, fontWeight: 800, color: '#0f172a',
-            margin: '0 0 4px', letterSpacing: '-.02em', lineHeight: 1.3,
+            fontSize: 15, fontWeight: 800, color: '#0a1628',
+            margin: '0 0 5px', letterSpacing: '-.02em', lineHeight: 1.3,
             overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 1, WebkitBoxOrient: 'vertical',
             transition: 'color .15s',
           }}
-            onMouseOver={e => e.currentTarget.style.color = '#2563eb'}
-            onMouseOut={e => e.currentTarget.style.color = '#0f172a'}
+            onMouseOver={e => e.currentTarget.style.color = '#d97706'}
+            onMouseOut={e => e.currentTarget.style.color = '#0a1628'}
           >{title}</h3>
         </Link>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 5, color: '#64748b', fontSize: 12, fontWeight: 500, marginBottom: 14 }}>
-          <LocationIcon /> {locality}, {p.city}
-        </div>
-
-        {/* Price */}
-        <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', marginBottom: 14, paddingBottom: 14, borderBottom: '1px solid #f1f5f9' }}>
-          <div>
-            <p style={{ fontSize: 20, fontWeight: 900, color: '#0f172a', letterSpacing: '-.03em', margin: 0 }}>{fmt(price)}</p>
-            {ppsf > 0 && <p style={{ fontSize: 11, color: '#64748b', margin: '2px 0 0', fontWeight: 500 }}>@₹{ppsf.toLocaleString()}/sqft</p>}
-          </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 5, color: '#6b7280', fontSize: 12, fontWeight: 500, marginBottom: 14 }}>
+          <svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a2 2 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+          </svg>
+          {locality}{p.city && locality !== p.city ? `, ${p.city}` : ''}
         </div>
 
         {/* Specs */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 8, marginBottom: 16 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 6, marginBottom: 14 }}>
           {[{ l: 'Config', v: bhk }, { l: 'Area', v: area }, { l: 'Possession', v: poss }].map(s => (
-            <div key={s.l} style={{ background: '#f8fafc', borderRadius: 9, padding: '8px 10px' }}>
-              <p style={{ fontSize: 9, fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '.08em', margin: '0 0 3px' }}>{s.l}</p>
-              <p style={{ fontSize: 12, fontWeight: 800, color: '#0f172a', margin: 0 }}>{s.v}</p>
+            <div key={s.l} style={{ background: '#f9fafb', borderRadius: 10, padding: '8px 10px', border: '1px solid #f3f4f6' }}>
+              <p style={{ fontSize: 9, fontWeight: 700, color: '#9ca3af', textTransform: 'uppercase', letterSpacing: '.1em', margin: '0 0 3px' }}>{s.l}</p>
+              <p style={{ fontSize: 12, fontWeight: 800, color: '#0a1628', margin: 0 }}>{s.v}</p>
             </div>
           ))}
         </div>
 
-        {/* Footer: RERA + Compare */}
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
+        {/* RERA + Compare */}
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14, paddingTop: 10, borderTop: '1px solid #f3f4f6' }}>
           <div>
-            <p style={{ fontSize: 9, fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '.08em', margin: '0 0 1px' }}>RERA ID</p>
-            <p style={{ fontSize: 11, fontWeight: 600, color: '#475569', margin: 0 }}>{p.reraId || 'P-GRG-1234-5678'}</p>
+            <p style={{ fontSize: 9, fontWeight: 700, color: '#9ca3af', textTransform: 'uppercase', letterSpacing: '.1em', margin: '0 0 1px' }}>RERA ID</p>
+            <p style={{ fontSize: 11, fontWeight: 600, color: '#4b5563', margin: 0 }}>{p.reraId || 'P-GRG-1234-5678'}</p>
           </div>
           {onCompare && (
             <label style={{ display: 'flex', alignItems: 'center', gap: 7, cursor: 'pointer' }}>
-              <div
-                onClick={() => onCompare(p)}
-                style={{
-                  width: 18, height: 18, borderRadius: 5, flexShrink: 0, cursor: 'pointer',
-                  border: `2px solid ${isComparing ? '#2563eb' : '#cbd5e1'}`,
-                  background: isComparing ? '#2563eb' : 'transparent',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  transition: 'all .15s',
-                }}
-              >
-                {isComparing && <svg width="10" height="10" fill="none" stroke="white" viewBox="0 0 24 24"><path strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7"/></svg>}
+              <div onClick={() => onCompare(p)} style={{
+                width: 18, height: 18, borderRadius: 5, flexShrink: 0, cursor: 'pointer',
+                border: `2px solid ${isComparing ? '#f59e0b' : '#d1d5db'}`,
+                background: isComparing ? '#f59e0b' : 'transparent',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                transition: 'all .15s',
+              }}>
+                {isComparing && <svg width="10" height="10" fill="none" stroke={isComparing ? '#050d1a' : 'white'} viewBox="0 0 24 24"><path strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7"/></svg>}
               </div>
-              <span style={{ fontSize: 11, fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '.06em' }}>Compare</span>
+              <span style={{ fontSize: 11, fontWeight: 700, color: '#6b7280', textTransform: 'uppercase', letterSpacing: '.06em' }}>Compare</span>
             </label>
           )}
         </div>
 
-        {/* CTAs / View Details button */}
+        {/* CTA */}
         <div style={{ marginTop: 'auto' }}>
-          <Link 
-            to={`/real-estate/properties/${slug}`}
-            style={{
-              background: '#2563eb', color: '#fff', border: 'none',
-              padding: '12px', borderRadius: 10, fontWeight: 800, fontSize: 13,
-              cursor: 'pointer', fontFamily: 'Inter,sans-serif', textDecoration: 'none',
-              transition: 'background .15s', textTransform: 'uppercase', letterSpacing: '.02em',
-              width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', boxSizing: 'border-box'
-            }}
-            onMouseOver={e => e.currentTarget.style.background = '#1d4ed8'}
-            onMouseOut={e => e.currentTarget.style.background = '#2563eb'}
-          >
-            View Details
-          </Link>
+          <Link to={`/real-estate/properties/${slug}`} style={{
+            background: '#050d1a', color: '#f59e0b',
+            border: 'none', padding: '12px', borderRadius: 12,
+            fontWeight: 800, fontSize: 13, cursor: 'pointer',
+            fontFamily: 'Inter,sans-serif', textDecoration: 'none',
+            transition: 'all .2s', textTransform: 'uppercase', letterSpacing: '.05em',
+            width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center',
+            boxSizing: 'border-box', boxShadow: '0 4px 16px rgba(5,13,26,.15)',
+          }}
+            onMouseOver={e => { e.currentTarget.style.background = 'linear-gradient(135deg,#f59e0b,#d97706)'; e.currentTarget.style.color = '#050d1a'; e.currentTarget.style.boxShadow = '0 8px 24px rgba(245,158,11,.3)'; }}
+            onMouseOut={e => { e.currentTarget.style.background = '#050d1a'; e.currentTarget.style.color = '#f59e0b'; e.currentTarget.style.boxShadow = '0 4px 16px rgba(5,13,26,.15)'; }}
+          >View Details →</Link>
         </div>
       </div>
-
-      <style>{`
-        @keyframes re-fade-in {
-          from { opacity: 0; transform: translateY(4px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-      `}</style>
     </article>
   );
 }

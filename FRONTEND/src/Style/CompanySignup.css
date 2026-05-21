@@ -1,127 +1,124 @@
-
-#companysignup{
-background-color: rgba(14, 14, 15, 0.8);
-  .signup-container {
-    display: flex;
-    flex-direction: column;
-    min-height: 100vh;
-  }
-  
-  @media (min-width: 768px) {
-    .signup-container {
-      flex-direction: row;
-    }
-  }
-  
-  /* Left Side Form */
-  .signup-form-wrapper {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    width: 100%;
-    /* background: #000000dc; */
-    padding: 1rem;
-  }
-  
-  @media (min-width: 768px) {
-    .signup-form-wrapper {
-      width: 50%;
-    }
-  }
-  
-  .signup-form-container {
-    background: #080808;
-    backdrop-filter: blur(10px);
-    padding: 2rem;
-    border-radius: 1rem;
-    max-width: 480px;
-    width: 100%;
-    box-shadow: 0 10px 25px rgba(56, 56, 56, 0.5);
-    color: white;
-    position: relative;
-  }
-  
-  .back-link {
-    color: white;
-    float: right;
-    margin-bottom: 1rem;
-    display: block;
-  }
-  
-  /* Typography */
-  .signup-title {
-    font-size: 1.75rem;
-    font-weight: bold;
-    text-align: center;
-    margin-bottom: 1.5rem;
-  }
-  
-  /* Input Fields */
-  .signup-input {
-    width: 100%;
-    padding: 0.5rem;
-    margin-bottom: 0.75rem;
-    border-radius: 0.75rem;
-    border: 1px solid #ccc;
-    background-color: #000000a1;
-    color: white;
-    outline: none;
-  }
-  
-  .password-wrapper {
-    position: relative;
-  }
-  
-  .toggle-icon {
-    position: absolute;
-    right: 12px;
-    top: 5px;
-    font-size: 1.2rem;
-    color: #333;
-    cursor: pointer;
-  }
-  
-  /* Error Message */
-  .signup-error {
-    color: #f87171;
-    margin-bottom: 1rem;
-    font-size: 0.9rem;
-  }
-  
-  /* Button */
-  .signup-button {
-    width: 100%;
-    padding: 0.75rem;
-    background: linear-gradient(to right, #000000, #00000059);
-    color: white;
-     cursor: pointer;
-    font-weight: 600;
-    border-radius: 0.75rem;
-    margin-top: 0.5rem;
-    box-shadow: 0 10px 25px rgba(56, 56, 56, 0.5);
-  }
-  
-  /* Footer */
-  .signup-footer {
-    text-align: center;
-    color: #eee;
-    margin-top: 1rem;
-  }
-  
-  /* Right Image */
-  .signup-image-side {
-    display: none;
-    background-image: url('https://i.pinimg.com/736x/de/1d/fc/de1dfc58876174ccd98e885aae463d18.jpg');
-    background-size: cover;
-    background-position: center;
-    width: 50%;
-  }
-  
-  @media (min-width: 768px) {
-    .signup-image-side {
-      display: block;
-    }
-  }
-  
+#companysignup {
+  background-color: rgba(14, 14, 15, 0.8);
 }
 
+#companysignup .signup-container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+@media (min-width: 768px) {
+  #companysignup .signup-container {
+    flex-direction: row;
+  }
+}
+
+/* Left Side Form */
+#companysignup .signup-form-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  padding: 1rem;
+}
+
+@media (min-width: 768px) {
+  #companysignup .signup-form-wrapper {
+    width: 50%;
+  }
+}
+
+#companysignup .signup-form-container {
+  background: #080808;
+  backdrop-filter: blur(10px);
+  padding: 2rem;
+  border-radius: 1rem;
+  max-width: 480px;
+  width: 100%;
+  box-shadow: 0 10px 25px rgba(56, 56, 56, 0.5);
+  color: white;
+  position: relative;
+}
+
+#companysignup .back-link {
+  color: white;
+  float: right;
+  margin-bottom: 1rem;
+  display: block;
+}
+
+/* Typography */
+#companysignup .signup-title {
+  font-size: 1.75rem;
+  font-weight: bold;
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+
+/* Input Fields */
+#companysignup .signup-input {
+  width: 100%;
+  padding: 0.5rem;
+  margin-bottom: 0.75rem;
+  border-radius: 0.75rem;
+  border: 1px solid #ccc;
+  background-color: #000000a1;
+  color: white;
+  outline: none;
+}
+
+#companysignup .password-wrapper {
+  position: relative;
+}
+
+#companysignup .toggle-icon {
+  position: absolute;
+  right: 12px;
+  top: 5px;
+  font-size: 1.2rem;
+  color: #333;
+  cursor: pointer;
+}
+
+/* Error Message */
+#companysignup .signup-error {
+  color: #f87171;
+  margin-bottom: 1rem;
+  font-size: 0.9rem;
+}
+
+/* Button */
+#companysignup .signup-button {
+  width: 100%;
+  padding: 0.75rem;
+  background: linear-gradient(to right, #000000, #00000059);
+  color: white;
+  cursor: pointer;
+  font-weight: 600;
+  border-radius: 0.75rem;
+  margin-top: 0.5rem;
+  box-shadow: 0 10px 25px rgba(56, 56, 56, 0.5);
+}
+
+/* Footer */
+#companysignup .signup-footer {
+  text-align: center;
+  color: #eee;
+  margin-top: 1rem;
+}
+
+/* Right Image */
+#companysignup .signup-image-side {
+  display: none;
+  background-image: url('https://i.pinimg.com/736x/de/1d/fc/de1dfc58876174ccd98e885aae463d18.jpg');
+  background-size: cover;
+  background-position: center;
+  width: 50%;
+}
+
+@media (min-width: 768px) {
+  #companysignup .signup-image-side {
+    display: block;
+  }
+}

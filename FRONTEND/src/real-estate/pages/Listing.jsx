@@ -20,23 +20,23 @@ const SORT_OPTIONS = [
 
 const S = {
   font: 'Inter,sans-serif',
-  label: { fontSize: 10, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '.1em', color: '#94a3b8', display: 'block', marginBottom: 8 },
+  label: { fontSize: 10, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '.1em', color: '#9ca3af', display: 'block', marginBottom: 8 },
   chip: (active) => ({
     display: 'inline-flex', alignItems: 'center', gap: 6,
-    padding: '7px 14px', borderRadius: 30,
-    border: `1.5px solid ${active ? '#2563eb' : '#e2e8f0'}`,
-    background: active ? '#2563eb' : '#fff',
-    color: active ? '#fff' : '#475569',
+    padding: '7px 16px', borderRadius: 30,
+    border: `1.5px solid ${active ? '#050d1a' : '#e5e7eb'}`,
+    background: active ? '#050d1a' : '#fff',
+    color: active ? '#f59e0b' : '#4b5563',
     fontSize: 12, fontWeight: 700, cursor: 'pointer',
     whiteSpace: 'nowrap', fontFamily: 'Inter,sans-serif',
-    transition: 'all .15s',
+    transition: 'all .18s',
   }),
-  sideLabel: { fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '.1em', color: '#94a3b8', marginBottom: 10, display: 'block' },
+  sideLabel: { fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '.12em', color: '#9ca3af', marginBottom: 10, display: 'block' },
 };
 
 function FilterSection({ title, children }) {
   return (
-    <div style={{ paddingBottom: 20, marginBottom: 20, borderBottom: '1px solid #f1f5f9' }}>
+    <div style={{ paddingBottom: 20, marginBottom: 20, borderBottom: '1px solid #f3f4f6' }}>
       <p style={S.sideLabel}>{title}</p>
       {children}
     </div>
@@ -209,9 +209,9 @@ export default function Listing() {
 
   const FilterSidebar = () => (
     <aside style={{ fontFamily: S.font }}>
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 24, paddingBottom: 16, borderBottom: '1px solid #e2e8f0' }}>
-        <span style={{ fontSize: 13, fontWeight: 800, color: '#0f172a', textTransform: 'uppercase', letterSpacing: '.08em' }}>Filters</span>
-        <button onClick={clearAll} style={{ fontSize: 11, fontWeight: 700, color: '#2563eb', background: 'none', border: 'none', cursor: 'pointer', padding: '4px 8px', borderRadius: 6 }}>Clear All</button>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 24, paddingBottom: 16, borderBottom: '1px solid #f3f4f6' }}>
+        <span style={{ fontSize: 13, fontWeight: 800, color: '#0a1628', textTransform: 'uppercase', letterSpacing: '.1em' }}>Filters</span>
+        <button onClick={clearAll} style={{ fontSize: 11, fontWeight: 700, color: '#d97706', background: 'rgba(245,158,11,.08)', border: '1px solid rgba(245,158,11,.2)', cursor: 'pointer', padding: '4px 10px', borderRadius: 6 }}>Clear All</button>
       </div>
 
       {/* Intent */}
@@ -277,10 +277,10 @@ export default function Listing() {
             <button key={slab.label} onClick={() => updateFilter('budget', filters.budget === slab.label ? '' : slab.label)}
               style={{
                 textAlign: 'left', padding: '10px 14px', borderRadius: 10,
-                border: `1.5px solid ${filters.budget === slab.label ? '#2563eb' : '#e2e8f0'}`,
-                background: filters.budget === slab.label ? '#eff6ff' : '#fff',
-                color: filters.budget === slab.label ? '#2563eb' : '#475569',
-                fontSize: 12, fontWeight: 700, cursor: 'pointer', fontFamily: S.font, transition: 'all .15s',
+                border: `1.5px solid ${filters.budget === slab.label ? '#f59e0b' : '#e5e7eb'}`,
+                background: filters.budget === slab.label ? 'rgba(245,158,11,.08)' : '#fff',
+                color: filters.budget === slab.label ? '#d97706' : '#4b5563',
+                fontSize: 12, fontWeight: 700, cursor: 'pointer', fontFamily: S.font, transition: 'all .18s',
               }}
             >{slab.label}</button>
           ))}
@@ -293,10 +293,11 @@ export default function Listing() {
           {BHK_OPTIONS.map(o => (
             <button key={o.value} onClick={() => updateFilter('bhk', filters.bhk === o.value ? '' : o.value)}
               style={{
-                padding: '9px 8px', borderRadius: 9, border: `1.5px solid ${filters.bhk === o.value ? '#0f172a' : '#e2e8f0'}`,
-                background: filters.bhk === o.value ? '#0f172a' : '#fff',
-                color: filters.bhk === o.value ? '#fff' : '#475569',
-                fontSize: 11, fontWeight: 800, cursor: 'pointer', fontFamily: S.font, transition: 'all .15s',
+                padding: '9px 8px', borderRadius: 9,
+                border: `1.5px solid ${filters.bhk === o.value ? '#050d1a' : '#e5e7eb'}`,
+                background: filters.bhk === o.value ? '#050d1a' : '#fff',
+                color: filters.bhk === o.value ? '#f59e0b' : '#4b5563',
+                fontSize: 11, fontWeight: 800, cursor: 'pointer', fontFamily: S.font, transition: 'all .18s',
               }}
             >{o.label}</button>
           ))}
@@ -311,12 +312,12 @@ export default function Listing() {
               onClick={() => updateFilter('possession', o.value)}>
               <div style={{
                 width: 18, height: 18, borderRadius: '50%', flexShrink: 0,
-                border: `2px solid ${filters.possession === o.value ? '#2563eb' : '#cbd5e1'}`,
+                border: `2px solid ${filters.possession === o.value ? '#f59e0b' : '#d1d5db'}`,
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
               }}>
-                {filters.possession === o.value && <div style={{ width: 8, height: 8, borderRadius: '50%', background: '#2563eb' }} />}
+                {filters.possession === o.value && <div style={{ width: 8, height: 8, borderRadius: '50%', background: '#f59e0b' }} />}
               </div>
-              <span style={{ fontSize: 13, fontWeight: 600, color: '#334155' }}>{o.label}</span>
+              <span style={{ fontSize: 13, fontWeight: 600, color: '#374151' }}>{o.label}</span>
             </label>
           ))}
         </div>
@@ -330,8 +331,8 @@ export default function Listing() {
               onClick={() => toggleAmenity(o.value)}>
               <div style={{
                 width: 18, height: 18, borderRadius: 5, flexShrink: 0,
-                border: `2px solid ${filters.amenities.includes(o.value) ? '#2563eb' : '#cbd5e1'}`,
-                background: filters.amenities.includes(o.value) ? '#2563eb' : 'transparent',
+                border: `2px solid ${filters.amenities.includes(o.value) ? '#f59e0b' : '#d1d5db'}`,
+                background: filters.amenities.includes(o.value) ? '#f59e0b' : 'transparent',
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
               }}>
                 {filters.amenities.includes(o.value) && <svg width="10" height="10" fill="none" stroke="white" viewBox="0 0 24 24"><path strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7"/></svg>}
@@ -345,13 +346,13 @@ export default function Listing() {
   );
 
   return (
-    <div style={{ background: '#f8fafc', minHeight: '100vh', fontFamily: S.font }}>
+    <div style={{ background: '#f9fafb', minHeight: '100vh', fontFamily: S.font }}>
 
       {/* ── Control Bar ──────────────────────────────────── */}
       <div style={{
-        position: 'sticky', top: 68, zIndex: 100,
-        background: '#fff', borderBottom: '1px solid #e2e8f0',
-        boxShadow: '0 2px 12px rgba(0,0,0,.05)',
+        position: 'sticky', top: 72, zIndex: 100,
+        background: '#fff', borderBottom: '1px solid #e5e7eb',
+        boxShadow: '0 2px 16px rgba(0,0,0,.06)',
       }}>
         <div style={{ maxWidth: 1380, margin: '0 auto', padding: '14px 24px', display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
           
@@ -413,12 +414,10 @@ export default function Listing() {
               title={isNearbyActive ? 'Clear nearby search' : `Search within ${nearbyRadius} km of your current location`}
               aria-label={isNearbyActive ? 'Clear nearby search' : `Search within ${nearbyRadius} km of your current location`}
               style={{
-                width: 38,
-                height: 38,
-                borderRadius: 10,
-                border: `1.5px solid ${isNearbyActive ? '#2563eb' : '#e2e8f0'}`,
-                background: isNearbyActive ? '#eff6ff' : '#fff',
-                color: isNearbyActive ? '#2563eb' : '#64748b',
+                width: 38, height: 38, borderRadius: 10,
+                border: `1.5px solid ${isNearbyActive ? '#f59e0b' : '#e5e7eb'}`,
+                background: isNearbyActive ? 'rgba(245,158,11,.08)' : '#fff',
+                color: isNearbyActive ? '#d97706' : '#6b7280',
                 display: 'inline-flex',
                 alignItems: 'center',
                 justifyContent: 'center',
@@ -449,9 +448,9 @@ export default function Listing() {
           {/* Mobile filter toggle */}
           <button onClick={() => setMobileFilterOpen(!mobileFilterOpen)} style={{
             display: 'flex', alignItems: 'center', gap: 6, padding: '9px 16px',
-            borderRadius: 10, border: `1.5px solid ${activeCount > 0 ? '#2563eb' : '#e2e8f0'}`,
-            background: activeCount > 0 ? '#eff6ff' : '#fff',
-            color: activeCount > 0 ? '#2563eb' : '#475569',
+            borderRadius: 10, border: `1.5px solid ${activeCount > 0 ? '#050d1a' : '#e5e7eb'}`,
+            background: activeCount > 0 ? '#050d1a' : '#fff',
+            color: activeCount > 0 ? '#f59e0b' : '#4b5563',
             fontSize: 12, fontWeight: 700, cursor: 'pointer', fontFamily: S.font,
           }}>
             <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -479,8 +478,8 @@ export default function Listing() {
       {lat && lng && radius && (
         <div style={{ maxWidth: 1380, margin: '0 auto', padding: '0 24px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 12, flexWrap: 'wrap' }}>
-            <span style={{ fontSize: 10, fontWeight: 700, color: '#2563eb', background: '#dbeafe', padding: '4px 10px', borderRadius: 30 }}>
-              Nearby search: {radius} km
+            <span style={{ fontSize: 10, fontWeight: 800, color: '#f59e0b', background: '#050d1a', padding: '4px 10px', borderRadius: 30, border: '1px solid rgba(245,158,11,.25)' }}>
+              Nearby: {radius} km
             </span>
             <button
               onClick={() => {
@@ -507,10 +506,10 @@ export default function Listing() {
       )}
 
       {/* ── Main 3-Column Grid ───────────────────────────── */}
-      <div style={{ maxWidth: 1380, margin: '0 auto', padding: '32px 24px 80px', display: 'grid', gridTemplateColumns: '260px 1fr 280px', gap: 28, alignItems: 'start' }} className="re-listing-grid">
+      <div style={{ maxWidth: 1400, margin: '0 auto', padding: '32px 28px 100px', display: 'grid', gridTemplateColumns: '260px 1fr 280px', gap: 28, alignItems: 'start' }} className="re-listing-grid">
 
         {/* Left: Filter Rail */}
-        <div style={{ background: '#fff', borderRadius: 16, border: '1px solid #e2e8f0', padding: '24px 20px', position: 'sticky', top: 130 }}>
+        <div style={{ background: '#fff', borderRadius: 20, border: '1px solid #e5e7eb', padding: '24px 20px', position: 'sticky', top: 140, boxShadow: '0 4px 24px rgba(0,0,0,.05)' }}>
           <FilterSidebar />
         </div>
 
@@ -519,9 +518,10 @@ export default function Listing() {
           {/* Results header */}
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 24, flexWrap: 'wrap', gap: 12 }}>
             <div>
-              <h1 style={{ fontSize: 22, fontWeight: 900, color: '#0f172a', margin: '0 0 6px', letterSpacing: '-.02em' }}>
-                {loading ? 'Searching…' : `${count.toLocaleString()} Properties in ${city || 'All India'}`}
+              <h1 style={{ fontSize: 22, fontWeight: 900, color: '#0a1628', margin: '0 0 4px', letterSpacing: '-.03em' }}>
+                {loading ? 'Searching…' : `${count.toLocaleString()} Properties`}
               </h1>
+              <p style={{ fontSize: 13, color: '#6b7280', margin: 0, fontWeight: 500 }}>in {city || 'All India'}</p>
             </div>
           </div>
 
@@ -535,8 +535,8 @@ export default function Listing() {
                   <button key={l} onClick={() => Array.isArray(val) ? toggleAmenity(l) : updateFilter(key, '')} style={{
                     display: 'inline-flex', alignItems: 'center', gap: 6,
                     padding: '5px 12px', borderRadius: 30,
-                    background: '#0f172a', color: '#fff',
-                    border: 'none', fontSize: 11, fontWeight: 700, cursor: 'pointer', fontFamily: S.font,
+                    background: '#050d1a', color: '#f59e0b',
+                    border: '1px solid rgba(245,158,11,.2)', fontSize: 11, fontWeight: 700, cursor: 'pointer', fontFamily: S.font,
                   }}>
                     {l.replace(/_/g, ' ')}
                     <svg width="10" height="10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M6 18L18 6M6 6l12 12"/></svg>
@@ -550,7 +550,7 @@ export default function Listing() {
           {error ? (
             <div style={{ background: '#fff5f5', border: '1px solid #fecaca', borderRadius: 16, padding: '40px', textAlign: 'center' }}>
               <p style={{ color: '#991b1b', fontWeight: 700, marginBottom: 16 }}>{error}</p>
-              <button onClick={fetchListings} style={{ background: '#dc2626', color: '#fff', border: 'none', padding: '10px 24px', borderRadius: 10, fontWeight: 700, cursor: 'pointer', fontFamily: S.font }}>Retry</button>
+              <button onClick={fetchListings} style={{ background: '#050d1a', color: '#f59e0b', border: 'none', padding: '10px 24px', borderRadius: 10, fontWeight: 700, cursor: 'pointer', fontFamily: S.font }}>Retry</button>
             </div>
           ) : loading ? (
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2,1fr)', gap: 16 }}>
@@ -604,9 +604,10 @@ export default function Listing() {
             <div style={{ width: 40, height: 4, borderRadius: 2, background: '#e2e8f0', margin: '0 auto 20px' }} />
             <FilterSidebar />
             <button onClick={() => setMobileFilterOpen(false)} style={{
-              width: '100%', padding: '14px', background: '#2563eb', color: '#fff',
-              border: 'none', borderRadius: 12, fontWeight: 700, fontSize: 14, cursor: 'pointer', fontFamily: S.font,
-            }}>Apply Filters</button>
+              width: '100%', padding: '14px',
+              background: 'linear-gradient(135deg,#f59e0b,#d97706)', color: '#050d1a',
+              border: 'none', borderRadius: 12, fontWeight: 800, fontSize: 14, cursor: 'pointer', fontFamily: S.font,
+            }}>Apply Filters →</button>
           </div>
         </>
       )}

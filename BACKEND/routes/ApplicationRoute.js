@@ -1,4 +1,5 @@
 const express = require("express");
+const auth = require("../middleware/auth");
 const router = express.Router();
 const Application = require("../models/Application");
 const CompanyUser = require("../models/CompanyUser");
@@ -10,7 +11,7 @@ const jwt = require("jsonwebtoken");
 require("dotenv").config();
 
 // user apply job
-router.post("/apply-job", async (req, res) => {
+router.post("/apply-job", auth, async (req, res) => {
   const { userId, resumeId, jobId, status = "pending" } = req.body;
   try {
     if (await Application.findOne({ userId, jobId })) {
@@ -56,7 +57,7 @@ router.post("/apply-job", async (req, res) => {
 });
 
 // checking if user has applied for a job
-router.get("/user-applications", async (req, res) => {
+router.get("/user-applications", auth, async (req, res) => {
   const token = req.headers.authorization;
   try {
     if (!token) {
@@ -77,7 +78,7 @@ router.get("/user-applications", async (req, res) => {
   }
 });
 //showing applied jobs to user
-router.get("/appliedjobs", async (req, res) => {
+router.get("/appliedjobs", auth, async (req, res) => {
   const token = req.headers.authorization;
   try {
     if (!token) {
@@ -97,7 +98,7 @@ router.get("/appliedjobs", async (req, res) => {
   }
 });
 // hr get all applications
-router.get("/hr-applications/:hrId", async (req, res) => {
+router.get("/hr-applications/:hrId", auth, async (req, res) => {
   try {
     const applications = await Application.find({ hrId: req.params.hrId })
       .populate({
@@ -131,7 +132,7 @@ router.get("/hr-applications/:hrId", async (req, res) => {
   }
 });
 // hr get all applications for a specific job and updating status
-router.put("/application/:applicationId/status", async (req, res) => {
+router.put("/application/:applicationId/status", auth, async (req, res) => {
   try {
     const application = await Application.findByIdAndUpdate(
       req.params.applicationId,
@@ -148,7 +149,7 @@ router.put("/application/:applicationId/status", async (req, res) => {
   }
 });
 // company get all applications for a specific job
-router.get("/selected-applications/:companyId", async (req, res) => {
+router.get("/selected-applications/:companyId", auth, async (req, res) => {
   try {
     const applications = await Application.find({ status: "selected" })
       .populate({
@@ -165,7 +166,7 @@ router.get("/selected-applications/:companyId", async (req, res) => {
   }
 });
 // company udpates interview overview status and shortlisted
-router.put("/application/:applicationId/companyStatus", async (req, res) => {
+router.put("/application/:applicationId/companyStatus", auth, async (req, res) => {
   try {
     const { status, shortListed } = req.body;
     const updateData = {};
@@ -189,9 +190,7 @@ router.put("/application/:applicationId/companyStatus", async (req, res) => {
     res.status(500).json({ error: "Server error" });
   }
 });
-router.put(
-  "/interview-application/:applicationId/companyStatus",
-  async (req, res) => {
+router.put("/interview-application/:applicationId/companyStatus", auth, async (req, res) => {
     try {
       const { status } = req.body;
       const updateData = {};
@@ -214,7 +213,7 @@ router.put(
   }
 );
 // showing shortlisted applications in company dashboard
-router.get("/shortlisted-applications/:companyId", async (req, res) => {
+router.get("/shortlisted-applications/:companyId", auth, async (req, res) => {
   try {
     const { companyId } = req.params;
     const applications = await Application.find({
@@ -252,7 +251,7 @@ router.get("/shortlisted-applications/:companyId", async (req, res) => {
   }
 });
 // all rejected applications in hr  dashboard
-router.get("/rejected-applications/:hrId", async (req, res) => {
+router.get("/rejected-applications/:hrId", auth, async (req, res) => {
   try {
     const { hrId } = req.params;
 
@@ -302,7 +301,7 @@ router.get("/rejected-applications/:hrId", async (req, res) => {
   }
 });
 // showing interview applications in company dashboard
-router.get("/interview-applications/:companyId", async (req, res) => {
+router.get("/interview-applications/:companyId", auth, async (req, res) => {
   try {
     const applications = await Application.find({
       companyStatus: "Selected",
@@ -322,7 +321,7 @@ router.get("/interview-applications/:companyId", async (req, res) => {
   }
 });
 // adding interview schedule
-router.put("/company-application/:applicationId/interview",async (req, res) => {
+router.put("/company-application/:applicationId/interview", auth, async (req, res) => {
     try {
       const { date, mode, link, interviewer, interviewStatus } = req.body;
       const application = await Application.findById(req.params.applicationId);
@@ -347,7 +346,7 @@ router.put("/company-application/:applicationId/interview",async (req, res) => {
   }
 );
 // adding feedback for interview
-router.put("/company-application/:applicationId/interview/:interviewId/feedback", async (req, res) => {
+router.put("/company-application/:applicationId/interview/:interviewId/feedback", auth, async (req, res) => {
     try {
       const { interviewStatus } = req.body;
       const application = await Application.findById(req.params.applicationId);
@@ -368,7 +367,7 @@ router.put("/company-application/:applicationId/interview/:interviewId/feedback"
   }
 );
 // routes/application.js
-router.get("/hr-applications/:hrId", async (req, res) => {
+router.get("/hr-applications/:hrId", auth, async (req, res) => {
   try {
     const hrId = req.params.hrId;
 
@@ -393,7 +392,7 @@ router.get("/hr-applications/:hrId", async (req, res) => {
   }
 });
 // offer letter upload from company dashboard
-router.post("/upload-offer-letter", async (req, res) => {
+router.post("/upload-offer-letter", auth, async (req, res) => {
   try {
     if (!req.files || !req.files.file) {
       return res.status(400).json({ message: "No file uploaded" });
@@ -436,7 +435,7 @@ router.post("/upload-offer-letter", async (req, res) => {
   }
 });
 // fetching offer letter
-router.get("/offer-letter/:applicationId", async (req, res) => {
+router.get("/offer-letter/:applicationId", auth, async (req, res) => {
   try {
     const application = await Application.findById(req.params.applicationId);
     if (!application)
@@ -450,7 +449,7 @@ router.get("/offer-letter/:applicationId", async (req, res) => {
   }
 });
 // sending offer letter to hr
-router.post("/update-to-hr", async (req, res) => {
+router.post("/update-to-hr", auth, async (req, res) => {
   try {
     const { applicationId } = req.body;
     if (!applicationId) {
@@ -478,7 +477,7 @@ router.post("/update-to-hr", async (req, res) => {
   }
 });
 // receiving offer letter from company dashboard to hr dashboard
-router.get("/hired-applications/:HrId", async (req, res) => {
+router.get("/hired-applications/:HrId", auth, async (req, res) => {
   try {
     const applications = await Application.find({
       updateHR: true,
@@ -517,9 +516,7 @@ router.get("/hired-applications/:HrId", async (req, res) => {
 });
 
 // to update the interview round from hr to user
-router.put(
-  "/application/:applicationId/interview/:round/update-candidate",
-  async (req, res) => {
+router.put("/application/:applicationId/interview/:round/update-candidate", auth, async (req, res) => {
     try {
       const { applicationId, round } = req.params;
       const { updateCandidate } = req.body;
@@ -556,7 +553,7 @@ router.put(
   }
 );
 // Route for fetching user interviews
-router.get("/user-interviews", async (req, res) => {
+router.get("/user-interviews", auth, async (req, res) => {
   const token = req.headers.authorization;
   try {
     if (!token) {
@@ -637,9 +634,7 @@ router.get("/user-interviews", async (req, res) => {
   }
 });
 // Route for updating interview feedback
-router.put(
-  "/application/:applicationId/interview/:round/update-feedback",
-  async (req, res) => {
+router.put("/application/:applicationId/interview/:round/update-feedback", auth, async (req, res) => {
     try {
       const { applicationId, round } = req.params;
       const { feedback, feedbackUpdatedByHR } = req.body;
@@ -674,9 +669,7 @@ router.put(
   }
 );
 // Route for updating interview status
-router.put(
-  "/application/:applicationId/update-interview-status",
-  async (req, res) => {
+router.put("/application/:applicationId/update-interview-status", auth, async (req, res) => {
     try {
       const { applicationId } = req.params;
 
@@ -702,9 +695,7 @@ router.put(
   }
 );
 // Route for sending offer letter
-router.put(
-  "/application/:applicationId/send-offer-letter",
-  async (req, res) => {
+router.put("/application/:applicationId/send-offer-letter", auth, async (req, res) => {
     try {
       const { applicationId } = req.params;
 

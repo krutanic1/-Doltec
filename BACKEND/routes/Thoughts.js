@@ -1,4 +1,5 @@
 const express = require("express");
+const auth = require("../middleware/auth");
 const mongoose = require("mongoose");
 const Thought = require("../models/Thoughts");
 const Chat = require("../models/Chat");
@@ -7,7 +8,7 @@ const { sendEmail } = require("../controllers/MailController");
 const router = express.Router();
 
 // Post a new thought
-router.post("/thoughts", async (req, res) => {
+router.post("/thoughts", auth, async (req, res) => {
   try {
     const { userId, text } = req.body;
     if (!userId || !text) {
@@ -45,7 +46,7 @@ router.post("/thoughts", async (req, res) => {
 });
 
 // Get all visible thoughts
-router.get("/getthoughts", async (req, res) => {
+router.get("/getthoughts", auth, async (req, res) => {
   try {
     const thoughts = await Thought.find({ visible: "show" })
       .populate("userId", "name")
@@ -76,7 +77,7 @@ router.get("/getthoughts", async (req, res) => {
 });
 
 // Get thoughts by user ID
-router.get("/communityposts/:userId", async (req , res)=>{
+router.get("/communityposts/:userId", auth, async (req , res)=>{
    try{
       const { userId } = req.params;
       if(!userId){
@@ -93,7 +94,7 @@ router.get("/communityposts/:userId", async (req , res)=>{
 })
 
 // Post a reply to a thought
-router.post("/thoughtsreplies/:id", async (req, res) => {
+router.post("/thoughtsreplies/:id", auth, async (req, res) => {
   try {
     const thought = await Thought.findById(req.params.id);
     if (!thought) {
@@ -138,7 +139,7 @@ router.post("/thoughtsreplies/:id", async (req, res) => {
 });
 
 // Update thought visibility
-router.put("/changevisible/:id", async (req, res) => {
+router.put("/changevisible/:id", auth, async (req, res) => {
   try {
     const thought = await Thought.findById(req.params.id);
     if (!thought) {
@@ -175,7 +176,7 @@ router.put("/changevisible/:id", async (req, res) => {
 });
 
 // Update reply visibility
-router.put("/changerepliesvisibilty/:thoughtId/replies/:replyIndex", async (req, res) => {
+router.put("/changerepliesvisibilty/:thoughtId/replies/:replyIndex", auth, async (req, res) => {
   try {
     const thought = await Thought.findById(req.params.thoughtId);
     if (!thought) {
@@ -216,7 +217,7 @@ router.put("/changerepliesvisibilty/:thoughtId/replies/:replyIndex", async (req,
 });
 
 // Send a friend request
-router.post("/friendrequest", async (req, res) => {
+router.post("/friendrequest", auth, async (req, res) => {
   const { senderId, targetId } = req.body;
   try {
     if (!senderId || !targetId) {
@@ -290,7 +291,7 @@ router.post("/friendrequest", async (req, res) => {
 });
 
 // Check friend status
-router.get("/checkfriend/:userId", async (req, res) => {
+router.get("/checkfriend/:userId", auth, async (req, res) => {
   try {
     const { userId } = req.params;
     if (!userId) {
@@ -326,7 +327,7 @@ router.get("/checkfriend/:userId", async (req, res) => {
 });
 
 // Accept a friend request
-router.post("/acceptfriend", async (req, res) => {
+router.post("/acceptfriend", auth, async (req, res) => {
   const { senderId, userId } = req.body;
   try {
     if (!senderId || !userId) {
@@ -377,7 +378,7 @@ router.post("/acceptfriend", async (req, res) => {
 });
 
 // Reject a friend request
-router.post("/rejectfriend", async (req, res) => {
+router.post("/rejectfriend", auth, async (req, res) => {
   const { senderId, userId } = req.body;
   try {
     if (!senderId || !userId) {
@@ -411,7 +412,7 @@ router.post("/rejectfriend", async (req, res) => {
 });
 
 // Fetch user's chats and friend requests
-router.get("/getchats/:userId", async (req, res) => {
+router.get("/getchats/:userId", auth, async (req, res) => {
   try {
     const { userId } = req.params;
     if (!userId) {
@@ -462,7 +463,7 @@ router.get("/getchats/:userId", async (req, res) => {
 });
 
 // Send a message
-router.post("/sendmessage", async (req, res) => {
+router.post("/sendmessage", auth, async (req, res) => {
   const { senderId, recipientId, text } = req.body;
   try {
     if (!senderId || !recipientId || !text) {
@@ -513,7 +514,7 @@ router.post("/sendmessage", async (req, res) => {
 });
 
 // SSE for real-time messages
-router.get("/messages/stream/:userId", async (req, res) => {
+router.get("/messages/stream/:userId", auth, async (req, res) => {
   try {
     const { userId } = req.params;
     if (!userId) {

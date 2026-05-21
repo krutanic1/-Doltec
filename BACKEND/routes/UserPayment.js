@@ -1,4 +1,5 @@
 const express = require('express');
+const auth = require("../middleware/auth");
 const router = express.Router();
 const crypto = require('crypto');
 const { razorpay } = require('../middleware/razorpaysetup');
@@ -6,7 +7,7 @@ const User = require('../models/User');
 require('dotenv').config();
 
 // user creating subscription
-router.post('/create-subscription', async (req, res) => {
+router.post('/create-subscription', auth, async (req, res) => {
   const { planType, userId } = req.body;
   try {
     if (!userId || !planType) {
@@ -68,7 +69,7 @@ router.post('/create-subscription', async (req, res) => {
 });
 
 // backend verify subscription
-router.post('/verify-subscription', async (req, res) => {
+router.post('/verify-subscription', auth, async (req, res) => {
   const { razorpay_payment_id, razorpay_order_id, razorpay_subscription_id, razorpay_signature, userId, planType } = req.body;
   try {
     if (!userId || !razorpay_payment_id || (!razorpay_order_id && !razorpay_subscription_id) || !razorpay_signature || !planType) {
@@ -142,7 +143,7 @@ router.post('/verify-subscription', async (req, res) => {
 });
 
 // get user profile
-router.get('/profile', async (req, res) => {
+router.get('/profile', auth, async (req, res) => {
   const { userId } = req.query;
   try {
     if (!userId) {

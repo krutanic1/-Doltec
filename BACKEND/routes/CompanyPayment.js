@@ -1,4 +1,5 @@
 const express = require('express');
+const auth = require("../middleware/auth");
 const router = express.Router();
 const crypto = require('crypto');
 const Company = require('../models/CompanyUser');
@@ -12,7 +13,7 @@ const plans = {
   '12months': { planId: 'plan_RNk0wEScQ9JVvk', amount: 21890, cycles: 12, accessLevel: 'elite', jobPostLimit: null },
 };
 
-router.post('/company/payment/create-subscription', async (req, res) => {
+router.post('/company/payment/create-subscription', auth, async (req, res) => {
   try {
     const { planType, companyId } = req.body;
     if (!companyId || !planType) {
@@ -43,7 +44,7 @@ router.post('/company/payment/create-subscription', async (req, res) => {
   }
 });
 
-router.post('/company/payment/verify-subscription', async (req, res) => {
+router.post('/company/payment/verify-subscription', auth, async (req, res) => {
   try {
     const { razorpay_payment_id, razorpay_subscription_id, razorpay_signature, companyId } = req.body;
     if (!razorpay_payment_id || !razorpay_subscription_id || !razorpay_signature || !companyId) {
