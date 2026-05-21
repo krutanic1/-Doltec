@@ -4,34 +4,12 @@ import useAuthStore from '../stores/authStore';
 import api from '../services/api/axios';
 import PropertyStatusBadge from '../components/PropertyStatusBadge';
 
-const S = { font: 'Inter,sans-serif' };
-
-const PlusIcon = () => (
-  <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M12 4v16m8-8H4"/>
-  </svg>
-);
-const EyeIcon = () => (
-  <svg width="15" height="15" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
-  </svg>
-);
-const EditIcon = () => (
-  <svg width="15" height="15" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/>
-  </svg>
-);
-const HomeIcon = () => (
-  <svg width="28" height="28" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
-  </svg>
-);
-const LogoutIcon = () => (
-  <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
-  </svg>
-);
+const STAT_CONFIG = [
+  { key: 'active',  label: 'Active Listings',  icon: <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>, accent: '#3b5bdb', bg: 'rgba(59,91,219,0.1)',  border: 'rgba(59,91,219,0.18)' },
+  { key: 'pending', label: 'Pending Review',   icon: <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>, accent: '#e8890c', bg: 'rgba(232,137,12,0.1)', border: 'rgba(232,137,12,0.18)' },
+  { key: 'views',   label: 'Total Views',      icon: <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>, accent: '#0d9276', bg: 'rgba(13,146,118,0.1)', border: 'rgba(13,146,118,0.18)' },
+  { key: 'leads',   label: 'Leads Generated',  icon: <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>, accent: '#7950f2', bg: 'rgba(121,80,242,0.1)', border: 'rgba(121,80,242,0.18)' },
+];
 
 export default function Dashboard() {
   const navigate = useNavigate();
@@ -52,226 +30,313 @@ export default function Dashboard() {
     setLoading(true);
     api.get('/properties/my-properties')
       .then(res => { setItems(res.data.data || res.data || []); setLoading(false); })
-      .catch(err => { 
+      .catch(err => {
         const errMsg = err.response?.data?.message || err.response?.data?.msg || err.message;
         if (err.response?.status === 401 || errMsg === 'No token, authorization denied') {
-          logout();
-          localStorage.removeItem('user');
-          localStorage.removeItem('token');
+          logout(); localStorage.removeItem('user'); localStorage.removeItem('token');
           navigate('/real-estate/login');
-        } else {
-          setError(errMsg);
-          setLoading(false);
-        }
+        } else { setError(errMsg); setLoading(false); }
       });
   }, [navigate, logout]);
 
-  const totalViews = items.reduce((acc, item) => acc + (item.views || 0), 0);
-  const totalLeads = items.reduce((acc, item) => acc + (item.leads?.length || item.leadsCount || 0), 0);
+  const totalViews = items.reduce((acc, i) => acc + (i.views || 0), 0);
+  const totalLeads = items.reduce((acc, i) => acc + (i.leads?.length || i.leadsCount || 0), 0);
 
-  const STATS = [
-    { label: 'Active Listings',  value: items.filter(i => i.status === 'APPROVED').length, color: '#2563eb', bg: '#eff6ff', border: '#dbeafe' },
-    { label: 'Pending Review',   value: items.filter(i => i.status === 'PENDING').length,   color: '#d97706', bg: '#fffbeb', border: '#fde68a' },
-    { label: 'Total Views',      value: totalViews,  color: '#059669', bg: '#ecfdf5', border: '#a7f3d0' },
-    { label: 'Leads Generated',  value: totalLeads,    color: '#7c3aed', bg: '#f5f3ff', border: '#ddd6fe' },
-  ];
+  const statValues = {
+    active:  items.filter(i => i.status === 'APPROVED').length,
+    pending: items.filter(i => i.status === 'PENDING').length,
+    views:   totalViews,
+    leads:   totalLeads,
+  };
 
   return (
-    <div style={{ background: '#f8fafc', minHeight: '100vh', fontFamily: S.font, paddingBottom: 80 }}>
-      <div style={{ maxWidth: 1240, margin: '0 auto', padding: '96px 24px 0' }}>
-
-        {/* Page Header */}
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 16, marginBottom: 40 }}>
+    <div className="re-fade-in">
+      {/* Welcome Banner */}
+      <div style={{
+        background: 'linear-gradient(135deg, #0b0f1a 0%, #1a2550 50%, #2537a0 100%)',
+        borderRadius: 20,
+        padding: '28px 32px',
+        marginBottom: 24,
+        position: 'relative',
+        overflow: 'hidden',
+        boxShadow: '0 12px 40px rgba(11,15,26,0.25)',
+      }}>
+        {/* Background orbs */}
+        <div style={{ position: 'absolute', top: -40, right: -40, width: 200, height: 200, borderRadius: '50%', background: 'rgba(59,91,219,0.15)', pointerEvents: 'none' }} />
+        <div style={{ position: 'absolute', bottom: -20, right: 120, width: 120, height: 120, borderRadius: '50%', background: 'rgba(250,162,25,0.08)', pointerEvents: 'none' }} />
+        <div style={{ position: 'relative', zIndex: 1, display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 16 }}>
           <div>
-            <h1 style={{ fontSize: 'clamp(22px,3vw,30px)', fontWeight: 900, color: '#0f172a', margin: '0 0 6px', letterSpacing: '-.03em' }}>
-              Hello, {user?.name?.split(' ')[0] || 'Member'} 👋
+            <div style={{ fontSize: 10, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.2em', color: 'rgba(186,200,255,0.8)', marginBottom: 8 }}>
+              Welcome Back
+            </div>
+            <h1 style={{ fontSize: 'clamp(22px, 3vw, 32px)', fontWeight: 900, color: '#fff', margin: '0 0 8px', letterSpacing: '-0.04em' }}>
+              Hello, {user?.name?.split(' ')[0] || 'Member'}
             </h1>
-            <p style={{ color: '#64748b', fontSize: 14, fontWeight: 500, margin: 0 }}>
-              Manage your properties and track your performance.
+            <p style={{ color: 'rgba(186,200,255,0.75)', fontSize: 14, fontWeight: 500, margin: 0 }}>
+              Manage your properties and track your performance from here.
             </p>
           </div>
-          <div style={{ display: 'flex', gap: 12 }}>
-            <button onClick={handleLogout} style={{
-              display: 'inline-flex', alignItems: 'center', gap: 8,
-              background: '#fff', color: '#ef4444', border: '1px solid #fee2e2',
-              padding: '11px 18px', borderRadius: 12, cursor: 'pointer',
-              fontWeight: 700, fontSize: 14, transition: 'all .15s',
-            }}
-              onMouseOver={e => { e.currentTarget.style.background = '#fef2f2'; e.currentTarget.style.borderColor = '#fca5a5'; }}
-              onMouseOut={e => { e.currentTarget.style.background = '#fff'; e.currentTarget.style.borderColor = '#fee2e2'; }}
-            >
-              <LogoutIcon /> Logout
-            </button>
+          <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
             <Link to="/real-estate/post-property" style={{
               display: 'inline-flex', alignItems: 'center', gap: 8,
-              background: '#2563eb', color: '#fff', textDecoration: 'none',
+              background: 'linear-gradient(135deg, #faa219, #e8890c)',
+              color: '#0b0f1a',
+              textDecoration: 'none',
               padding: '11px 22px', borderRadius: 12,
-              fontWeight: 700, fontSize: 14, boxShadow: '0 4px 14px rgba(37,99,235,.25)',
-              transition: 'all .15s',
+              fontWeight: 800, fontSize: 14,
+              boxShadow: '0 4px 16px rgba(234,137,12,0.4)',
+              transition: 'all 0.2s ease',
             }}
-              onMouseOver={e => e.currentTarget.style.background = '#1d4ed8'}
-              onMouseOut={e => e.currentTarget.style.background = '#2563eb'}
+              onMouseOver={e => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 8px 24px rgba(234,137,12,0.5)'; }}
+              onMouseOut={e => { e.currentTarget.style.transform = 'none'; e.currentTarget.style.boxShadow = '0 4px 16px rgba(234,137,12,0.4)'; }}
             >
-              <PlusIcon /> Post New Property
+              <svg width="15" height="15" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4"/>
+              </svg>
+              Post Property
             </Link>
-          </div>
-        </div>
-
-        {/* Workspace Switcher Callout Banner */}
-        <div style={{
-          background: 'linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%)',
-          border: '1px solid #bfdbfe',
-          borderRadius: 16,
-          padding: '16px 20px',
-          marginBottom: 32,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          flexWrap: 'wrap',
-          gap: 16,
-          boxShadow: '0 4px 20px rgba(37,99,235,.05)'
-        }}>
-          <div>
-            <h4 style={{ margin: '0 0 4px', fontSize: 14, fontWeight: 900, color: '#1e40af', textTransform: 'uppercase', letterSpacing: '.06em' }}>Advanced Seller & Dealer Workspace</h4>
-            <p style={{ margin: 0, fontSize: 13, color: '#1e3a8a', opacity: 0.85 }}>Access multi-tenant team management, listing packages, inquiry workflows, and live campaign analytics.</p>
-          </div>
-          <Link to="/real-estate/workspace" style={{
-            background: '#2563eb',
-            color: '#fff',
-            textDecoration: 'none',
-            fontSize: 13,
-            fontWeight: 800,
-            padding: '10px 18px',
-            borderRadius: 10,
-            boxShadow: '0 4px 12px rgba(37,99,235,.2)',
-            transition: 'all 0.2s'
-          }}
-            onMouseOver={e => e.currentTarget.style.background = '#1d4ed8'}
-            onMouseOut={e => e.currentTarget.style.background = '#2563eb'}
-          >
-            Launch Workspace Console →
-          </Link>
-        </div>
-
-        {/* Stats Grid */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 16, marginBottom: 40 }} className="re-stats-grid">
-          {STATS.map((s, i) => (
-            <div key={s.label} style={{
-              background: '#fff', borderRadius: 16, border: `1px solid ${s.border}`,
-              padding: '20px 24px', transition: 'box-shadow .2s',
+            <button onClick={handleLogout} style={{
+              display: 'inline-flex', alignItems: 'center', gap: 8,
+              background: 'rgba(255,255,255,0.07)',
+              color: 'rgba(255,255,255,0.8)',
+              border: '1px solid rgba(255,255,255,0.12)',
+              padding: '11px 18px', borderRadius: 12,
+              fontWeight: 700, fontSize: 14, cursor: 'pointer',
+              transition: 'all 0.2s ease',
+              fontFamily: 'inherit',
             }}
-              onMouseOver={e => e.currentTarget.style.boxShadow = '0 6px 24px rgba(0,0,0,.07)'}
-              onMouseOut={e => e.currentTarget.style.boxShadow = 'none'}
+              onMouseOver={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.12)'; e.currentTarget.style.color = '#fff'; }}
+              onMouseOut={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.07)'; e.currentTarget.style.color = 'rgba(255,255,255,0.8)'; }}
             >
-              <p style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '.1em', color: '#94a3b8', margin: '0 0 10px' }}>{s.label}</p>
-              <p style={{ fontSize: 36, fontWeight: 900, color: s.color, margin: 0, letterSpacing: '-.03em' }}>{s.value}</p>
-            </div>
-          ))}
-        </div>
-
-        {/* Listings Panel */}
-        <div style={{ background: '#fff', borderRadius: 20, border: '1px solid #e2e8f0', overflow: 'hidden' }}>
-          <div style={{ padding: '20px 28px', borderBottom: '1px solid #f1f5f9', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-            <h2 style={{ fontSize: 16, fontWeight: 800, color: '#0f172a', margin: 0, letterSpacing: '-.01em' }}>Your Listings</h2>
-            <button style={{ fontSize: 12, fontWeight: 700, color: '#2563eb', background: 'none', border: 'none', cursor: 'pointer' }}>View All</button>
+              <svg width="15" height="15" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
+              </svg>
+              Sign Out
+            </button>
           </div>
-
-          {loading ? (
-            <div style={{ padding: '16px 16px 8px' }}>
-              {[1,2,3].map(i => (
-                <div key={i} style={{ height: 80, background: '#f8fafc', borderRadius: 12, marginBottom: 8, animation: 'shimmer 1.4s infinite' }} />
-              ))}
-            </div>
-          ) : error ? (
-            <div style={{ padding: '48px', textAlign: 'center' }}>
-              <p style={{ color: '#64748b', fontSize: 14 }}>{error}</p>
-            </div>
-          ) : items.length > 0 ? (
-            <div style={{ padding: '8px 12px 12px' }}>
-              {items.map(property => (
-                <div key={property._id} style={{
-                  display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 20,
-                  padding: '14px 16px', borderRadius: 14, transition: 'background .15s',
-                }}
-                  onMouseOver={e => e.currentTarget.style.background = '#f8fafc'}
-                  onMouseOut={e => e.currentTarget.style.background = 'transparent'}
-                >
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-                    <div style={{ width: 64, height: 64, borderRadius: 12, overflow: 'hidden', background: '#f1f5f9', flexShrink: 0 }}>
-                      <img
-                        src={((property.media && property.media.length > 0) ? property.media : (property.images || []))[0]?.url || 
-                             ((property.media && property.media.length > 0) ? property.media : (property.images || []))[0] || 
-                             'https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=200&q=80'}
-                        alt={property.title}
-                        style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                      />
-                    </div>
-                    <div>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
-                        <h3 style={{ fontSize: 14, fontWeight: 800, color: '#0f172a', margin: 0 }}>{property.title}</h3>
-                        <PropertyStatusBadge status={property.status} />
-                      </div>
-                      <p style={{ fontSize: 12, color: '#64748b', fontWeight: 500, margin: 0 }}>
-                        {property.locality || 'Prime Location'} · {property.city}
-                      </p>
-                    </div>
-                  </div>
-
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexShrink: 0 }}>
-                    <div style={{ textAlign: 'right', paddingRight: 16, borderRight: '1px solid #f1f5f9' }} className="re-desktop-only">
-                      <p style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '.08em', color: '#94a3b8', margin: '0 0 2px' }}>Leads</p>
-                      <p style={{ fontSize: 13, fontWeight: 800, color: '#0f172a', margin: 0 }}>{property.leads?.length || property.leadsCount || 0} Contacts</p>
-                    </div>
-                    <div style={{ display: 'flex', gap: 6 }}>
-                      <Link to={`/real-estate/properties/${property.slug}`} style={{
-                        width: 36, height: 36, borderRadius: 10, border: '1px solid #e2e8f0',
-                        background: '#f8fafc', display: 'flex', alignItems: 'center', justifyContent: 'center',
-                        color: '#64748b', textDecoration: 'none', transition: 'all .15s',
-                      }}
-                        onMouseOver={e => { e.currentTarget.style.background = '#eff6ff'; e.currentTarget.style.color = '#2563eb'; e.currentTarget.style.borderColor = '#bfdbfe'; }}
-                        onMouseOut={e => { e.currentTarget.style.background = '#f8fafc'; e.currentTarget.style.color = '#64748b'; e.currentTarget.style.borderColor = '#e2e8f0'; }}
-                      ><EyeIcon /></Link>
-                      <Link 
-                        to={`/real-estate/edit-property/${property.slug || property._id}`}
-                        style={{
-                          width: 36, height: 36, borderRadius: 10, border: '1px solid #e2e8f0',
-                          background: '#f8fafc', display: 'flex', alignItems: 'center', justifyContent: 'center',
-                          color: '#64748b', transition: 'all .15s',
-                        }}
-                        onMouseOver={e => { e.currentTarget.style.background = '#0f172a'; e.currentTarget.style.color = '#fff'; e.currentTarget.style.borderColor = '#0f172a'; }}
-                        onMouseOut={e => { e.currentTarget.style.background = '#f8fafc'; e.currentTarget.style.color = '#64748b'; e.currentTarget.style.borderColor = '#e2e8f0'; }}
-                      ><EditIcon /></Link>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <div style={{ padding: '64px 24px', textAlign: 'center' }}>
-              <div style={{ width: 72, height: 72, borderRadius: 18, background: '#f1f5f9', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 20px', color: '#94a3b8' }}>
-                <HomeIcon />
-              </div>
-              <h3 style={{ fontSize: 18, fontWeight: 800, color: '#0f172a', margin: '0 0 8px' }}>No Properties Listed</h3>
-              <p style={{ color: '#64748b', fontSize: 14, margin: '0 0 28px' }}>You haven't posted any properties yet. Start today!</p>
-              <Link to="/real-estate/post-property" style={{
-                display: 'inline-flex', alignItems: 'center', gap: 8,
-                background: '#2563eb', color: '#fff', textDecoration: 'none',
-                padding: '12px 28px', borderRadius: 12, fontWeight: 700, fontSize: 14,
-                boxShadow: '0 4px 14px rgba(37,99,235,.2)',
-              }}>
-                <PlusIcon /> Post Your First Property
-              </Link>
-            </div>
-          )}
         </div>
       </div>
 
+      {/* Stats Grid */}
+      <div className="re-grid-stats" style={{ marginBottom: 24 }}>
+        {STAT_CONFIG.map(s => (
+          <div key={s.key} className="re-stat-card" style={{
+            '--stat-accent': s.accent,
+            '--stat-bg': s.bg,
+            border: `1px solid ${s.border}`,
+          }}>
+            <div className="re-stat-icon">{s.icon}</div>
+            <div className="re-stat-label">{s.label}</div>
+            <div className="re-stat-value" style={{ fontSize: 32 }}>
+              {loading ? (
+                <div className="re-skeleton" style={{ width: 60, height: 32, borderRadius: 8 }} />
+              ) : statValues[s.key]}
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Workspace Callout
+      <div className="re-callout" style={{ marginBottom: 24 }}>
+        <div>
+          <div style={{ fontSize: 10, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.18em', color: '#3b5bdb', marginBottom: 6 }}>
+            Seller & Dealer Workspace
+          </div>
+          <h3 style={{ margin: '0 0 4px', fontSize: 16, fontWeight: 800, color: '#0f1629' }}>
+            Advanced Portfolio Management
+          </h3>
+          <p style={{ margin: 0, fontSize: 13, color: '#6b7494', lineHeight: 1.6 }}>
+            Access multi-tenant team tools, listing packages, lead workflows, and live campaign analytics.
+          </p>
+        </div>
+        <Link to="/real-estate/workspace" style={{
+          display: 'inline-flex', alignItems: 'center', gap: 8,
+          background: 'linear-gradient(135deg, #3b5bdb, #2537a0)',
+          color: '#fff', textDecoration: 'none',
+          fontSize: 13, fontWeight: 800,
+          padding: '11px 22px', borderRadius: 12,
+          boxShadow: '0 4px 16px rgba(59,91,219,0.3)',
+          transition: 'all 0.18s ease',
+          flexShrink: 0,
+          whiteSpace: 'nowrap',
+        }}
+          onMouseOver={e => { e.currentTarget.style.transform = 'translateY(-1px)'; e.currentTarget.style.boxShadow = '0 8px 24px rgba(59,91,219,0.4)'; }}
+          onMouseOut={e => { e.currentTarget.style.transform = 'none'; e.currentTarget.style.boxShadow = '0 4px 16px rgba(59,91,219,0.3)'; }}
+        >
+          Launch Workspace →
+        </Link>
+      </div>
+      */}
+
+      {/* Listings Panel */}
+      <div className="re-panel">
+        <div style={{
+          padding: '18px 24px',
+          borderBottom: '1px solid rgba(226,230,240,0.8)',
+          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+        }}>
+          <div>
+            <h2 style={{ fontSize: 16, fontWeight: 800, color: '#0f1629', margin: 0, letterSpacing: '-0.02em' }}>
+              Your Listings
+            </h2>
+            <p style={{ fontSize: 12, color: '#9fa6b8', margin: '3px 0 0', fontWeight: 500 }}>
+              {loading ? 'Loading...' : `${items.length} properties`}
+            </p>
+          </div>
+          <Link to="/real-estate/workspace/listings/all" style={{
+            fontSize: 12.5, fontWeight: 700, color: '#3b5bdb',
+            textDecoration: 'none',
+            padding: '7px 14px',
+            background: 'rgba(59,91,219,0.08)',
+            borderRadius: 8, border: '1px solid rgba(59,91,219,0.15)',
+            transition: 'all 0.18s ease',
+          }}
+            onMouseOver={e => { e.currentTarget.style.background = 'rgba(59,91,219,0.14)'; }}
+            onMouseOut={e => { e.currentTarget.style.background = 'rgba(59,91,219,0.08)'; }}
+          >
+            View All →
+          </Link>
+        </div>
+
+        {loading ? (
+          <div style={{ padding: '16px 20px' }}>
+            {[1,2,3].map(i => (
+              <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '12px 0', borderBottom: '1px solid #f1f3f9' }}>
+                <div className="re-skeleton" style={{ width: 60, height: 60, borderRadius: 12, flexShrink: 0 }} />
+                <div style={{ flex: 1 }}>
+                  <div className="re-skeleton" style={{ width: '50%', height: 14, borderRadius: 6, marginBottom: 8 }} />
+                  <div className="re-skeleton" style={{ width: '30%', height: 10, borderRadius: 6 }} />
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : error ? (
+          <div style={{ padding: '48px 24px', textAlign: 'center' }}>
+            <div style={{ fontSize: 14, color: '#6b7494', fontWeight: 500 }}>{error}</div>
+          </div>
+        ) : items.length > 0 ? (
+          <div>
+            {items.map((property, idx) => (
+              <div key={property._id} style={{
+                display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                gap: 16, padding: '14px 24px',
+                borderBottom: idx < items.length - 1 ? '1px solid rgba(226,230,240,0.6)' : 'none',
+                transition: 'background 0.15s ease',
+              }}
+                onMouseOver={e => e.currentTarget.style.background = '#f8f9fc'}
+                onMouseOut={e => e.currentTarget.style.background = 'transparent'}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', gap: 14, flex: 1, minWidth: 0 }}>
+                  <div style={{
+                    width: 58, height: 58, borderRadius: 12, overflow: 'hidden',
+                    background: '#f1f3f9', flexShrink: 0,
+                    boxShadow: '0 2px 8px rgba(15,22,50,0.08)',
+                  }}>
+                    <img
+                      src={((property.media && property.media.length > 0) ? property.media : (property.images || []))[0]?.url ||
+                           ((property.media && property.media.length > 0) ? property.media : (property.images || []))[0] ||
+                           'https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=200&q=80'}
+                      alt={property.title}
+                      style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                    />
+                  </div>
+                  <div style={{ minWidth: 0 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 5 }}>
+                      <h3 style={{ fontSize: 13.5, fontWeight: 800, color: '#0f1629', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                        {property.title}
+                      </h3>
+                      <PropertyStatusBadge status={property.status} />
+                    </div>
+                    <p style={{ fontSize: 12, color: '#9fa6b8', fontWeight: 500, margin: 0 }}>
+                      📍 {property.locality || 'Prime Location'} · {property.city}
+                    </p>
+                  </div>
+                </div>
+
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0 }}>
+                  <div style={{ textAlign: 'right', paddingRight: 14, borderRight: '1px solid rgba(226,230,240,0.8)' }} className="re-hide-mobile">
+                    <div style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#9fa6b8', marginBottom: 3 }}>
+                      Leads
+                    </div>
+                    <div style={{ fontSize: 13, fontWeight: 800, color: '#0f1629' }}>
+                      {property.leads?.length || property.leadsCount || 0}
+                    </div>
+                  </div>
+                  <div style={{ display: 'flex', gap: 6 }}>
+                    <Link to={`/real-estate/properties/${property.slug}`} style={{
+                      width: 34, height: 34, borderRadius: 8,
+                      border: '1px solid rgba(226,230,240,0.9)',
+                      background: '#f8f9fc',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      color: '#9fa6b8', textDecoration: 'none', transition: 'all 0.15s ease',
+                    }}
+                      onMouseOver={e => { e.currentTarget.style.background = 'rgba(59,91,219,0.08)'; e.currentTarget.style.color = '#3b5bdb'; e.currentTarget.style.borderColor = 'rgba(59,91,219,0.2)'; }}
+                      onMouseOut={e => { e.currentTarget.style.background = '#f8f9fc'; e.currentTarget.style.color = '#9fa6b8'; e.currentTarget.style.borderColor = 'rgba(226,230,240,0.9)'; }}
+                    >
+                      <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                      </svg>
+                    </Link>
+                    <Link to={`/real-estate/edit-property/${property.slug || property._id}`} style={{
+                      width: 34, height: 34, borderRadius: 8,
+                      border: '1px solid rgba(226,230,240,0.9)',
+                      background: '#f8f9fc',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      color: '#9fa6b8', textDecoration: 'none', transition: 'all 0.15s ease',
+                    }}
+                      onMouseOver={e => { e.currentTarget.style.background = '#0f1629'; e.currentTarget.style.color = '#fff'; e.currentTarget.style.borderColor = '#0f1629'; }}
+                      onMouseOut={e => { e.currentTarget.style.background = '#f8f9fc'; e.currentTarget.style.color = '#9fa6b8'; e.currentTarget.style.borderColor = 'rgba(226,230,240,0.9)'; }}
+                    >
+                      <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/>
+                      </svg>
+                    </Link>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div style={{ padding: '64px 24px', textAlign: 'center' }}>
+            <div style={{
+              width: 72, height: 72, borderRadius: 18,
+              background: 'linear-gradient(135deg, rgba(59,91,219,0.08), rgba(37,55,160,0.05))',
+              border: '1px solid rgba(59,91,219,0.12)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              margin: '0 auto 20px', color: '#3b5bdb',
+            }}>
+              <svg width="32" height="32" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+                <polyline points="9 22 9 12 15 12 15 22"/>
+              </svg>
+            </div>
+            <h3 style={{ fontSize: 18, fontWeight: 800, color: '#0f1629', margin: '0 0 8px', letterSpacing: '-0.02em' }}>
+              No Properties Listed Yet
+            </h3>
+            <p style={{ color: '#9fa6b8', fontSize: 14, margin: '0 0 28px', fontWeight: 500 }}>
+              Start publishing your first property today and reach 50,000+ active buyers.
+            </p>
+            <Link to="/real-estate/post-property" style={{
+              display: 'inline-flex', alignItems: 'center', gap: 8,
+              background: 'linear-gradient(135deg, #3b5bdb, #2537a0)',
+              color: '#fff', textDecoration: 'none',
+              padding: '13px 28px', borderRadius: 12,
+              fontWeight: 700, fontSize: 14,
+              boxShadow: '0 4px 16px rgba(59,91,219,0.3)',
+            }}>
+              <svg width="15" height="15" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4"/>
+              </svg>
+              Post Your First Property
+            </Link>
+          </div>
+        )}
+      </div>
+
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
-        @keyframes shimmer{0%,100%{opacity:.7}50%{opacity:.4}}
-        @media(max-width:900px){.re-stats-grid{grid-template-columns:repeat(2,1fr)!important}}
-        @media(max-width:500px){.re-stats-grid{grid-template-columns:1fr!important}}
-        @media(max-width:640px){.re-desktop-only{display:none!important}}
+        @media(max-width:900px){.re-grid-stats{grid-template-columns:repeat(2,1fr)!important}}
+        @media(max-width:500px){.re-grid-stats{grid-template-columns:1fr!important}}
       `}</style>
     </div>
   );

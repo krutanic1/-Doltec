@@ -36,47 +36,60 @@ export default function Saved() {
   };
 
   return (
-    <section style={{ maxWidth: 1240, margin: '0 auto', padding: '100px 24px 80px' }}>
-      <div style={{ marginBottom: 28 }}>
-        <p style={{ fontSize: 11, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '.15em', color: '#2563eb', margin: '0 0 8px' }}>Saved</p>
-        <h1 style={{ fontSize: 'clamp(24px, 4vw, 34px)', fontWeight: 900, color: '#0f172a', margin: 0 }}>Your saved properties</h1>
-        <p style={{ color: '#64748b', fontSize: 14, fontWeight: 500, margin: '8px 0 0' }}>Review and reopen the properties you want to revisit.</p>
-      </div>
-
-      {error && (
-        <div style={{ background: '#fee2e2', border: '1px solid #fecaca', borderRadius: 12, padding: '14px 18px', marginBottom: 18, color: '#991b1b', fontSize: 13, fontWeight: 600 }}>
-          {error}
-        </div>
-      )}
-
-      {loading ? (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2,1fr)', gap: 16 }}>
-          {[1, 2, 3, 4].map((i) => (
-            <div key={i} style={{ height: 360, borderRadius: 18, background: '#e2e8f0', animation: 'pulse 1.4s ease-in-out infinite' }} />
-          ))}
-        </div>
-      ) : items.length > 0 ? (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2,1fr)', gap: 16 }} className="re-saved-grid">
-          {items.map((property) => (
-            <PropertyCard
-              key={property._id}
-              property={property}
-              isSaved
-              onToggleSave={handleToggleSave}
-            />
-          ))}
-        </div>
-      ) : (
-        <div style={{ background: '#fff', border: '1px dashed #cbd5e1', borderRadius: 20, padding: '56px 24px', textAlign: 'center' }}>
-          <h2 style={{ fontSize: 20, fontWeight: 800, color: '#0f172a', margin: '0 0 8px' }}>No saved properties yet</h2>
-          <p style={{ color: '#64748b', fontSize: 14, margin: '0 0 22px' }}>Save listings from search results or property pages to keep them here.</p>
-          <button onClick={() => navigate('/real-estate/properties')} style={{ background: '#2563eb', color: '#fff', border: 'none', padding: '12px 22px', borderRadius: 12, fontWeight: 700, cursor: 'pointer' }}>
-            Browse Properties
+    <section className="re-page">
+      <div className="re-container" style={{ paddingTop: 60 }}>
+        
+        {/* Header */}
+        <div style={{ marginBottom: 40, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 20, flexWrap: 'wrap' }}>
+          <div>
+            <div className="re-eyebrow">Favorites</div>
+            <h1 className="re-page-title">Saved Properties</h1>
+            <p className="re-page-subtitle" style={{ maxWidth: 600 }}>Review and compare the properties you have shortlisted.</p>
+          </div>
+          <button 
+            className="re-btn re-btn-outline" 
+            onClick={() => navigate('/real-estate/properties')}
+            style={{ padding: '10px 20px' }}
+          >
+            ← Browse More
           </button>
         </div>
-      )}
 
-      <style>{`@keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}} @media(max-width:900px){.re-saved-grid{grid-template-columns:1fr !important}}`}</style>
+        {error && (
+          <div style={{ background: 'rgba(240,62,94,0.08)', border: '1px solid rgba(240,62,94,0.2)', borderRadius: 14, padding: '16px 20px', marginBottom: 24, color: '#f03e5e', fontSize: 14, fontWeight: 700 }}>
+            ⚠️ {error}
+          </div>
+        )}
+
+        {loading ? (
+          <div className="re-grid-3">
+            {[1, 2, 3, 4, 5, 6].map((i) => (
+              <div key={i} className="re-skeleton" style={{ height: 380, borderRadius: 20 }} />
+            ))}
+          </div>
+        ) : items.length > 0 ? (
+          <div className="re-grid-3">
+            {items.map((property) => (
+              <PropertyCard
+                key={property._id}
+                property={property}
+                isSaved
+                onToggleSave={handleToggleSave}
+              />
+            ))}
+          </div>
+        ) : (
+          <div className="re-empty" style={{ background: '#fff', border: '1px dashed rgba(226,230,240,0.8)', borderRadius: 24, padding: '80px 24px' }}>
+            <div className="re-empty-icon" style={{ background: 'rgba(59,91,219,0.08)', color: '#3b5bdb', fontSize: 32, width: 80, height: 80 }}>❤️</div>
+            <h2 style={{ fontSize: 22, fontWeight: 900, color: '#0f1629', margin: '0 0 12px', letterSpacing: '-0.02em' }}>No saved properties yet</h2>
+            <p style={{ color: '#6b7494', fontSize: 15, margin: '0 0 32px', fontWeight: 500 }}>Shortlist properties you like while browsing to easily access them later.</p>
+            <button onClick={() => navigate('/real-estate/properties')} className="re-btn re-btn-primary re-btn-xl">
+              Explore Properties
+            </button>
+          </div>
+        )}
+
+      </div>
     </section>
   );
 }

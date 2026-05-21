@@ -9,42 +9,44 @@ import {
   fetchListingStats
 } from '../../services/listingsApi';
 
-// Premium badges & chip styles matching Option D: Action & Performance Theme
-const TIER_STYLES = {
-  PLAIN: { bg: '#f1f5f9', text: '#475569', label: 'Basic', border: '1px solid #cbd5e1' },
-  BASIC: { bg: 'linear-gradient(135deg, #f8fafc 0%, #cbd5e1 100%)', text: '#475569', label: 'Silver', border: '1px solid #cbd5e1', shadow: '0 4px 12px rgba(148, 163, 184, 0.12)' },
-  PLATINUM: { bg: 'linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%)', text: '#d97706', label: 'Gold ⭐', border: '1px solid #fde68a', shadow: '0 4px 12px rgba(245, 158, 11, 0.15)' },
-  PREMIUM: { bg: 'linear-gradient(135deg, #f8fafc 0%, #cbd5e1 100%)', text: '#0f172a', label: 'Platinum 💎', border: '1px solid #475569', shadow: '0 4px 16px rgba(15, 23, 42, 0.15)' }
+const TIER_CFG = {
+  PLAIN:    { label: 'Basic',    color: '#6b7494', bg: 'rgba(107,116,148,0.1)', border: 'rgba(107,116,148,0.2)', dot: '#9fa6b8' },
+  BASIC:    { label: 'Silver',   color: '#475569', bg: 'rgba(148,163,184,0.12)', border: 'rgba(148,163,184,0.25)', dot: '#94a3b8' },
+  PLATINUM: { label: 'Gold',  color: '#c47011', bg: 'rgba(232,137,12,0.1)', border: 'rgba(232,137,12,0.22)', dot: '#faa219' },
+  PREMIUM:  { label: 'Platinum', color: '#3b5bdb', bg: 'rgba(59,91,219,0.08)', border: 'rgba(59,91,219,0.2)', dot: '#748ffc' },
 };
 
-const TIER_DISPLAY_NAMES = {
-  PLAIN: 'Basic',
-  BASIC: 'Silver',
-  PLATINUM: 'Gold',
-  PREMIUM: 'Platinum'
+const STATUS_CFG = {
+  ACTIVE:   { label: 'Active',    cls: 're-status-active' },
+  APPROVED: { label: 'Active',    cls: 're-status-active' },
+  PENDING:  { label: 'Pending',   cls: 're-status-pending' },
+  DRAFT:    { label: 'Draft',     cls: 're-status-draft' },
+  PAUSED:   { label: 'Paused',    cls: 're-status-paused' },
+  EXPIRED:  { label: 'Expired',   cls: 're-status-rejected' },
+  REJECTED: { label: 'Rejected',  cls: 're-status-rejected' },
+  ARCHIVED: { label: 'Archived',  cls: 're-status-archived' },
 };
 
-const STATUS_STYLES = {
-  ACTIVE: { bg: '#dcfce7', text: '#15803d', label: 'Active' },
-  APPROVED: { bg: '#dcfce7', text: '#15803d', label: 'Active' },
-  PENDING: { bg: '#fef3c7', text: '#b45309', label: 'Pending Review' },
-  DRAFT: { bg: '#f1f5f9', text: '#64748b', label: 'Draft' },
-  PAUSED: { bg: '#fee2e2', text: '#b91c1c', label: 'Paused' },
-  EXPIRED: { bg: '#fef2f2', text: '#991b1b', label: 'Expired' },
-  REJECTED: { bg: '#fef2f2', text: '#991b1b', label: 'Rejected' },
-  ARCHIVED: { bg: '#e2e8f0', text: '#475569', label: 'Archived' }
-};
+const STAT_CARDS = [
+  { key: 'credits.featuredSlots', label: 'Credits',       subKey: 'credits.planName',   subPrefix: 'Plan: ', color: '#3b5bdb' },
+  { key: 'summary.totalListings', label: 'Total',         subKey: 'summary.activeListings', subPrefix: '', subSuffix: ' active', color: '#0f1629' },
+  { key: 'summary.totalViews',    label: 'Total Views',   subKey: null, sub: 'Across all active properties', color: '#7950f2' },
+  { key: 'summary.totalLeads',    label: 'Total Leads',   subKey: 'summary.totalShortlists', subSuffix: ' shortlisted', color: '#db2777' },
+];
+
+function getNestedVal(obj, path) {
+  if (!path) return null;
+  return path.split('.').reduce((o, k) => o?.[k], obj);
+}
 
 export default function ListingsOverviewPage() {
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
 
-  // Route matches tier from /workspace/listings/:tier
   const pathParts = window.location.pathname.split('/');
   const routeTier = pathParts[pathParts.length - 1].toUpperCase();
   const filterTier = ['PLAIN', 'BASIC', 'PLATINUM', 'PREMIUM'].includes(routeTier) ? routeTier : 'ALL';
 
-  // React State
   const [listings, setListings] = useState([]);
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -57,13 +59,9 @@ export default function ListingsOverviewPage() {
   const [sortBy, setSortBy] = useState(searchParams.get('sortBy') || 'createdAt');
   const [sortDirection, setSortDirection] = useState(searchParams.get('sortDirection') || 'desc');
   const [deletedOnly, setDeletedOnly] = useState(searchParams.get('deleted') === 'true');
-
-  // Modals state
   const [upgradeModal, setUpgradeModal] = useState({ open: false, listingId: null, currentTier: 'PLAIN', title: '' });
-  const [statusModal, setStatusModal] = useState({ open: false, listingId: null, targetStatus: '', title: '' });
   const [menuOpenId, setMenuOpenId] = useState(null);
 
-  // Sync params with URL state
   useEffect(() => {
     const params = {};
     if (search) params.search = search;
@@ -76,25 +74,18 @@ export default function ListingsOverviewPage() {
     setSearchParams(params);
   }, [search, statusFilter, cityFilter, sortBy, sortDirection, deletedOnly, pagination.page]);
 
-  // Load Data
   const loadData = async () => {
     setLoading(true);
     setError('');
     try {
       const listingsData = await fetchListings({
-        page: pagination.page,
-        limit: pagination.limit,
-        search,
-        status: statusFilter,
-        city: cityFilter,
-        sortBy,
-        sortDirection,
-        tier: filterTier,
-        deleted: deletedOnly ? 'true' : 'false'
+        page: pagination.page, limit: pagination.limit,
+        search, status: statusFilter, city: cityFilter,
+        sortBy, sortDirection,
+        tier: filterTier, deleted: deletedOnly ? 'true' : 'false'
       });
       setListings(listingsData.data || []);
       setPagination(listingsData.pagination || { page: 1, limit: 10, totalCount: 0, totalPages: 1 });
-
       const statsData = await fetchListingStats();
       setStats(statsData.data || null);
     } catch (err) {
@@ -109,346 +100,326 @@ export default function ListingsOverviewPage() {
     setSelectedIds([]);
   }, [search, statusFilter, cityFilter, sortBy, sortDirection, filterTier, pagination.page, deletedOnly]);
 
-  // Debounced search logic could be integrated here, for now it's simple or reactive
-  const handleSelectAll = (e) => {
-    if (e.target.checked) {
-      setSelectedIds(listings.map(l => l._id));
-    } else {
-      setSelectedIds([]);
-    }
-  };
+  const handleSelectAll = (e) => setSelectedIds(e.target.checked ? listings.map(l => l._id) : []);
+  const handleSelectRow = (id, checked) => setSelectedIds(prev => checked ? [...prev, id] : prev.filter(i => i !== id));
 
-  const handleSelectRow = (id, checked) => {
-    if (checked) {
-      setSelectedIds(prev => [...prev, id]);
-    } else {
-      setSelectedIds(prev => prev.filter(item => item !== id));
-    }
-  };
-
-  // Quick Action: Status Change
   const handleStatusChange = async (id, status) => {
-    try {
-      await changeListingStatus(id, status);
-      await loadData();
-      setStatusModal({ open: false, listingId: null, targetStatus: '', title: '' });
-    } catch (err) {
-      alert(err?.response?.data?.message || err.message);
-    }
+    try { await changeListingStatus(id, status); await loadData(); } catch (err) { alert(err?.response?.data?.message || err.message); }
   };
-
-  // Quick Action: Tier Upgrade
   const handleTierUpgrade = async (id, targetTier) => {
-    try {
-      await upgradeListingTier(id, targetTier);
-      await loadData();
-      setUpgradeModal({ open: false, listingId: null, currentTier: 'PLAIN', title: '' });
-    } catch (err) {
-      alert(err?.response?.data?.message || err.message);
-    }
+    try { await upgradeListingTier(id, targetTier); await loadData(); setUpgradeModal({ open: false, listingId: null, currentTier: 'PLAIN', title: '' }); } catch (err) { alert(err?.response?.data?.message || err.message); }
   };
-
-  // Quick Action: Soft Delete
   const handleSoftDelete = async (id) => {
-    if (window.confirm('Are you sure you want to archive this property? It will be soft deleted from active listings.')) {
-      try {
-        await softDeleteListing(id);
-        await loadData();
-      } catch (err) {
-        alert(err?.response?.data?.message || err.message);
-      }
+    if (window.confirm('Archive this property? It will be soft deleted from active listings.')) {
+      try { await softDeleteListing(id); await loadData(); } catch (err) { alert(err?.response?.data?.message || err.message); }
     }
   };
-
-  // Bulk Actions
   const handleBulkAction = async (action) => {
-    if (window.confirm(`Apply ${action} to the ${selectedIds.length} selected listings?`)) {
+    if (window.confirm(`Apply "${action}" to ${selectedIds.length} listings?`)) {
       try {
         const res = await bulkActionListings(selectedIds, action);
-        alert(`Successfully updated: ${res.data.success.length}. Failed: ${res.data.failed.length}`);
+        alert(`Updated: ${res.data.success.length}. Failed: ${res.data.failed.length}`);
         setSelectedIds([]);
         await loadData();
-      } catch (err) {
-        alert(err.message);
-      }
+      } catch (err) { alert(err.message); }
     }
   };
 
-  const formattedMoney = (val) => {
+  const fmtMoney = (val) => {
     if (!val) return 'N/A';
     return new Intl.NumberFormat('en-IN').format(Number(val));
   };
 
+  const tierLabel = filterTier === 'ALL' ? 'All Listings' : `${TIER_CFG[filterTier]?.label} Listings`;
+
   return (
-    <div style={{ maxWidth: 1400, margin: '0 auto', padding: '32px 24px 80px', fontFamily: 'system-ui, sans-serif' }}>
-      
-      {/* 1. Header Section */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
+    <div className="re-fade-in">
+
+      {/* Page Header */}
+      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 16, marginBottom: 24, flexWrap: 'wrap' }}>
         <div>
-          <div style={{ fontSize: 12, fontWeight: 900, color: '#2563eb', textTransform: 'uppercase', letterSpacing: '.18em' }}>Doltech Real Estate</div>
-          <h1 style={{ margin: '8px 0 4px', fontSize: 32, fontWeight: 800, color: '#0f172a', letterSpacing: '-.02em' }}>
-            {filterTier === 'ALL' ? 'All Listings' : `${TIER_STYLES[filterTier]?.label} Listings`}
-          </h1>
-          <p style={{ margin: 0, color: '#64748b', fontSize: 14 }}>
-            Enterprise property portfolio dashboard. Manage package tiers, lead conversions, and performance stats.
+          <div className="re-eyebrow">Portfolio Management</div>
+          <h1 className="re-page-title">{tierLabel}</h1>
+          <p className="re-page-subtitle">
+            Manage listing tiers, track leads, update status and performance metrics.
           </p>
         </div>
-        <Link to="/real-estate/post" style={{ background: '#0f172a', color: '#fff', padding: '12px 24px', borderRadius: 14, fontWeight: 700, textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 8, transition: 'all .2s ease' }}>
-          <span>+ Create Listing</span>
+        <Link to="/real-estate/post-property" className="re-btn re-btn-dark" style={{ padding: '11px 22px', borderRadius: 14, flexShrink: 0 }}>
+          <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4"/>
+          </svg>
+          Create Listing
         </Link>
       </div>
 
-      {/* 2. Listing Summary / Stats Cards */}
+      {/* Tier Navigation */}
+      <div style={{ display: 'flex', gap: 8, marginBottom: 20, flexWrap: 'wrap' }}>
+        {[
+          { label: 'All',     path: '/real-estate/workspace/listings/all' },
+          { label: 'Basic',   path: '/real-estate/workspace/listings/plain' },
+          { label: 'Silver',  path: '/real-estate/workspace/listings/basic' },
+          { label: 'Gold',    path: '/real-estate/workspace/listings/platinum' },
+          { label: 'Platinum',path: '/real-estate/workspace/listings/premium' },
+        ].map(t => {
+          const isActive = window.location.pathname === t.path || (t.label === 'All' && filterTier === 'ALL');
+          return (
+            <Link key={t.label} to={t.path} style={{
+              padding: '7px 16px', borderRadius: 100, fontSize: 12.5, fontWeight: 700,
+              textDecoration: 'none',
+              background: isActive ? '#0f1629' : '#fff',
+              color: isActive ? '#fff' : '#6b7494',
+              border: isActive ? '1.5px solid #0f1629' : '1.5px solid rgba(226,230,240,0.9)',
+              transition: 'all 0.18s ease',
+              boxShadow: isActive ? '0 4px 12px rgba(11,15,26,0.25)' : '0 1px 4px rgba(15,22,50,0.04)',
+            }}>
+              {t.label}
+            </Link>
+          );
+        })}
+      </div>
+
+      {/* Stats Row */}
       {stats && (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 16, marginBottom: 24 }}>
-          
-          <div style={{ background: '#fff', border: '1px solid #e2e8f0', borderRadius: 18, padding: 18, boxShadow: '0 4px 20px rgba(15,23,42,.03)' }}>
-            <div style={{ fontSize: 12, fontWeight: 700, color: '#64748b', textTransform: 'uppercase' }}>Credits Remaining</div>
-            <div style={{ fontSize: 28, fontWeight: 800, color: '#2563eb', marginTop: 8 }}>{stats.credits?.featuredSlots || 0}</div>
-            <div style={{ fontSize: 11, color: '#94a3b8', marginTop: 6, textTransform: 'uppercase' }}>Plan: {stats.credits?.planName || 'N/A'}</div>
-          </div>
-
-          <div style={{ background: '#fff', border: '1px solid #e2e8f0', borderRadius: 18, padding: 18, boxShadow: '0 4px 20px rgba(15,23,42,.03)' }}>
-            <div style={{ fontSize: 12, fontWeight: 700, color: '#64748b', textTransform: 'uppercase' }}>Total Properties</div>
-            <div style={{ fontSize: 28, fontWeight: 800, color: '#0f172a', marginTop: 8 }}>{stats.summary?.totalListings || 0}</div>
-            <div style={{ fontSize: 11, color: '#16a34a', marginTop: 6 }}>{stats.summary?.activeListings || 0} Active Listings</div>
-          </div>
-
-          <div style={{ background: '#fff', border: '1px solid #e2e8f0', borderRadius: 18, padding: 18, boxShadow: '0 4px 20px rgba(15,23,42,.03)' }}>
-            <div style={{ fontSize: 12, fontWeight: 700, color: '#64748b', textTransform: 'uppercase' }}>Total Views</div>
-            <div style={{ fontSize: 28, fontWeight: 800, color: '#7c3aed', marginTop: 8 }}>{stats.summary?.totalViews || 0}</div>
-            <div style={{ fontSize: 11, color: '#94a3b8', marginTop: 6 }}>Across all active properties</div>
-          </div>
-
-          <div style={{ background: '#fff', border: '1px solid #e2e8f0', borderRadius: 18, padding: 18, boxShadow: '0 4px 20px rgba(15,23,42,.03)' }}>
-            <div style={{ fontSize: 12, fontWeight: 700, color: '#64748b', textTransform: 'uppercase' }}>Leads Generated</div>
-            <div style={{ fontSize: 28, fontWeight: 800, color: '#db2777', marginTop: 8 }}>{stats.summary?.totalLeads || 0}</div>
-            <div style={{ fontSize: 11, color: '#94a3b8', marginTop: 6 }}>{stats.summary?.totalShortlists || 0} Saved shortlist items</div>
-          </div>
-
+        <div className="re-grid-stats" style={{ marginBottom: 20 }}>
+          {STAT_CARDS.map((sc, i) => {
+            const val = getNestedVal(stats, sc.key);
+            const sub = sc.subKey ? `${sc.subPrefix || ''}${getNestedVal(stats, sc.subKey) || 0}${sc.subSuffix || ''}` : sc.sub;
+            return (
+              <div key={i} className="re-stat-card" style={{
+                '--stat-accent': sc.color,
+                '--stat-bg': `${sc.color}18`,
+                border: `1px solid ${sc.color}22`,
+              }}>
+                <div className="re-stat-label">{sc.label}</div>
+                <div className="re-stat-value" style={{ fontSize: 30 }}>{val ?? 0}</div>
+                <div className="re-stat-hint">{sub}</div>
+              </div>
+            );
+          })}
         </div>
       )}
 
-      {/* 3. Filtering Toolbar */}
-      <div style={{ background: '#fff', border: '1px solid #e2e8f0', borderRadius: 18, padding: 20, marginBottom: 20, boxShadow: '0 4px 20px rgba(15,23,42,.02)' }}>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 14 }}>
-          
+      {/* Filter Toolbar */}
+      <div className="re-toolbar" style={{ marginBottom: 20 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr 1fr auto', gap: 12, alignItems: 'end' }} className="listings-filter-grid">
           <div>
-            <label style={{ fontSize: 11, fontWeight: 800, textTransform: 'uppercase', color: '#64748b', display: 'block', marginBottom: 6 }}>Search</label>
-            <input
-              type="text"
-              placeholder="Search Title, City, Locality"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              style={{ width: '100%', padding: '10px 14px', border: '1px solid #cbd5e1', borderRadius: 12, fontSize: 13, boxSizing: 'border-box', outline: 'none' }}
-            />
+            <label className="re-label">Search</label>
+            <div style={{ position: 'relative' }}>
+              <input
+                type="text"
+                placeholder="Search title, city, locality…"
+                value={search}
+                onChange={e => setSearch(e.target.value)}
+                className="re-input"
+                style={{ paddingLeft: 38 }}
+              />
+              <svg style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', opacity: 0.4, pointerEvents: 'none' }} width="15" height="15" fill="none" stroke="#0f1629" strokeWidth="2" viewBox="0 0 24 24">
+                <circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/>
+              </svg>
+            </div>
           </div>
-
           <div>
-            <label style={{ fontSize: 11, fontWeight: 800, textTransform: 'uppercase', color: '#64748b', display: 'block', marginBottom: 6 }}>Status</label>
-            <select
-              value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value)}
-              style={{ width: '100%', padding: '10px 14px', border: '1px solid #cbd5e1', borderRadius: 12, fontSize: 13, outline: 'none' }}
-            >
+            <label className="re-label">Status</label>
+            <select value={statusFilter} onChange={e => setStatusFilter(e.target.value)} className="re-select">
               <option value="all">All Statuses</option>
               <option value="DRAFT">Draft</option>
-              <option value="PENDING">Pending review</option>
+              <option value="PENDING">Pending</option>
               <option value="ACTIVE">Active</option>
               <option value="PAUSED">Paused</option>
               <option value="EXPIRED">Expired</option>
               <option value="ARCHIVED">Archived</option>
             </select>
           </div>
-
           <div>
-            <label style={{ fontSize: 11, fontWeight: 800, textTransform: 'uppercase', color: '#64748b', display: 'block', marginBottom: 6 }}>Sort By</label>
-            <select
-              value={sortBy}
-              onChange={(e) => setSortBy(e.target.value)}
-              style={{ width: '100%', padding: '10px 14px', border: '1px solid #cbd5e1', borderRadius: 12, fontSize: 13, outline: 'none' }}
-            >
+            <label className="re-label">Sort By</label>
+            <select value={sortBy} onChange={e => setSortBy(e.target.value)} className="re-select">
               <option value="createdAt">Posted Date</option>
               <option value="price">Price</option>
               <option value="title">Title</option>
               <option value="status">Status</option>
             </select>
           </div>
-
           <div>
-            <label style={{ fontSize: 11, fontWeight: 800, textTransform: 'uppercase', color: '#64748b', display: 'block', marginBottom: 6 }}>Direction</label>
-            <select
-              value={sortDirection}
-              onChange={(e) => setSortDirection(e.target.value)}
-              style={{ width: '100%', padding: '10px 14px', border: '1px solid #cbd5e1', borderRadius: 12, fontSize: 13, outline: 'none' }}
-            >
+            <label className="re-label">Direction</label>
+            <select value={sortDirection} onChange={e => setSortDirection(e.target.value)} className="re-select">
               <option value="desc">Newest / Highest</option>
               <option value="asc">Oldest / Lowest</option>
             </select>
           </div>
-
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8, alignSelf: 'center', marginTop: 18 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 22 }}>
             <input
-              type="checkbox"
-              id="deletedOnlyCheck"
+              type="checkbox" id="deletedOnlyCheck"
               checked={deletedOnly}
-              onChange={(e) => {
-                setDeletedOnly(e.target.checked);
-                setPagination(p => ({ ...p, page: 1 }));
-              }}
-              style={{ width: 16, height: 16, cursor: 'pointer' }}
+              onChange={e => { setDeletedOnly(e.target.checked); setPagination(p => ({ ...p, page: 1 })); }}
+              style={{ width: 16, height: 16, cursor: 'pointer', accentColor: '#f03e5e' }}
             />
-            <label htmlFor="deletedOnlyCheck" style={{ fontSize: 13, fontWeight: 700, color: '#dc2626', cursor: 'pointer' }}>Show Deleted Only</label>
+            <label htmlFor="deletedOnlyCheck" style={{ fontSize: 12.5, fontWeight: 700, color: '#f03e5e', cursor: 'pointer', whiteSpace: 'nowrap' }}>
+              Archived Only
+            </label>
           </div>
-
         </div>
       </div>
 
-      {/* 4. Main Listings Table */}
-      <div style={{ background: '#fff', border: '1px solid #e2e8f0', borderRadius: 18, overflow: 'hidden', boxShadow: '0 4px 20px rgba(15,23,42,.02)' }}>
-        
+      {/* Table Panel */}
+      <div className="re-panel">
         {loading ? (
-          <div style={{ padding: 48, textAlign: 'center', color: '#64748b' }}>
-            <div style={{ fontSize: 16, fontWeight: 600 }}>Loading listings...</div>
+          <div style={{ padding: '60px 24px', textAlign: 'center' }}>
+            <div className="re-spinner re-spinner-dark" style={{ margin: '0 auto 16px' }} />
+            <p style={{ color: '#9fa6b8', fontSize: 14, fontWeight: 600 }}>Loading listings…</p>
           </div>
         ) : error ? (
-          <div style={{ padding: 32, background: '#fef2f2', color: '#b91c1c', fontWeight: 600 }}>{error}</div>
+          <div style={{ padding: '24px 28px', background: 'rgba(240,62,94,0.06)', color: '#f03e5e', fontWeight: 600, fontSize: 13.5, borderRadius: '0 0 18px 18px' }}>{error}</div>
         ) : listings.length === 0 ? (
-          <div style={{ padding: 60, textAlign: 'center', color: '#64748b' }}>
-            <h3 style={{ fontSize: 18, color: '#0f172a', margin: '0 0 8px' }}>No Listings Found</h3>
-            <p style={{ margin: 0, fontSize: 14 }}>Try adjusting your filters, searching, or create your first real estate listing.</p>
+          <div className="re-empty">
+            <div className="re-empty-icon" style={{ color: '#9fa6b8', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <svg width="32" height="32" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+            </div>
+            <h3 style={{ fontSize: 18, fontWeight: 800, color: '#0f1629', margin: '0 0 8px', letterSpacing: '-0.02em' }}>No Listings Found</h3>
+            <p style={{ margin: '0 0 24px', color: '#9fa6b8', fontSize: 14 }}>Adjust your filters or create your first listing.</p>
+            <Link to="/real-estate/post-property" className="re-btn re-btn-primary" style={{ borderRadius: 12 }}>Create First Listing</Link>
           </div>
         ) : (
-          <div style={{ overflowX: 'auto' }}>
-            <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: 13 }}>
+          <div className="re-table-wrap">
+            <table className="re-table">
               <thead>
-                <tr style={{ background: '#f8fafc', borderBottom: '1px solid #cbd5e1' }}>
-                  <th style={{ padding: '16px 20px', width: 40 }}>
-                    <input
-                      type="checkbox"
-                      checked={selectedIds.length === listings.length}
-                      onChange={handleSelectAll}
-                      style={{ cursor: 'pointer' }}
-                    />
+                <tr>
+                  <th style={{ width: 44, paddingLeft: 22 }}>
+                    <input type="checkbox" checked={selectedIds.length === listings.length && listings.length > 0} onChange={handleSelectAll} style={{ cursor: 'pointer', accentColor: '#3b5bdb' }} />
                   </th>
-                  <th style={{ padding: '16px 20px', fontWeight: 800, color: '#64748b' }}>Property Title</th>
-                  <th style={{ padding: '16px 20px', fontWeight: 800, color: '#64748b' }}>City / Locality</th>
-                  <th style={{ padding: '16px 20px', fontWeight: 800, color: '#64748b' }}>Price</th>
-                  <th style={{ padding: '16px 20px', fontWeight: 800, color: '#64748b' }}>Tier</th>
-                  <th style={{ padding: '16px 20px', fontWeight: 800, color: '#64748b' }}>Status</th>
-                  <th style={{ padding: '16px 20px', fontWeight: 800, color: '#64748b' }}>Performance</th>
-                  <th style={{ padding: '16px 20px', fontWeight: 800, color: '#64748b', textAlign: 'right' }}>Actions</th>
+                  <th>Property</th>
+                  <th>Location</th>
+                  <th>Price</th>
+                  <th>Tier</th>
+                  <th>Status</th>
+                  <th>Performance</th>
+                  <th style={{ textAlign: 'right', paddingRight: 22 }}>Actions</th>
                 </tr>
               </thead>
               <tbody>
-                {listings.map((item) => {
-                  const tierStyle = TIER_STYLES[item.tier || 'PLAIN'];
-                  const statusStyle = STATUS_STYLES[item.status || 'DRAFT'];
+                {listings.map(item => {
+                  const tier = TIER_CFG[item.tier || 'PLAIN'];
+                  const status = STATUS_CFG[item.status || 'DRAFT'];
                   const isChecked = selectedIds.includes(item._id);
-
                   return (
-                    <tr key={item._id} style={{ borderBottom: '1px solid #e2e8f0', transition: 'background .15s ease', background: isChecked ? '#eff6ff' : 'transparent' }}>
-                      <td style={{ padding: '16px 20px' }}>
-                        <input
-                          type="checkbox"
-                          checked={isChecked}
-                          onChange={(e) => handleSelectRow(item._id, e.target.checked)}
-                          style={{ cursor: 'pointer' }}
-                        />
+                    <tr key={item._id} style={{ background: isChecked ? 'rgba(59,91,219,0.04)' : 'transparent' }}>
+                      <td style={{ paddingLeft: 22 }}>
+                        <input type="checkbox" checked={isChecked} onChange={e => handleSelectRow(item._id, e.target.checked)} style={{ cursor: 'pointer', accentColor: '#3b5bdb' }} />
                       </td>
-                      <td style={{ padding: '16px 20px' }}>
+                      <td>
                         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
                           <img
-                            src={item.media?.[0]?.url || 'https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=900&q=80'}
+                            src={item.media?.[0]?.url || 'https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=200&q=80'}
                             alt={item.title}
-                            style={{ width: 44, height: 44, borderRadius: 10, objectFit: 'cover' }}
+                            style={{ width: 46, height: 46, borderRadius: 10, objectFit: 'cover', flexShrink: 0, boxShadow: '0 2px 8px rgba(15,22,50,0.1)' }}
                           />
                           <div>
-                            <div style={{ fontWeight: 700, color: '#0f172a', fontSize: 14 }}>{item.title}</div>
-                            <div style={{ color: '#64748b', fontSize: 11, marginTop: 2 }}>{item.category}</div>
+                            <div style={{ fontWeight: 800, color: '#0f1629', fontSize: 13.5 }}>{item.title}</div>
+                            <div style={{ color: '#9fa6b8', fontSize: 11.5, marginTop: 2, textTransform: 'capitalize' }}>{item.category}</div>
                           </div>
                         </div>
                       </td>
-                      <td style={{ padding: '16px 20px', color: '#334155' }}>
-                        <div>{item.locality || 'N/A'}</div>
-                        <div style={{ color: '#94a3b8', fontSize: 11 }}>{item.city || 'N/A'}</div>
+                      <td>
+                        <div style={{ fontWeight: 600, color: '#303860' }}>{item.locality || 'N/A'}</div>
+                        <div style={{ color: '#9fa6b8', fontSize: 11.5, marginTop: 2 }}>{item.city || 'N/A'}</div>
                       </td>
-                      <td style={{ padding: '16px 20px', fontWeight: 700, color: '#0f172a' }}>
-                        ₹{formattedMoney(item.pricing?.amount || item.price)}
-                      </td>
-                      <td style={{ padding: '16px 20px' }}>
+                      <td style={{ fontWeight: 800, color: '#0f1629', fontSize: 13.5 }}>₹{fmtMoney(item.pricing?.amount || item.price)}</td>
+                      <td>
                         <span style={{
-                          display: 'inline-block',
-                          padding: '4px 10px',
-                          borderRadius: 8,
-                          fontSize: 11,
-                          fontWeight: 700,
-                          background: tierStyle.bg,
-                          color: tierStyle.text,
-                          border: tierStyle.border,
-                          boxShadow: tierStyle.shadow || 'none'
+                          display: 'inline-flex', alignItems: 'center', gap: 5,
+                          padding: '4px 10px', borderRadius: 100,
+                          fontSize: 11, fontWeight: 800,
+                          background: tier.bg, color: tier.color, border: `1px solid ${tier.border}`,
                         }}>
-                          {tierStyle.label}
+                          <span style={{ width: 5, height: 5, borderRadius: '50%', background: tier.dot, display: 'inline-block' }} />
+                          {tier.label}
                         </span>
                       </td>
-                      <td style={{ padding: '16px 20px' }}>
-                        <span style={{
-                          display: 'inline-block',
-                          padding: '4px 10px',
-                          borderRadius: 8,
-                          fontSize: 11,
-                          fontWeight: 700,
-                          background: statusStyle.bg,
-                          color: statusStyle.text
-                        }}>
-                          {statusStyle.label}
-                        </span>
+                      <td>
+                        <span className={`re-badge ${status.cls}`}>{status.label}</span>
                       </td>
-                      <td style={{ padding: '16px 20px', color: '#64748b' }}>
-                        <div style={{ display: 'flex', gap: 12 }}>
-                          <div>👀 <span style={{ fontWeight: 700, color: '#0f172a' }}>{item.metrics?.views || 0}</span></div>
-                          <div>✉️ <span style={{ fontWeight: 700, color: '#0f172a' }}>{item.metrics?.leads || 0}</span></div>
+                      <td>
+                        <div style={{ display: 'flex', gap: 14 }}>
+                          <div style={{ fontSize: 12.5, color: '#6b7494', display: 'flex', alignItems: 'center', gap: 4 }}>
+                            <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                            <strong style={{ color: '#0f1629', fontWeight: 800 }}>{item.metrics?.views || 0}</strong>
+                          </div>
+                          <div style={{ fontSize: 12.5, color: '#6b7494', display: 'flex', alignItems: 'center', gap: 4 }}>
+                            <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+                            <strong style={{ color: '#0f1629', fontWeight: 800 }}>{item.metrics?.leads || 0}</strong>
+                          </div>
                         </div>
                       </td>
-                      <td style={{ padding: '16px 20px', textAlign: 'right', position: 'relative' }}>
-                        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
-                          
-                          <Link to={`/real-estate/edit-property/${item.slug}`} style={{ background: '#f8fafc', border: '1px solid #cbd5e1', color: '#334155', padding: '6px 12px', borderRadius: 8, textDecoration: 'none', fontWeight: 700, fontSize: 12 }}>
-                            Edit
-                          </Link>
-                          
+                      <td style={{ textAlign: 'right', paddingRight: 22, position: 'relative' }}>
+                        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 7 }}>
+                          <Link to={`/real-estate/edit-property/${item.slug}`} style={{
+                            padding: '6px 14px', border: '1.5px solid rgba(226,230,240,0.9)',
+                            borderRadius: 8, background: '#fff',
+                            color: '#303860', textDecoration: 'none',
+                            fontSize: 12, fontWeight: 700,
+                            transition: 'all 0.15s ease',
+                          }}
+                            onMouseOver={e => { e.currentTarget.style.borderColor = '#3b5bdb'; e.currentTarget.style.color = '#3b5bdb'; }}
+                            onMouseOut={e => { e.currentTarget.style.borderColor = 'rgba(226,230,240,0.9)'; e.currentTarget.style.color = '#303860'; }}
+                          >Edit</Link>
+
                           <button
                             onClick={() => setUpgradeModal({ open: true, listingId: item._id, currentTier: item.tier || 'PLAIN', title: item.title })}
-                            style={{ background: '#eff6ff', border: '1px solid #bfdbfe', color: '#2563eb', padding: '6px 12px', borderRadius: 8, fontWeight: 700, cursor: 'pointer', fontSize: 12 }}
-                          >
-                            Upgrade
-                          </button>
+                            style={{
+                              padding: '6px 14px',
+                              border: '1.5px solid rgba(59,91,219,0.2)',
+                              borderRadius: 8, background: 'rgba(59,91,219,0.06)',
+                              color: '#3b5bdb', fontSize: 12, fontWeight: 700, cursor: 'pointer',
+                              transition: 'all 0.15s ease',
+                              fontFamily: 'inherit',
+                            }}
+                            onMouseOver={e => { e.currentTarget.style.background = 'rgba(59,91,219,0.12)'; }}
+                            onMouseOut={e => { e.currentTarget.style.background = 'rgba(59,91,219,0.06)'; }}
+                          >Upgrade</button>
 
-                          <button
-                            onClick={() => setMenuOpenId(menuOpenId === item._id ? null : item._id)}
-                            style={{ background: '#fff', border: '1px solid #cbd5e1', padding: '6px 10px', borderRadius: 8, cursor: 'pointer' }}
-                          >
-                            ⚙️
-                          </button>
+                          <div style={{ position: 'relative' }}>
+                            <button
+                              onClick={() => setMenuOpenId(menuOpenId === item._id ? null : item._id)}
+                              style={{
+                                width: 32, height: 32, border: '1.5px solid rgba(226,230,240,0.9)',
+                                borderRadius: 8, background: '#fff', cursor: 'pointer',
+                                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                fontSize: 15, transition: 'all 0.15s ease',
+                                fontFamily: 'inherit',
+                              }}
+                              onMouseOver={e => { e.currentTarget.style.borderColor = '#9fa6b8'; }}
+                              onMouseOut={e => { e.currentTarget.style.borderColor = 'rgba(226,230,240,0.9)'; }}
+                            >⋮</button>
 
-                          {menuOpenId === item._id && (
-                            <div style={{ position: 'absolute', right: 20, top: 46, background: '#fff', border: '1px solid #cbd5e1', borderRadius: 12, boxShadow: '0 10px 30px rgba(0,0,0,0.1)', zIndex: 100, minWidth: 140, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
-                              
-                              <button onClick={() => { handleStatusChange(item._id, 'ACTIVE'); setMenuOpenId(null); }} style={{ padding: '10px 14px', background: 'none', border: 'none', textAlign: 'left', fontSize: 13, cursor: 'pointer', hover: { background: '#f8fafc' } }}>
-                                Set Active
-                              </button>
-                              
-                              <button onClick={() => { handleStatusChange(item._id, 'PAUSED'); setMenuOpenId(null); }} style={{ padding: '10px 14px', background: 'none', border: 'none', textAlign: 'left', fontSize: 13, cursor: 'pointer' }}>
-                                Pause Listing
-                              </button>
-                              
-                              <button onClick={() => { handleSoftDelete(item._id); setMenuOpenId(null); }} style={{ padding: '10px 14px', background: 'none', border: 'none', textAlign: 'left', fontSize: 13, cursor: 'pointer', color: '#dc2626' }}>
-                                Archive Listing
-                              </button>
-                              
-                            </div>
-                          )}
-
+                            {menuOpenId === item._id && (
+                              <div style={{
+                                position: 'absolute', right: 0, top: 38,
+                                background: '#fff',
+                                border: '1px solid rgba(226,230,240,0.9)',
+                                borderRadius: 14,
+                                boxShadow: '0 16px 40px rgba(11,15,26,0.14)',
+                                zIndex: 100, minWidth: 150,
+                                overflow: 'hidden',
+                                animation: 'slideUp 0.18s ease',
+                              }}>
+                                {[
+                                  { label: 'Set Active', action: () => { handleStatusChange(item._id, 'ACTIVE'); setMenuOpenId(null); }, color: '#0d9276' },
+                                  { label: 'Pause',     action: () => { handleStatusChange(item._id, 'PAUSED'); setMenuOpenId(null); }, color: '#e8890c' },
+                                  { label: 'Archive',   action: () => { handleSoftDelete(item._id); setMenuOpenId(null); }, color: '#f03e5e' },
+                                ].map(a => (
+                                  <button key={a.label} onClick={a.action} style={{
+                                    display: 'block', width: '100%', padding: '11px 16px',
+                                    background: 'none', border: 'none', textAlign: 'left',
+                                    fontSize: 13, cursor: 'pointer', color: a.color,
+                                    fontWeight: 700, transition: 'background 0.12s ease',
+                                    fontFamily: 'inherit',
+                                  }}
+                                    onMouseOver={e => e.currentTarget.style.background = 'rgba(0,0,0,0.03)'}
+                                    onMouseOut={e => e.currentTarget.style.background = 'none'}
+                                  >{a.label}</button>
+                                ))}
+                              </div>
+                            )}
+                          </div>
                         </div>
                       </td>
                     </tr>
@@ -459,97 +430,105 @@ export default function ListingsOverviewPage() {
           </div>
         )}
 
-        {/* 5. Pagination Component */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px 20px', background: '#f8fafc', borderTop: '1px solid #e2e8f0' }}>
-          <div style={{ fontSize: 13, color: '#64748b' }}>
-            Page <span style={{ fontWeight: 700, color: '#0f172a' }}>{pagination.page}</span> of <span style={{ fontWeight: 700, color: '#0f172a' }}>{pagination.totalPages || 1}</span> ({pagination.totalCount} listings)
-          </div>
+        {/* Pagination */}
+        <div className="re-pagination">
+          <span className="re-pagination-info">
+            Page <strong>{pagination.page}</strong> of <strong>{pagination.totalPages || 1}</strong> &nbsp;·&nbsp; {pagination.totalCount} listings
+          </span>
           <div style={{ display: 'flex', gap: 8 }}>
-            <button
-              disabled={pagination.page <= 1}
-              onClick={() => setPagination(prev => ({ ...prev, page: prev.page - 1 }))}
-              style={{ padding: '8px 14px', border: '1px solid #cbd5e1', borderRadius: 8, background: '#fff', fontWeight: 600, cursor: pagination.page <= 1 ? 'not-allowed' : 'pointer', opacity: pagination.page <= 1 ? 0.5 : 1 }}
-            >
-              Previous
+            <button className="re-pagi-btn" disabled={pagination.page <= 1} onClick={() => setPagination(p => ({ ...p, page: p.page - 1 }))}>
+              ← Previous
             </button>
-            <button
-              disabled={pagination.page >= pagination.totalPages}
-              onClick={() => setPagination(prev => ({ ...prev, page: prev.page + 1 }))}
-              style={{ padding: '8px 14px', border: '1px solid #cbd5e1', borderRadius: 8, background: '#fff', fontWeight: 600, cursor: pagination.page >= pagination.totalPages ? 'not-allowed' : 'pointer', opacity: pagination.page >= pagination.totalPages ? 0.5 : 1 }}
-            >
-              Next
+            <button className="re-pagi-btn" disabled={pagination.page >= pagination.totalPages} onClick={() => setPagination(p => ({ ...p, page: p.page + 1 }))}>
+              Next →
             </button>
           </div>
         </div>
-
       </div>
 
-      {/* 6. Floating Bulk Actions Toolbar */}
+      {/* Bulk Action Float Bar */}
       {selectedIds.length > 0 && (
-        <div style={{ position: 'fixed', bottom: 24, left: '50%', transform: 'translateX(-50%)', background: '#0f172a', color: '#fff', padding: '14px 24px', borderRadius: 20, boxShadow: '0 20px 40px rgba(0,0,0,0.3)', display: 'flex', alignItems: 'center', gap: 20, zIndex: 1000, animation: 'floatUp 0.3s ease-out' }}>
-          <span style={{ fontSize: 13, fontWeight: 700 }}>{selectedIds.length} listings selected</span>
-          <div style={{ display: 'flex', gap: 10 }}>
-            <button onClick={() => handleBulkAction('ACTIVATE')} style={{ background: '#16a34a', border: 'none', color: '#fff', padding: '8px 14px', borderRadius: 10, fontSize: 12, fontWeight: 700, cursor: 'pointer' }}>Bulk Activate</button>
-            <button onClick={() => handleBulkAction('PAUSE')} style={{ background: '#d97706', border: 'none', color: '#fff', padding: '8px 14px', borderRadius: 10, fontSize: 12, fontWeight: 700, cursor: 'pointer' }}>Bulk Pause</button>
-            <button onClick={() => handleBulkAction('ARCHIVE')} style={{ background: '#dc2626', border: 'none', color: '#fff', padding: '8px 14px', borderRadius: 10, fontSize: 12, fontWeight: 700, cursor: 'pointer' }}>Bulk Archive</button>
+        <div className="re-float-bar">
+          <span style={{ fontSize: 13, fontWeight: 700, color: 'rgba(255,255,255,0.9)' }}>
+            {selectedIds.length} selected
+          </span>
+          <div style={{ display: 'flex', gap: 8 }}>
+            {[
+              { label: 'Activate', action: 'ACTIVATE', bg: '#0d9276' },
+              { label: 'Pause',    action: 'PAUSE',    bg: '#e8890c' },
+              { label: 'Archive',  action: 'ARCHIVE',  bg: '#f03e5e' },
+            ].map(b => (
+              <button key={b.label} onClick={() => handleBulkAction(b.action)} style={{
+                background: b.bg, border: 'none', color: '#fff',
+                padding: '8px 16px', borderRadius: 10, fontSize: 12, fontWeight: 800,
+                cursor: 'pointer', fontFamily: 'inherit',
+                transition: 'filter 0.15s',
+              }}
+                onMouseOver={e => e.currentTarget.style.filter = 'brightness(1.1)'}
+                onMouseOut={e => e.currentTarget.style.filter = 'none'}
+              >{b.label}</button>
+            ))}
           </div>
-          <button onClick={() => setSelectedIds([])} style={{ background: 'none', border: 'none', color: '#94a3b8', fontSize: 12, cursor: 'pointer', textDecoration: 'underline' }}>Clear selection</button>
+          <button onClick={() => setSelectedIds([])} style={{
+            background: 'none', border: 'none', color: 'rgba(255,255,255,0.45)',
+            fontSize: 12, cursor: 'pointer', textDecoration: 'underline', fontFamily: 'inherit',
+          }}>Clear</button>
         </div>
       )}
 
-      {/* 7. Premium Tier Upgrade Modal */}
+      {/* Upgrade Modal */}
       {upgradeModal.open && (
-        <div style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', background: 'rgba(15,23,42,0.6)', backdropFilter: 'blur(4px)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 9999 }}>
-          <div style={{ background: '#fff', borderRadius: 24, padding: 32, maxWidth: 500, width: '90%', boxShadow: '0 24px 60px rgba(0,0,0,0.15)', display: 'flex', flexDirection: 'column', gap: 20 }}>
-            <div>
-              <h2 style={{ margin: '0 0 4px', fontSize: 22, fontWeight: 800, color: '#0f172a' }}>Upgrade Package Tier</h2>
-              <p style={{ margin: 0, fontSize: 13, color: '#64748b' }}>Select target promotion tier for <span style={{ fontWeight: 700, color: '#0f172a' }}>{upgradeModal.title}</span></p>
+        <div className="re-overlay" onClick={() => setUpgradeModal({ open: false, listingId: null, currentTier: 'PLAIN', title: '' })}>
+          <div className="re-modal" onClick={e => e.stopPropagation()}>
+            <div style={{ marginBottom: 22 }}>
+              <h2 style={{ fontSize: 21, fontWeight: 900, color: '#0f1629', margin: '0 0 6px', letterSpacing: '-0.03em' }}>
+                Upgrade Package Tier
+              </h2>
+              <p style={{ margin: 0, fontSize: 13.5, color: '#9fa6b8' }}>
+                Select promotion tier for <strong style={{ color: '#0f1629' }}>{upgradeModal.title}</strong>
+              </p>
             </div>
-
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 18 }}>
               {['PLAIN', 'BASIC', 'PLATINUM', 'PREMIUM'].map(tierName => {
-                const tierCost = { PLAIN: 'Free', BASIC: '1 Credit', PLATINUM: '3 Credits', PREMIUM: '5 Credits' };
+                const t = TIER_CFG[tierName];
+                const cost = { PLAIN: 'Free', BASIC: '1 Credit', PLATINUM: '3 Credits', PREMIUM: '5 Credits' };
                 const isCurrent = upgradeModal.currentTier === tierName;
-
                 return (
-                  <button
-                    key={tierName}
-                    disabled={isCurrent}
-                    onClick={() => handleTierUpgrade(upgradeModal.listingId, tierName)}
+                  <button key={tierName} disabled={isCurrent} onClick={() => handleTierUpgrade(upgradeModal.listingId, tierName)}
                     style={{
                       display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-                      padding: 16, borderRadius: 16, border: isCurrent ? '2px solid #2563eb' : '1px solid #cbd5e1',
-                      background: isCurrent ? '#eff6ff' : '#fff', cursor: isCurrent ? 'not-allowed' : 'pointer',
-                      textAlign: 'left'
+                      padding: '16px 18px', borderRadius: 14, cursor: isCurrent ? 'not-allowed' : 'pointer',
+                      background: isCurrent ? t.bg : '#fff',
+                      border: isCurrent ? `2px solid ${t.color}` : '1.5px solid rgba(226,230,240,0.9)',
+                      textAlign: 'left', transition: 'all 0.15s ease',
+                      fontFamily: 'inherit',
                     }}
+                    onMouseOver={e => { if (!isCurrent) e.currentTarget.style.borderColor = t.color; }}
+                    onMouseOut={e => { if (!isCurrent) e.currentTarget.style.borderColor = 'rgba(226,230,240,0.9)'; }}
                   >
                     <div>
-                      <div style={{ fontWeight: 700, color: '#0f172a' }}>{TIER_DISPLAY_NAMES[tierName]}</div>
-                      <div style={{ fontSize: 11, color: '#64748b', marginTop: 2 }}>{tierCost[tierName]} deduction</div>
+                      <div style={{ fontWeight: 800, color: '#0f1629', fontSize: 14 }}>{t.label}</div>
+                      <div style={{ fontSize: 12, color: '#9fa6b8', marginTop: 3 }}>{cost[tierName]} deduction</div>
                     </div>
-                    {isCurrent && <span style={{ fontSize: 12, fontWeight: 800, color: '#2563eb' }}>Current Active Tier</span>}
+                    {isCurrent && <span style={{ fontSize: 11, fontWeight: 800, color: t.color }}>Current Tier</span>}
                   </button>
                 );
               })}
             </div>
-
             <button
               onClick={() => setUpgradeModal({ open: false, listingId: null, currentTier: 'PLAIN', title: '' })}
-              style={{ background: '#0f172a', border: 'none', color: '#fff', padding: '12px 20,px', borderRadius: 12, fontWeight: 700, cursor: 'pointer', textAlign: 'center' }}
-            >
-              Cancel
-            </button>
+              className="re-btn re-btn-dark re-btn-full"
+              style={{ borderRadius: 12, padding: '13px 20px' }}
+            >Cancel</button>
           </div>
         </div>
       )}
 
       <style>{`
-        @keyframes floatUp {
-          from { opacity: 0; transform: translate(-50%, 20px); }
-          to { opacity: 1; transform: translate(-50%, 0); }
-        }
+        @media (max-width: 1100px) { .listings-filter-grid { grid-template-columns: 1fr 1fr 1fr !important; } }
+        @media (max-width: 768px)  { .listings-filter-grid { grid-template-columns: 1fr !important; } }
+        @media (max-width: 900px)  { .re-grid-stats { grid-template-columns: repeat(2,1fr) !important; } }
       `}</style>
-
     </div>
   );
 }

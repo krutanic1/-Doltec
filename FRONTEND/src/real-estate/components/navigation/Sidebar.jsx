@@ -1,7 +1,8 @@
 import React from 'react';
-import { NavLink } from 'react-router-dom';
+import { NavLink, useNavigate } from 'react-router-dom';
 import { SIDEBAR_ITEMS } from '../../config/navigation';
-import { getUserRole, hasPermission } from '../../utils/access';
+import { getUserRole, hasPermission, getStoredUser } from '../../utils/access';
+import '../../re.css';
 
 const ICONS = {
   'layout-dashboard': 'M4 4h7v7H4V4Zm9 0h7v4h-7V4ZM4 13h7v7H4v-7Zm9 5v-5h7v5h-7Z',
@@ -17,62 +18,96 @@ const ICONS = {
   'settings-2': 'M12 8.5A3.5 3.5 0 1 0 12 15.5 3.5 3.5 0 0 0 12 8.5Zm8 3.5-1.7.98.1 1.96 1.6 1.15-1.5 2.6-1.87-.53-1.47 1.3.15 1.95-3 .89-1.1-1.67H10.6l-1.1 1.67-3-.89.15-1.95-1.47-1.3-1.87.53-1.5-2.6 1.6-1.15.1-1.96L3 12l1.1-2 .1-1.96L2.6 6.89l1.5-2.6 1.87.53 1.47-1.3-.15-1.95 3-.89L10.6 2.5h2.8l1.1-1.67 3 .89-.15 1.95 1.47 1.3 1.87-.53 1.5 2.6-1.6 1.15-.1 1.96L20 12Z',
 };
 
-function Icon({ name }) {
+function Icon({ name, size = 17 }) {
   const path = ICONS[name] || ICONS['layout-dashboard'];
   return (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
       <path d={path} />
     </svg>
   );
 }
 
 export default function Sidebar() {
+  const navigate = useNavigate();
   const role = getUserRole();
+  const user = getStoredUser();
   const items = SIDEBAR_ITEMS.filter((item) => hasPermission(item.permission) && item.roles.includes(role));
+
+  const handleLogout = () => {
+    localStorage.removeItem('user');
+    localStorage.removeItem('token');
+    navigate('/real-estate');
+  };
+
+  const initial = user?.name?.charAt(0)?.toUpperCase() || 'U';
 
   return (
     <aside style={{
-      width: 280,
-      minWidth: 280,
-      background: '#0f172a',
+      width: 256,
+      minWidth: 256,
+      background: 'linear-gradient(180deg, #0b0f1a 0%, #0f1629 100%)',
       color: '#e2e8f0',
-      padding: 24,
       display: 'flex',
       flexDirection: 'column',
-      gap: 24,
       position: 'sticky',
       top: 0,
       height: '100vh',
       boxSizing: 'border-box',
-      overflowY: 'auto'
+      overflowY: 'auto',
+      scrollbarWidth: 'none',
+      borderRight: '1px solid rgba(255,255,255,0.05)',
+      zIndex: 10,
     }}>
-      <div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>
-          <div style={{ width: 40, height: 40, borderRadius: 14, background: 'linear-gradient(135deg, #2563eb, #1d4ed8)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 900 }}>D</div>
+
+      {/* Brand section */}
+      <div style={{ padding: '22px 20px 14px', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 18 }}>
+          <div style={{
+            width: 38, height: 38, borderRadius: 12,
+            background: 'linear-gradient(135deg, #3b5bdb, #2537a0)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            color: '#fff', fontWeight: 900, fontSize: 16,
+            boxShadow: '0 4px 16px rgba(59,91,219,0.4)',
+            flexShrink: 0,
+          }}>D</div>
           <div>
-            <div style={{ fontSize: 14, fontWeight: 900, color: '#fff' }}>Doltec Estates</div>
-            <div style={{ fontSize: 11, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '.14em' }}>{role.toLowerCase()} workspace</div>
+            <div style={{ fontSize: 14, fontWeight: 900, color: '#fff', letterSpacing: '-0.02em' }}>Doltec Estates</div>
+            <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.35)', textTransform: 'uppercase', letterSpacing: '0.16em', marginTop: 1 }}>{role.toLowerCase()} workspace</div>
           </div>
         </div>
-        <div style={{ fontSize: 12, color: '#94a3b8', lineHeight: 1.6 }}>
-          Dashboard shell, permissions, and navigation are now centralized.
-        </div>
+
+
       </div>
 
-      <nav style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+      {/* Navigation */}
+      <nav style={{ flex: 1, padding: '14px 12px', display: 'flex', flexDirection: 'column', gap: 3 }}>
+        <div style={{ fontSize: 9, fontWeight: 800, color: 'rgba(255,255,255,0.25)', letterSpacing: '0.18em', textTransform: 'uppercase', padding: '8px 8px 4px', marginBottom: 2 }}>
+          Navigation
+        </div>
         {items.map((item) => (
           <NavLink
             key={item.label}
             to={item.path}
             style={({ isActive }) => ({
-              display: 'flex', alignItems: 'center', gap: 12,
-              padding: '12px 14px', borderRadius: 14, textDecoration: 'none',
-              color: isActive ? '#fff' : '#cbd5e1',
-              background: isActive ? 'rgba(37,99,235,.18)' : 'transparent',
-              border: isActive ? '1px solid rgba(96,165,250,.28)' : '1px solid transparent',
-              fontSize: 14, fontWeight: 700,
-              transition: 'all .15s ease',
+              display: 'flex', alignItems: 'center', gap: 11,
+              padding: '10px 12px', borderRadius: 12, textDecoration: 'none',
+              color: isActive ? '#bac8ff' : 'rgba(255,255,255,0.55)',
+              background: isActive
+                ? 'linear-gradient(135deg, rgba(59,91,219,0.24), rgba(37,55,160,0.14))'
+                : 'transparent',
+              border: isActive ? '1px solid rgba(116,143,252,0.22)' : '1px solid transparent',
+              fontSize: 13.5, fontWeight: isActive ? 700 : 600,
+              transition: 'all 0.18s ease',
             })}
+            onMouseOver={e => {
+              if (!e.currentTarget.classList.contains('active'))
+                e.currentTarget.style.background = 'rgba(255,255,255,0.05)';
+            }}
+            onMouseOut={e => {
+              if (!e.currentTarget.classList.contains('active'))
+                e.currentTarget.style.background = 'transparent';
+            }}
           >
             <Icon name={item.icon} />
             <span>{item.label}</span>
@@ -80,35 +115,29 @@ export default function Sidebar() {
         ))}
       </nav>
 
-      <button
-        onClick={() => {
-          localStorage.removeItem('user');
-          localStorage.removeItem('token');
-          window.location.href = '/real-estate';
-        }}
-        style={{
-          display: 'flex', alignItems: 'center', gap: 12,
-          padding: '12px 14px', borderRadius: 14,
-          background: 'transparent', border: 'none',
-          color: '#f87171', cursor: 'pointer',
-          fontSize: 14, fontWeight: 700,
-          textAlign: 'left', width: '100%',
-          transition: 'all .15s ease',
-        }}
-        onMouseOver={e => e.currentTarget.style.background = 'rgba(239,68,68,.08)'}
-        onMouseOut={e => e.currentTarget.style.background = 'transparent'}
-      >
-        <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24">
-          <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9" />
-        </svg>
-        <span>Sign Out</span>
-      </button>
-
-      <div style={{ marginTop: 'auto', padding: 16, borderRadius: 18, background: 'rgba(255,255,255,.04)', border: '1px solid rgba(148,163,184,.16)' }}>
-        <div style={{ fontSize: 11, fontWeight: 900, textTransform: 'uppercase', letterSpacing: '.16em', color: '#94a3b8', marginBottom: 8 }}>Rollout status</div>
-        <div style={{ fontSize: 13, color: '#e2e8f0', lineHeight: 1.6 }}>
-          Public, dashboard, and workspace routes now share a single route source.
-        </div>
+      {/* Bottom section */}
+      <div style={{ padding: '12px 12px 20px', borderTop: '1px solid rgba(255,255,255,0.05)' }}>
+        <button
+          onClick={handleLogout}
+          style={{
+            display: 'flex', alignItems: 'center', gap: 11,
+            padding: '10px 12px', borderRadius: 12,
+            background: 'transparent',
+            border: '1px solid transparent',
+            color: 'rgba(248,113,113,0.75)',
+            cursor: 'pointer', fontSize: 13.5, fontWeight: 600,
+            textAlign: 'left', width: '100%',
+            transition: 'all 0.18s ease',
+            fontFamily: 'inherit',
+          }}
+          onMouseOver={e => { e.currentTarget.style.background = 'rgba(240,62,94,0.08)'; e.currentTarget.style.color = '#f87171'; }}
+          onMouseOut={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = 'rgba(248,113,113,0.75)'; }}
+        >
+          <svg width="17" height="17" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24">
+            <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9" />
+          </svg>
+          <span>Sign Out</span>
+        </button>
       </div>
     </aside>
   );

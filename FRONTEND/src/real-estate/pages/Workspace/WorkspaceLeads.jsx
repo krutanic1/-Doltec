@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { 
   getOwnerLeads, 
   getOwnerLeadById, 
@@ -6,18 +7,17 @@ import {
   getOwnerLeadsStats 
 } from '../../services/leadApi';
 
-// Status labels and styling colors
 const STATUSES = {
-  NEW: { label: 'New Lead', bg: '#eff6ff', color: '#2563eb', border: '#bfdbfe' },
-  CONTACT_VIEWED: { label: 'Contact Viewed', bg: '#fdf2f8', color: '#db2777', border: '#fbcfe8' },
-  ATTEMPTED_CALL: { label: 'Attempted Call', bg: '#fff7ed', color: '#ea580c', border: '#ffedd5' },
-  CONTACTED: { label: 'Contacted', bg: '#f5f3ff', color: '#7c3aed', border: '#ddd6fe' },
-  FOLLOW_UP: { label: 'Follow Up', bg: '#f0fdfa', color: '#0d9488', border: '#ccfbf1' },
-  QUALIFIED: { label: 'Qualified', bg: '#ecfdf5', color: '#059669', border: '#a7f3d0' },
-  SITE_VISIT: { label: 'Site Visit', bg: '#f0fdf4', color: '#16a34a', border: '#bbf7d0' },
-  NEGOTIATION: { label: 'Negotiation', bg: '#fffbeb', color: '#d97706', border: '#fde68a' },
-  CLOSED: { label: 'Closed / Won', bg: '#ecfdf5', color: '#10b981', border: '#a7f3d0' },
-  LOST: { label: 'Lost / Closed', bg: '#fef2f2', color: '#dc2626', border: '#fecaca' }
+  NEW:            { label: 'New Lead',       bg: 'rgba(59,91,219,0.1)',   color: '#3b5bdb', border: 'rgba(59,91,219,0.2)' },
+  CONTACT_VIEWED: { label: 'Contact Viewed', bg: 'rgba(240,62,94,0.08)',  color: '#f03e5e', border: 'rgba(240,62,94,0.18)' },
+  ATTEMPTED_CALL: { label: 'Attempted Call', bg: 'rgba(232,137,12,0.1)',  color: '#e8890c', border: 'rgba(232,137,12,0.2)' },
+  CONTACTED:      { label: 'Contacted',      bg: 'rgba(121,80,242,0.1)',  color: '#7950f2', border: 'rgba(121,80,242,0.2)' },
+  FOLLOW_UP:      { label: 'Follow Up',      bg: 'rgba(32,201,151,0.1)',  color: '#0d9276', border: 'rgba(32,201,151,0.2)' },
+  QUALIFIED:      { label: 'Qualified',      bg: 'rgba(13,146,118,0.1)',  color: '#0d9276', border: 'rgba(13,146,118,0.2)' },
+  SITE_VISIT:     { label: 'Site Visit',     bg: 'rgba(43,138,62,0.1)',   color: '#2b8a3e', border: 'rgba(43,138,62,0.2)' },
+  NEGOTIATION:    { label: 'Negotiation',    bg: 'rgba(250,162,25,0.1)',  color: '#c47011', border: 'rgba(250,162,25,0.2)' },
+  CLOSED:         { label: 'Closed / Won',   bg: 'rgba(13,146,118,0.12)', color: '#0b7a62', border: 'rgba(13,146,118,0.25)' },
+  LOST:           { label: 'Lost / Closed',  bg: 'rgba(240,62,94,0.1)',   color: '#c41c3a', border: 'rgba(240,62,94,0.2)' }
 };
 
 export default function WorkspaceLeads() {
@@ -26,14 +26,12 @@ export default function WorkspaceLeads() {
   const [loading, setLoading] = useState(true);
   const [statsLoading, setStatsLoading] = useState(true);
   
-  // Table search and filters
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [totalLeads, setTotalLeads] = useState(0);
 
-  // Lead details drawer state
   const [selectedLeadId, setSelectedLeadId] = useState(null);
   const [drawerLead, setDrawerLead] = useState(null);
   const [drawerLoading, setDrawerLoading] = useState(false);
@@ -41,14 +39,11 @@ export default function WorkspaceLeads() {
   const [statusNotes, setStatusNotes] = useState('');
   const [submittingStatus, setSubmittingStatus] = useState(false);
 
-  // Fetch Dashboard Stats
   async function loadStats() {
     setStatsLoading(true);
     try {
       const res = await getOwnerLeadsStats();
-      if (res.success) {
-        setStats(res.data);
-      }
+      if (res.success) setStats(res.data);
     } catch (err) {
       console.error('Error loading leads stats:', err);
     } finally {
@@ -56,17 +51,10 @@ export default function WorkspaceLeads() {
     }
   }
 
-  // Fetch paginated and filtered Leads
   async function loadLeads() {
     setLoading(true);
     try {
-      const params = {
-        page,
-        limit: 10,
-        search: search.trim() || undefined,
-        status: statusFilter || undefined
-      };
-      const res = await getOwnerLeads(params);
+      const res = await getOwnerLeads({ page, limit: 10, search: search.trim() || undefined, status: statusFilter || undefined });
       if (res.success) {
         setLeads(res.data);
         setTotalPages(res.pagination.pages);
@@ -79,7 +67,6 @@ export default function WorkspaceLeads() {
     }
   }
 
-  // Fetch single lead for details drawer
   async function loadLeadDetail(leadId) {
     setDrawerLoading(true);
     try {
@@ -96,33 +83,19 @@ export default function WorkspaceLeads() {
     }
   }
 
-  // Effect to load leads when filter/page changes
+  useEffect(() => { loadLeads(); }, [page, statusFilter]);
   useEffect(() => {
-    loadLeads();
-  }, [page, statusFilter]);
-
-  // Effect to run search
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setPage(1);
-      loadLeads();
-    }, 400);
+    const timer = setTimeout(() => { setPage(1); loadLeads(); }, 400);
     return () => clearTimeout(timer);
   }, [search]);
+  useEffect(() => { loadStats(); }, []);
 
-  // Load stats and leads on mount
-  useEffect(() => {
-    loadStats();
-  }, []);
-
-  // Handle drawer click
   const openLeadDrawer = (leadId) => {
     setSelectedLeadId(leadId);
     setDrawerLead(null);
     loadLeadDetail(leadId);
   };
 
-  // Submit Lead Status update
   const handleStatusUpdate = async (e) => {
     e.preventDefault();
     if (!statusUpdateVal) return;
@@ -130,11 +103,8 @@ export default function WorkspaceLeads() {
     try {
       const res = await updateOwnerLeadStatus(drawerLead._id, statusUpdateVal, statusNotes);
       if (res.success) {
-        // reload drawer details
         await loadLeadDetail(drawerLead._id);
-        // reload list
         await loadLeads();
-        // reload stats
         await loadStats();
       }
     } catch (err) {
@@ -145,200 +115,167 @@ export default function WorkspaceLeads() {
   };
 
   return (
-    <div style={{ fontFamily: 'Inter, sans-serif', color: '#0f172a', padding: '10px 0 60px' }}>
+    <div className="re-fade-in">
       
+      {/* Header */}
+      <div style={{ marginBottom: 24, display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 16, flexWrap: 'wrap' }}>
+        <div>
+          <div className="re-eyebrow">Lead Management</div>
+          <h1 className="re-page-title">Workspace Leads</h1>
+          <p className="re-page-subtitle">Track, update, and close incoming property inquiries from interested buyers and tenants.</p>
+        </div>
+      </div>
+
       {/* Stats Pipeline Row */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 16, marginBottom: 28 }}>
-        
-        {/* Total leads card */}
-        <div style={statsCardStyle('#2563eb')}>
-          <div>
-            <p style={statsTitleStyle}>Total Leads captured</p>
-            <h3 style={statsValueStyle}>{statsLoading ? '...' : stats?.totalLeads ?? 0}</h3>
-          </div>
-          <span style={statsIconStyle('rgba(37,99,235,0.1)', '#2563eb')}>👥</span>
+      <div className="re-grid-stats" style={{ marginBottom: 28 }}>
+        <div className="re-stat-card" style={{ '--stat-accent': '#3b5bdb', '--stat-bg': 'rgba(59,91,219,0.1)', border: '1px solid rgba(59,91,219,0.15)' }}>
+          <div className="re-stat-icon"><svg width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path strokeLinecap="round" strokeLinejoin="round" d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>
+          <div className="re-stat-label">Total Leads</div>
+          <div className="re-stat-value">{statsLoading ? '...' : stats?.totalLeads ?? 0}</div>
+          <div className="re-stat-hint">Captured across all listings</div>
         </div>
-
-        {/* Active leads card */}
-        <div style={statsCardStyle('#7c3aed')}>
-          <div>
-            <p style={statsTitleStyle}>Active Discussions</p>
-            <h3 style={statsValueStyle}>{statsLoading ? '...' : stats?.activeLeads ?? 0}</h3>
-          </div>
-          <span style={statsIconStyle('rgba(124,58,237,0.1)', '#7c3aed')}>⚡</span>
+        <div className="re-stat-card" style={{ '--stat-accent': '#7950f2', '--stat-bg': 'rgba(121,80,242,0.1)', border: '1px solid rgba(121,80,242,0.15)' }}>
+          <div className="re-stat-icon"><svg width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg></div>
+          <div className="re-stat-label">Active Discussions</div>
+          <div className="re-stat-value">{statsLoading ? '...' : stats?.activeLeads ?? 0}</div>
+          <div className="re-stat-hint">Currently in pipeline</div>
         </div>
-
-        {/* Closed leads card */}
-        <div style={statsCardStyle('#10b981')}>
-          <div>
-            <p style={statsTitleStyle}>Conversions / Deals</p>
-            <h3 style={statsValueStyle}>{statsLoading ? '...' : stats?.closedLeads ?? 0}</h3>
-          </div>
-          <span style={statsIconStyle('rgba(16,185,129,0.1)', '#10b981')}>🎉</span>
+        <div className="re-stat-card" style={{ '--stat-accent': '#0d9276', '--stat-bg': 'rgba(13,146,118,0.1)', border: '1px solid rgba(13,146,118,0.15)' }}>
+          <div className="re-stat-icon"><svg width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></div>
+          <div className="re-stat-label">Conversions</div>
+          <div className="re-stat-value">{statsLoading ? '...' : stats?.closedLeads ?? 0}</div>
+          <div className="re-stat-hint">Deals closed won</div>
         </div>
-
-        {/* Action Reveal conversion rate */}
-        <div style={statsCardStyle('#ea580c')}>
-          <div>
-            <p style={statsTitleStyle}>Avg Interactions</p>
-            <h3 style={statsValueStyle}>
-              {statsLoading ? '...' : (leads.length > 0 ? (leads.reduce((acc, cur) => acc + (cur.interactionCount || 1), 0) / leads.length).toFixed(1) : '1.0')}
-            </h3>
+        <div className="re-stat-card" style={{ '--stat-accent': '#e8890c', '--stat-bg': 'rgba(232,137,12,0.1)', border: '1px solid rgba(232,137,12,0.15)' }}>
+          <div className="re-stat-icon"><svg width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><path strokeLinecap="round" strokeLinejoin="round" d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg></div>
+          <div className="re-stat-label">Avg Interactions</div>
+          <div className="re-stat-value">
+            {statsLoading ? '...' : (leads.length > 0 ? (leads.reduce((acc, cur) => acc + (cur.interactionCount || 1), 0) / leads.length).toFixed(1) : '1.0')}
           </div>
-          <span style={statsIconStyle('rgba(234,88,12,0.1)', '#ea580c')}>🔄</span>
+          <div className="re-stat-hint">Touchpoints per lead</div>
         </div>
-
       </div>
 
       {/* Filter and Search Bar Container */}
-      <div style={{
-        background: '#fff', border: '1px solid #e2e8f0', borderRadius: 18,
-        padding: '18px 24px', marginBottom: 24, display: 'flex', gap: 16,
-        alignItems: 'center', flexWrap: 'wrap'
-      }}>
-        
-        {/* Text Search */}
+      <div className="re-toolbar" style={{ marginBottom: 24, display: 'flex', gap: 16, alignItems: 'center', flexWrap: 'wrap' }}>
         <div style={{ flex: '2 1 300px', position: 'relative' }}>
+          <label className="re-label">Search Leads</label>
           <input 
             type="text"
-            placeholder="Search leads by viewer name, email or phone..."
+            placeholder="Search by name, email or phone..."
             value={search}
             onChange={e => setSearch(e.target.value)}
-            style={filterInputStyle}
+            className="re-input"
+            style={{ paddingLeft: 38 }}
           />
-          <span style={{ position: 'absolute', right: 14, top: 12, color: '#94a3b8' }}>🔍</span>
+          <svg style={{ position: 'absolute', left: 12, bottom: 12, opacity: 0.4 }} width="15" height="15" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+            <circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/>
+          </svg>
         </div>
 
-        {/* Status Dropdown */}
         <div style={{ flex: '1 1 200px' }}>
+          <label className="re-label">Lead Stage</label>
           <select 
             value={statusFilter}
             onChange={e => { setStatusFilter(e.target.value); setPage(1); }}
-            style={filterInputStyle}
+            className="re-select"
           >
-            <option value="">All Lead Stages</option>
+            <option value="">All Stages</option>
             {Object.keys(STATUSES).map(key => (
               <option key={key} value={key}>{STATUSES[key].label}</option>
             ))}
           </select>
         </div>
 
-        {/* Refresh button */}
         <button 
           onClick={() => { loadLeads(); loadStats(); }} 
-          style={{
-            background: '#f1f5f9', border: 'none', padding: '12px 18px', borderRadius: 12,
-            fontWeight: 700, fontSize: 13, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8,
-            transition: 'background .15s'
-          }}
-          onMouseOver={e => e.currentTarget.style.background = '#e2e8f0'}
-          onMouseOut={e => e.currentTarget.style.background = '#f1f5f9'}
+          className="re-btn re-btn-outline"
+          style={{ alignSelf: 'flex-end', height: 43 }}
         >
-          🔄 Refresh
+          <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" style={{marginRight: 6}}><polyline points="23 4 23 10 17 10"/><path strokeLinecap="round" strokeLinejoin="round" d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+          Refresh
         </button>
-
       </div>
 
       {/* Leads Table Container */}
-      <div style={{ background: '#fff', border: '1px solid #e2e8f0', borderRadius: 18, overflow: 'hidden' }}>
+      <div className="re-panel">
         {loading ? (
-          <div style={{ padding: '80px 24px', textAlign: 'center', color: '#64748b' }}>
-            <div style={{ width: 36, height: 36, border: '3px solid #e2e8f0', borderTopColor: '#2563eb', borderRadius: '50%', animation: 'spin .8s linear infinite', margin: '0 auto 16px' }} />
-            <p style={{ fontWeight: 600, fontSize: 14 }}>Fetching Lead Pipeline details...</p>
+          <div style={{ padding: '60px 24px', textAlign: 'center' }}>
+            <div className="re-spinner re-spinner-dark" style={{ margin: '0 auto 16px' }} />
+            <p style={{ color: '#9fa6b8', fontSize: 14, fontWeight: 600 }}>Fetching Lead Pipeline...</p>
           </div>
         ) : leads.length === 0 ? (
-          <div style={{ padding: '80px 24px', textAlign: 'center', color: '#64748b' }}>
-            <span style={{ fontSize: 32 }}>📁</span>
-            <h4 style={{ fontSize: 16, fontWeight: 800, color: '#0f172a', margin: '12px 0 4px' }}>No Leads Captured</h4>
-            <p style={{ fontSize: 13, margin: 0 }}>There are no contact unlocks matching your filter criteria on your listings.</p>
+          <div className="re-empty">
+            <div className="re-empty-icon" style={{color:'#9fa6b8'}}><svg width="32" height="32" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg></div>
+            <h4 style={{ fontSize: 18, fontWeight: 800, color: '#0f1629', margin: '0 0 8px' }}>No Leads Captured</h4>
+            <p style={{ fontSize: 14, color: '#9fa6b8', margin: 0 }}>There are no contact unlocks matching your filter criteria.</p>
           </div>
         ) : (
-          <div style={{ overflowX: 'auto' }}>
-            <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: 13.5 }}>
+          <div className="re-table-wrap">
+            <table className="re-table">
               <thead>
-                <tr style={{ background: '#f8fafc', borderBottom: '1px solid #e2e8f0' }}>
-                  <th style={{ ...thStyle, paddingLeft: 24 }}>Lead User</th>
-                  <th style={thStyle}>Contact Details</th>
-                  <th style={thStyle}>Target Listing</th>
-                  <th style={thStyle}>Channel / Source</th>
-                  <th style={thStyle}>Status / Stage</th>
-                  <th style={thStyle}>Interactions</th>
-                  <th style={{ ...thStyle, paddingRight: 24, textAlign: 'right' }}>Actions</th>
+                <tr>
+                  <th style={{ paddingLeft: 24 }}>Lead User</th>
+                  <th>Contact Details</th>
+                  <th>Target Listing</th>
+                  <th>Source</th>
+                  <th>Stage</th>
+                  <th>Interactions</th>
+                  <th style={{ paddingRight: 24, textAlign: 'right' }}>Actions</th>
                 </tr>
               </thead>
               <tbody>
                 {leads.map(lead => {
                   const statusConf = STATUSES[lead.status?.toUpperCase()] || STATUSES.NEW;
                   return (
-                    <tr 
-                      key={lead._id} 
-                      style={{ borderBottom: '1px solid #f1f5f9', cursor: 'pointer', transition: 'background .15s' }}
-                      onMouseOver={e => e.currentTarget.style.background = '#f8fafc'}
-                      onMouseOut={e => e.currentTarget.style.background = 'transparent'}
-                      onClick={() => openLeadDrawer(lead._id)}
-                    >
-                      {/* Name */}
-                      <td style={{ ...tdStyle, paddingLeft: 24, fontWeight: 800, color: '#0f172a' }}>
+                    <tr key={lead._id} onClick={() => openLeadDrawer(lead._id)} style={{ cursor: 'pointer' }}>
+                      <td style={{ paddingLeft: 24, fontWeight: 800, color: '#0f1629' }}>
                         {lead.viewerName || lead.name || 'Anonymous User'}
                       </td>
-
-                      {/* Contact */}
-                      <td style={tdStyle} onClick={e => e.stopPropagation()}>
-                        <div style={{ fontWeight: 600, color: '#334155' }}>📞 {lead.viewerPhone || lead.phone}</div>
-                        <div style={{ fontSize: 11, color: '#64748b', marginTop: 2 }}>✉ {lead.viewerEmail || lead.email}</div>
+                      <td onClick={e => e.stopPropagation()}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontWeight: 700, color: '#303860' }}>
+                          <svg width="12" height="12" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+                          {lead.viewerPhone || lead.phone}
+                        </div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, color: '#9fa6b8', marginTop: 3 }}>
+                          <svg width="12" height="12" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+                          {lead.viewerEmail || lead.email}
+                        </div>
                       </td>
-
-                      {/* Property */}
-                      <td style={tdStyle}>
-                        <div style={{ fontWeight: 700, color: '#2563eb', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: 180 }}>
+                      <td>
+                        <div style={{ fontWeight: 800, color: '#3b5bdb', maxWidth: 180, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                           {lead.propertyId?.title || 'Listing Details'}
                         </div>
-                        <div style={{ fontSize: 11, color: '#64748b', marginTop: 2 }}>
-                          📍 {[lead.propertyId?.locality, lead.propertyId?.city].filter(Boolean).join(', ') || 'Prime Locality'}
-                        </div>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, color: '#9fa6b8', marginTop: 3 }}>
+                            <svg width="12" height="12" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                            {[lead.propertyId?.locality, lead.propertyId?.city].filter(Boolean).join(', ') || 'Prime Locality'}
+                          </div>
                       </td>
-
-                      {/* Source */}
-                      <td style={tdStyle}>
-                        <span style={{
-                          background: '#f1f5f9', color: '#475569', fontSize: 11, fontWeight: 700,
-                          padding: '3px 8px', borderRadius: 6, border: '1px solid #e2e8f0', textTransform: 'capitalize'
-                        }}>
+                      <td>
+                        <span style={{ background: '#f1f3f9', color: '#4b5575', fontSize: 11, fontWeight: 800, padding: '4px 10px', borderRadius: 6, border: '1px solid #e2e6f0', textTransform: 'capitalize' }}>
                           {lead.source?.replace(/_/g, ' ') || 'Direct Unlock'}
                         </span>
                       </td>
-
-                      {/* Status */}
-                      <td style={tdStyle}>
-                        <span style={{
-                          background: statusConf.bg, color: statusConf.color, border: `1px solid ${statusConf.border}`,
-                          fontSize: 11, fontWeight: 800, padding: '3px 10px', borderRadius: 30, display: 'inline-block'
-                        }}>
+                      <td>
+                        <span style={{ background: statusConf.bg, color: statusConf.color, border: `1px solid ${statusConf.border}`, fontSize: 11, fontWeight: 800, padding: '4px 10px', borderRadius: 100, display: 'inline-block' }}>
                           {statusConf.label}
                         </span>
                       </td>
-
-                      {/* Interaction Count */}
-                      <td style={tdStyle}>
-                        <div style={{ fontWeight: 700, color: '#0f172a' }}>
-                          ⚡ {lead.interactionCount || 1} times
+                      <td>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontWeight: 800, color: '#0f1629' }}>
+                          <svg width="12" height="12" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+                          {lead.interactionCount || 1} times
                         </div>
-                        <div style={{ fontSize: 10, color: '#94a3b8', marginTop: 2 }}>
-                          Last: {new Date(lead.lastInteractionAt || lead.updatedAt).toLocaleDateString()}
-                        </div>
+                        <div style={{ fontSize: 11, color: '#9fa6b8', marginTop: 3 }}>Last: {new Date(lead.lastInteractionAt || lead.updatedAt).toLocaleDateString()}</div>
                       </td>
-
-                      {/* Actions */}
-                      <td style={{ ...tdStyle, paddingRight: 24, textAlign: 'right' }} onClick={e => e.stopPropagation()}>
-                        <div style={{ display: 'flex', gap: 6, justifyContent: 'flex-end' }}>
-                          <button 
-                            onClick={() => openLeadDrawer(lead._id)}
-                            style={tblActionBtnStyle('#f1f5f9', '#475569')}
-                          >📁 Edit</button>
-                          <a 
-                            href={`tel:${lead.viewerPhone || lead.phone}`} 
-                            style={tblActionBtnStyle('#eff6ff', '#2563eb', 'inline-block')}
-                          >📞 Call</a>
+                      <td style={{ paddingRight: 24, textAlign: 'right' }} onClick={e => e.stopPropagation()}>
+                        <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
+                          <button onClick={() => openLeadDrawer(lead._id)} className="re-btn re-btn-outline re-btn-sm" style={{ padding: '6px 12px' }}>
+                            Edit
+                          </button>
+                          <a href={`tel:${lead.viewerPhone || lead.phone}`} className="re-btn re-btn-primary re-btn-sm" style={{ padding: '6px 12px', borderRadius: 8 }}>
+                            Call
+                          </a>
                         </div>
                       </td>
                     </tr>
@@ -349,113 +286,76 @@ export default function WorkspaceLeads() {
           </div>
         )}
 
-        {/* Pagination Footer */}
+        {/* Pagination */}
         {leads.length > 0 && (
-          <div style={{
-            background: '#f8fafc', padding: '16px 24px', borderTop: '1px solid #e2e8f0',
-            display: 'flex', justifyContent: 'space-between', alignItems: 'center'
-          }}>
-            <p style={{ fontSize: 12.5, color: '#64748b', fontWeight: 600 }}>
+          <div className="re-pagination">
+            <span className="re-pagination-info">
               Showing {leads.length} of {totalLeads} captured leads
-            </p>
+            </span>
             <div style={{ display: 'flex', gap: 8 }}>
-              <button 
-                disabled={page <= 1} 
-                onClick={() => setPage(p => p - 1)}
-                style={pagiBtnStyle(page <= 1)}
-              >Previous</button>
-              <button 
-                disabled={page >= totalPages} 
-                onClick={() => setPage(p => p + 1)}
-                style={pagiBtnStyle(page >= totalPages)}
-              >Next</button>
+              <button className="re-pagi-btn" disabled={page <= 1} onClick={() => setPage(p => p - 1)}>← Previous</button>
+              <button className="re-pagi-btn" disabled={page >= totalPages} onClick={() => setPage(p => p + 1)}>Next →</button>
             </div>
           </div>
         )}
       </div>
 
       {/* Slide-Out Details Drawer Overlay */}
-      {selectedLeadId && (
-        <div style={{
-          position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
-          background: 'rgba(15,23,42,0.4)', backdropFilter: 'blur(4px)',
-          zIndex: 9999, display: 'flex', justifyContent: 'flex-end',
-          animation: 're-fade-in .2s ease-out'
-        }}
-          onClick={() => setSelectedLeadId(null)}
-        >
-          {/* Drawer Panel */}
-          <div style={{
-            background: '#fff', width: '100%', maxWidth: 500, height: '100%',
-            boxShadow: '-10px 0 40px rgba(0,0,0,0.12)', borderLeft: '1px solid #e2e8f0',
-            display: 'flex', flexDirection: 'column', overflow: 'hidden',
-            animation: 're-drawer-slide .3s cubic-bezier(0.16, 1, 0.3, 1)'
-          }}
-            onClick={e => e.stopPropagation()}
-          >
-            {/* Drawer Header */}
-            <div style={{
-              background: 'linear-gradient(135deg, #0f172a 0%, #1e3a8a 100%)',
-              padding: '24px 28px', color: '#fff', display: 'flex', justifyContent: 'space-between',
-              alignItems: 'center'
-            }}>
+      {selectedLeadId && createPortal(
+        <div className="re-drawer-overlay" onClick={() => setSelectedLeadId(null)}>
+          <div className="re-drawer" onClick={e => e.stopPropagation()}>
+            <div className="re-drawer-header">
               <div>
                 <h3 style={{ fontSize: 18, fontWeight: 900, margin: '0 0 4px', letterSpacing: '-.02em' }}>Lead Details Pipeline</h3>
-                <p style={{ color: '#93c5fd', fontSize: 12.5, margin: 0, fontWeight: 500 }}>Audit details, stages, and customer notes.</p>
+                <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: 13, margin: 0, fontWeight: 500 }}>Audit details, stages, and customer notes.</p>
               </div>
-              <button 
-                onClick={() => setSelectedLeadId(null)}
-                style={{
-                  background: 'rgba(255,255,255,0.1)', border: 'none', width: 34, height: 34,
-                  borderRadius: '50%', color: '#fff', cursor: 'pointer', fontSize: 14,
-                  display: 'flex', alignItems: 'center', justifyContent: 'center'
-                }}
-              >✕</button>
+              <button onClick={() => setSelectedLeadId(null)} style={{ background: 'rgba(255,255,255,0.1)', border: 'none', width: 34, height: 34, borderRadius: '50%', color: '#fff', cursor: 'pointer', fontSize: 14 }}>✕</button>
             </div>
 
-            {/* Drawer Body Scroll */}
-            <div style={{ flex: 1, overflowY: 'auto', padding: 28, display: 'flex', flexDirection: 'column', gap: 24 }}>
+            <div className="re-drawer-body">
               {drawerLoading || !drawerLead ? (
-                <div style={{ padding: '40px 0', textAlign: 'center', color: '#64748b' }}>
-                  <div style={{ width: 28, height: 28, border: '2.5px solid #e2e8f0', borderTopColor: '#2563eb', borderRadius: '50%', animation: 'spin .8s linear infinite', margin: '0 auto 16px' }} />
-                  <p style={{ fontSize: 13, fontWeight: 600 }}>Loading timeline details...</p>
+                <div style={{ padding: '60px 0', textAlign: 'center' }}>
+                  <div className="re-spinner re-spinner-dark" style={{ margin: '0 auto 16px' }} />
+                  <p style={{ fontSize: 13, color: '#9fa6b8', fontWeight: 600 }}>Loading timeline details...</p>
                 </div>
               ) : (
-                <>
-                  {/* Lead Summary Card */}
-                  <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: 16, padding: 18 }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 12 }}>
-                      <h4 style={{ fontSize: 16, fontWeight: 900, color: '#0f172a', margin: 0 }}>{drawerLead.viewerName}</h4>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
+                  {/* Summary Card */}
+                  <div style={{ background: '#f8f9fc', border: '1px solid #e2e6f0', borderRadius: 18, padding: 20 }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 14, gap: 12, flexWrap: 'wrap' }}>
+                      <h4 style={{ fontSize: 18, fontWeight: 900, color: '#0f1629', margin: 0 }}>{drawerLead.viewerName}</h4>
                       <span style={{
                         background: (STATUSES[drawerLead.status?.toUpperCase()] || STATUSES.NEW).bg,
                         color: (STATUSES[drawerLead.status?.toUpperCase()] || STATUSES.NEW).color,
-                        fontSize: 10.5, fontWeight: 800, padding: '2px 8px', borderRadius: 20
+                        border: `1px solid ${(STATUSES[drawerLead.status?.toUpperCase()] || STATUSES.NEW).border}`,
+                        fontSize: 11, fontWeight: 800, padding: '4px 10px', borderRadius: 100
                       }}>{(STATUSES[drawerLead.status?.toUpperCase()] || STATUSES.NEW).label}</span>
                     </div>
 
-                    <p style={{ fontSize: 13, color: '#475569', margin: '0 0 6px' }}><strong>📞 Mobile:</strong> {drawerLead.viewerPhone}</p>
-                    <p style={{ fontSize: 13, color: '#475569', margin: '0 0 14px' }}><strong>✉ Email:</strong> {drawerLead.viewerEmail}</p>
+                    <div style={{ fontSize: 13.5, color: '#4b5575', margin: '0 0 8px', fontWeight: 600, display: 'flex', alignItems: 'center', gap: 8 }}>
+                      <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+                      <strong>Mobile:</strong> {drawerLead.viewerPhone}
+                    </div>
+                    <div style={{ fontSize: 13.5, color: '#4b5575', margin: '0 0 16px', fontWeight: 600, display: 'flex', alignItems: 'center', gap: 8 }}>
+                      <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+                      <strong>Email:</strong> {drawerLead.viewerEmail}
+                    </div>
 
-                    <div style={{ borderTop: '1px solid #e2e8f0', paddingTop: 14 }}>
-                      <p style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', color: '#94a3b8', margin: '0 0 4px' }}>Target Property Listing</p>
-                      <h5 style={{ fontSize: 13.5, fontWeight: 800, color: '#2563eb', margin: 0 }}>{drawerLead.propertyId?.title}</h5>
-                      <p style={{ fontSize: 11.5, color: '#64748b', margin: '2px 0 0' }}>Locality: {drawerLead.propertyId?.locality}, {drawerLead.propertyId?.city}</p>
+                    <div style={{ borderTop: '1px solid #e2e6f0', paddingTop: 16 }}>
+                      <p style={{ fontSize: 10, fontWeight: 800, textTransform: 'uppercase', color: '#9fa6b8', margin: '0 0 6px', letterSpacing: '0.1em' }}>Target Property Listing</p>
+                      <h5 style={{ fontSize: 14, fontWeight: 800, color: '#3b5bdb', margin: '0 0 4px' }}>{drawerLead.propertyId?.title}</h5>
+                      <p style={{ fontSize: 12, color: '#6b7494', margin: 0, fontWeight: 500 }}>Locality: {drawerLead.propertyId?.locality}, {drawerLead.propertyId?.city}</p>
                     </div>
                   </div>
 
                   {/* Status update form */}
-                  <form onSubmit={handleStatusUpdate} style={{ background: '#fff', border: '1px solid #e2e8f0', borderRadius: 16, padding: 18 }}>
-                    <h5 style={{ fontSize: 13, fontWeight: 800, color: '#0f172a', margin: '0 0 12px', textTransform: 'uppercase', letterSpacing: '.04em' }}>Update pipeline Stage</h5>
+                  <form onSubmit={handleStatusUpdate} style={{ background: '#fff', border: '1px solid #e2e6f0', borderRadius: 18, padding: 20 }}>
+                    <h5 style={{ fontSize: 13, fontWeight: 900, color: '#0f1629', margin: '0 0 16px', textTransform: 'uppercase', letterSpacing: '0.04em' }}>Update Pipeline Stage</h5>
                     
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
                       <div>
-                        <label style={{ display: 'block', fontSize: 11, fontWeight: 700, color: '#64748b', marginBottom: 6 }}>Lead Status</label>
-                        <select 
-                          value={statusUpdateVal}
-                          onChange={e => setStatusUpdateVal(e.target.value)}
-                          style={filterInputStyle}
-                          required
-                        >
+                        <label className="re-label">Lead Status</label>
+                        <select value={statusUpdateVal} onChange={e => setStatusUpdateVal(e.target.value)} className="re-select" required>
                           {Object.keys(STATUSES).map(key => (
                             <option key={key} value={key}>{STATUSES[key].label}</option>
                           ))}
@@ -463,129 +363,52 @@ export default function WorkspaceLeads() {
                       </div>
 
                       <div>
-                        <label style={{ display: 'block', fontSize: 11, fontWeight: 700, color: '#64748b', marginBottom: 6 }}>Interaction Notes / Comments</label>
+                        <label className="re-label">Interaction Notes</label>
                         <textarea 
-                          placeholder="e.g. Called lead, scheduled virtual site tour on Saturday."
+                          placeholder="e.g. Called lead, scheduled virtual site tour."
                           value={statusNotes}
                           onChange={e => setStatusNotes(e.target.value)}
-                          style={{
-                            ...filterInputStyle, height: 70, resize: 'none', padding: '10px 12px',
-                            fontFamily: 'Inter, sans-serif'
-                          }}
+                          className="re-input"
+                          style={{ height: 80, resize: 'none' }}
                         />
                       </div>
 
-                      <button 
-                        type="submit"
-                        disabled={submittingStatus}
-                        style={{
-                          background: submittingStatus ? '#93c5fd' : '#2563eb', color: '#fff',
-                          border: 'none', padding: '12px', borderRadius: 10, fontWeight: 700,
-                          fontSize: 13, cursor: submittingStatus ? 'wait' : 'pointer', transition: 'background .15s'
-                        }}
-                      >
-                        {submittingStatus ? 'Updating stage...' : 'Submit pipeline update'}
+                      <button type="submit" disabled={submittingStatus} className="re-btn re-btn-primary re-btn-full" style={{ borderRadius: 12 }}>
+                        {submittingStatus ? 'Updating...' : 'Submit Update'}
                       </button>
                     </div>
                   </form>
 
-                  {/* Activity Log / Timeline */}
+                  {/* Timeline */}
                   <div>
-                    <h5 style={{ fontSize: 13, fontWeight: 800, color: '#0f172a', margin: '0 0 16px', textTransform: 'uppercase', letterSpacing: '.04em' }}>Interaction History</h5>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+                    <h5 style={{ fontSize: 13, fontWeight: 900, color: '#0f1629', margin: '0 0 20px', textTransform: 'uppercase', letterSpacing: '0.04em' }}>Interaction History</h5>
+                    <div className="re-timeline">
                       {drawerLead.activities && drawerLead.activities.length > 0 ? (
                         drawerLead.activities.slice().reverse().map((act, index) => (
-                          <div key={index} style={{ display: 'flex', gap: 12 }}>
+                          <div key={index} className="re-timeline-item">
                             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                              <div style={{
-                                width: 22, height: 22, borderRadius: '50%', background: '#eff6ff', border: '1.5px solid #2563eb',
-                                display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 10, color: '#2563eb', fontWeight: 'bold'
-                              }}>
-                                {drawerLead.activities.length - index}
-                              </div>
-                              {index < drawerLead.activities.length - 1 && (
-                                <div style={{ flex: 1, width: 1.5, background: '#e2e8f0', margin: '6px 0' }} />
-                              )}
+                              <div className="re-timeline-dot">{drawerLead.activities.length - index}</div>
+                              {index < drawerLead.activities.length - 1 && <div className="re-timeline-connector" style={{ flex: 1 }} />}
                             </div>
-                            <div style={{ flex: 1 }}>
-                              <p style={{ fontSize: 13, fontWeight: 700, color: '#334155', margin: 0 }}>{act.message}</p>
-                              <span style={{ fontSize: 11, color: '#94a3b8' }}>
+                            <div style={{ paddingBottom: index < drawerLead.activities.length - 1 ? 20 : 0 }}>
+                              <p style={{ fontSize: 13.5, fontWeight: 700, color: '#0f1629', margin: '0 0 4px', lineHeight: 1.5 }}>{act.message}</p>
+                              <span style={{ fontSize: 11.5, color: '#9fa6b8', fontWeight: 500 }}>
                                 {new Date(act.createdAt).toLocaleString()} • Action by {act.byUser?.name || 'Owner'}
                               </span>
                             </div>
                           </div>
                         ))
                       ) : (
-                        <p style={{ fontSize: 12.5, color: '#94a3b8', margin: 0 }}>No interaction logs recorded.</p>
+                        <p style={{ fontSize: 13, color: '#9fa6b8', margin: 0, fontWeight: 500 }}>No interaction logs recorded yet.</p>
                       )}
                     </div>
                   </div>
-                </>
+                </div>
               )}
             </div>
           </div>
         </div>
-      )}
-
-      {/* Global CSS spinner injection */}
-      <style>{`
-        @keyframes spin { to { transform: rotate(360deg); } }
-        @keyframes re-drawer-slide {
-          from { transform: translateX(100%); }
-          to { transform: translateX(0); }
-        }
-      `}</style>
+      , document.body)}
     </div>
   );
 }
-
-// Inline Styles
-const statsCardStyle = (borderColor) => ({
-  background: '#fff', border: '1px solid #e2e8f0', borderLeft: `5px solid ${borderColor}`,
-  borderRadius: 18, padding: '20px 24px', display: 'flex', justifyContent: 'space-between',
-  alignItems: 'center', boxShadow: '0 4px 12px rgba(15,23,42,0.015)'
-});
-
-const statsTitleStyle = {
-  fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '.06em',
-  color: '#64748b', margin: '0 0 4px'
-};
-
-const statsValueStyle = {
-  fontSize: 28, fontWeight: 900, color: '#0f172a', margin: 0, letterSpacing: '-.03em'
-};
-
-const statsIconStyle = (bgColor, color) => ({
-  width: 44, height: 44, borderRadius: '50%', background: bgColor,
-  display: 'flex', alignItems: 'center', justifyContent: 'center',
-  fontSize: 18, color
-});
-
-const filterInputStyle = {
-  width: '100%', background: '#f8fafc', border: '1.5px solid #e2e8f0',
-  borderRadius: 12, padding: '11px 14px', fontSize: 13, fontWeight: 600,
-  color: '#0f172a', outline: 'none', boxSizing: 'border-box'
-};
-
-const thStyle = {
-  padding: '16px 14px', fontSize: 11, fontWeight: 800, textTransform: 'uppercase',
-  letterSpacing: '.08em', color: '#475569', borderBottom: '1px solid #e2e8f0'
-};
-
-const tdStyle = {
-  padding: '16px 14px', verticalAlign: 'middle'
-};
-
-const tblActionBtnStyle = (bg, color, display = 'flex') => ({
-  background: bg, color, border: 'none', padding: '6px 12px', borderRadius: 8,
-  fontSize: 11.5, fontWeight: 700, cursor: 'pointer', textDecoration: 'none',
-  display, alignItems: 'center', justifyContent: 'center', transition: 'all .15s'
-});
-
-const pagiBtnStyle = (disabled) => ({
-  background: disabled ? '#f1f5f9' : '#fff',
-  color: disabled ? '#94a3b8' : '#334155',
-  border: '1px solid #e2e8f0',
-  padding: '8px 16px', borderRadius: 10, fontSize: 12.5, fontWeight: 700,
-  cursor: disabled ? 'not-allowed' : 'pointer', transition: 'all .15s'
-});

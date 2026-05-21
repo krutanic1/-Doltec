@@ -51,7 +51,7 @@ export const SIDEBAR_ITEMS = [
   { label: 'Leads', path: ROUTES.protected.workspaceLeads, icon: 'inbox', permission: 'lead:view', roles: ['ADMIN', 'SELLER', 'BUILDER', 'AGENT', 'OWNER'] },
   { label: 'Analytics', path: ROUTES.protected.dashboard, icon: 'chart-column', permission: 'analytics:view', roles: ['ADMIN', 'SELLER', 'BUILDER', 'AGENT', 'OWNER'] },
   { label: 'Messages', path: ROUTES.protected.workspace, icon: 'messages-square', permission: 'message:view', roles: ['ADMIN', 'SELLER', 'BUILDER', 'AGENT', 'OWNER'] },
-  { label: 'Workspace', path: ROUTES.protected.workspace, icon: 'layers-3', permission: 'workspace:view', roles: ['ADMIN', 'SELLER', 'BUILDER', 'AGENT', 'OWNER'] },
+  // { label: 'Workspace', path: ROUTES.protected.workspace, icon: 'layers-3', permission: 'workspace:view', roles: ['ADMIN', 'SELLER', 'BUILDER', 'AGENT', 'OWNER'] },
   { label: 'Admin Review', path: ROUTES.protected.admin, icon: 'shield-check', permission: 'property:moderate', roles: ['ADMIN'] },
   { label: 'Settings', path: ROUTES.protected.workspaceSettings, icon: 'settings-2', permission: 'account:manage', roles: ['ADMIN', 'SELLER', 'BUILDER', 'AGENT', 'OWNER'] },
 ];
