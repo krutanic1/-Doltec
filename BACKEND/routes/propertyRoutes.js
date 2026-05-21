@@ -9,6 +9,7 @@ const auth = require('../middleware/auth');
 // @access  Public
 router.get('/', propertyController.getProperties);
 router.get('/cities', propertyController.getCities);
+router.get('/localities', propertyController.getLocalities);
 router.get('/saved', auth, propertyController.getSavedProperties);
 
 // @route   GET api/v1/properties/:slug
