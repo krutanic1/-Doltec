@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { fetchTeamMembers, inviteTeamMember as apiInviteTeamMember, updateTeamMemberStatus } from '../../services/teamApi';
 
 const PLAN_CARDS = [
   { name: 'Starter', price: 'Free',      leads: '10 Leads/mo', slots: '2 Active Slots',        bg: 'rgba(241,245,249,0.5)', color: '#475569', border: 'rgba(226,230,240,0.8)' },
@@ -19,10 +20,24 @@ export default function WorkspaceSettings() {
   });
 
   const [activePlan, setActivePlan] = useState('Starter');
-  const [team, setTeam] = useState([
-    { id: 1, name: 'Ananya Sharma', email: 'ananya@doltec.com', role: 'Agent', status: 'Active' },
-    { id: 2, name: 'Vikram Singh', email: 'vikram@doltec.com', role: 'Agent', status: 'Active' },
-  ]);
+  const [team, setTeam] = useState([]);
+  const [loadingTeam, setLoadingTeam] = useState(true);
+
+  useEffect(() => {
+    loadTeam();
+  }, []);
+
+  const loadTeam = async () => {
+    setLoadingTeam(true);
+    try {
+      const res = await fetchTeamMembers();
+      if (res.success) setTeam(res.team);
+    } catch (err) {
+      console.error('Failed to load team', err);
+    } finally {
+      setLoadingTeam(false);
+    }
+  };
 
   const [inviteEmail, setInviteEmail] = useState('');
   const [inviteRole, setInviteRole] = useState('Agent');
@@ -32,14 +47,28 @@ export default function WorkspaceSettings() {
     alert('Profile settings saved successfully!');
   };
 
-  const handleInvite = (e) => {
+  const handleInvite = async (e) => {
     e.preventDefault();
     if (!inviteEmail) return;
-    const nameFromEmail = inviteEmail.split('@')[0];
-    const cleanName = nameFromEmail.charAt(0).toUpperCase() + nameFromEmail.slice(1);
-    setTeam([...team, { id: Date.now(), name: cleanName, email: inviteEmail, role: inviteRole, status: 'Pending Invite' }]);
-    setInviteEmail('');
-    alert(`Invitation sent successfully to ${inviteEmail}!`);
+    try {
+      await apiInviteTeamMember(inviteEmail, inviteRole);
+      setInviteEmail('');
+      alert(`Invitation sent successfully to ${inviteEmail}!`);
+      loadTeam();
+    } catch (err) {
+      alert(err.response?.data?.message || 'Failed to send invite.');
+    }
+  };
+
+  const handleRevoke = async (id) => {
+    if (window.confirm('Are you sure you want to revoke access for this member?')) {
+        try {
+            await updateTeamMemberStatus(id, 'Revoked');
+            loadTeam();
+        } catch (err) {
+            alert('Failed to revoke access.');
+        }
+    }
   };
 
   return (
@@ -109,12 +138,19 @@ export default function WorkspaceSettings() {
                         <div style={{ fontSize: 12, color: '#6b7494', marginTop: 2, fontWeight: 500 }}>{member.email} · <span style={{ color: '#0f1629', fontWeight: 700 }}>{member.role}</span></div>
                       </div>
                     </div>
-                    <span style={{
-                      padding: '4px 10px', borderRadius: 100, fontSize: 11, fontWeight: 800,
-                      background: member.status === 'Active' ? 'rgba(13,146,118,0.1)' : 'rgba(232,137,12,0.1)',
-                      color: member.status === 'Active' ? '#0d9276' : '#e8890c',
-                      border: member.status === 'Active' ? '1px solid rgba(13,146,118,0.2)' : '1px solid rgba(232,137,12,0.2)',
-                    }}>{member.status}</span>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                      <span style={{
+                        padding: '4px 10px', borderRadius: 100, fontSize: 11, fontWeight: 800,
+                        background: member.status === 'Active' ? 'rgba(13,146,118,0.1)' : 'rgba(232,137,12,0.1)',
+                        color: member.status === 'Active' ? '#0d9276' : '#e8890c',
+                        border: member.status === 'Active' ? '1px solid rgba(13,146,118,0.2)' : '1px solid rgba(232,137,12,0.2)',
+                      }}>{member.status}</span>
+                      {member.status !== 'Revoked' && (
+                        <button onClick={() => handleRevoke(member.id)} style={{
+                            background: 'none', border: 'none', color: '#f03e5e', fontSize: 11, fontWeight: 800, cursor: 'pointer', textDecoration: 'underline'
+                        }}>Revoke</button>
+                      )}
+                    </div>
                   </div>
                 ))}
               </div>

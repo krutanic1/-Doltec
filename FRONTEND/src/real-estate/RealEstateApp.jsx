@@ -22,6 +22,8 @@ import WorkspaceProperties from './pages/Workspace/WorkspaceProperties';
 import WorkspaceLeads from './pages/Workspace/WorkspaceLeads';
 import WorkspaceSettings from './pages/Workspace/WorkspaceSettings';
 import ListingsOverviewPage from './pages/Workspace/ListingsOverviewPage';
+import WorkspaceFeaturedSlots from './pages/Workspace/WorkspaceFeaturedSlots';
+import CampaignAnalytics from './pages/Workspace/CampaignAnalytics';
 import AdminIndex from './pages/Admin/Index';
 
 const protectedShell = (page, route, layoutProps = {}) => (
@@ -132,6 +134,14 @@ export default function RealEstateApp() {
         <Route
           path={toRelativePath(ROUTES.protected.workspaceSettings)}
           element={protectedShell(<WorkspaceSettings />, { permission: 'account:manage', roles: ['ADMIN', 'SELLER', 'BUILDER', 'AGENT', 'OWNER'] }, { title: 'Workspace Settings', subtitle: 'Manage your profile, team members, subscription plan, and billing tiers.' })}
+        />
+        <Route
+          path={toRelativePath(ROUTES.protected.workspaceFeaturedSlots)}
+          element={protectedShell(<WorkspaceFeaturedSlots />, { permission: 'property:list', roles: ['ADMIN', 'SELLER', 'BUILDER', 'AGENT', 'OWNER'] }, { title: 'Featured Slots', subtitle: 'Manage active featured slots.' })}
+        />
+        <Route
+          path={toRelativePath(ROUTES.protected.campaignAnalytics)}
+          element={protectedShell(<CampaignAnalytics />, { permission: 'analytics:view', roles: ['ADMIN', 'SELLER', 'BUILDER', 'AGENT', 'OWNER'] }, { title: 'Campaign Analytics', subtitle: 'Track your property marketing performance.' })}
         />
         <Route
           path={toRelativePath(ROUTES.protected.admin)}

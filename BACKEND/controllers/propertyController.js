@@ -4,6 +4,7 @@ const User = require('../models/User');
 const Organization = require('../models/Organization');
 const ListingUpgradeHistory = require('../models/ListingUpgradeHistory');
 const CreditTransaction = require('../models/CreditTransaction');
+const PropertyView = require('../models/PropertyView');
 const slugify = require('slugify');
 const cloudinary = require("../middleware/cloudinary");
 
@@ -202,6 +203,9 @@ exports.getProperties = async (req, res) => {
         limit,
         pages: Math.ceil(total / limit)
       });
+    } else if (req.query.limit) {
+      const limit = parseInt(req.query.limit) || 10;
+      return res.json(properties.slice(0, limit));
     }
 
     res.json(properties);
@@ -414,12 +418,48 @@ exports.updateProperty = async (req, res) => {
 
 
 exports.getPropertyBySlug = async (req, res) => {
-
   try {
     const property = await Property.findOne({ slug: req.params.slug }).populate('poster', 'name email phone');
     if (!property) return res.status(404).json({ msg: 'Property not found' });
+
+    // Smart unique view tracking
+    const userId = getActorId(req) || null;
+    const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress || null;
+    const userAgent = req.headers['user-agent'] || '';
+    const fingerprint = req.headers['x-device-id'] || ip;
+
+    let isUniqueView = false;
+    
+    if (userId) {
+        // Enforce 1 view per registered user across all time, regardless of IP/device
+        const existingView = await PropertyView.findOne({ propertyId: property._id, userId });
+        if (!existingView) isUniqueView = true;
+    } else {
+        // For anonymous, use IP or Fingerprint
+        const existingView = await PropertyView.findOne({ propertyId: property._id, $or: [{ ip }, { fingerprint }] });
+        if (!existingView) isUniqueView = true;
+    }
+
+    if (isUniqueView) {
+        try {
+            await PropertyView.create({
+                propertyId: property._id,
+                userId,
+                ip,
+                userAgent,
+                fingerprint
+            });
+            // Atomically increment the actual property stats
+            property.metrics.views = (property.metrics.views || 0) + 1;
+            await property.save();
+        } catch (viewErr) {
+            // Safely ignore duplicate key insertion constraints from concurrent rapid requests
+        }
+    }
+
     res.json(property);
   } catch (err) {
+    console.error('getPropertyBySlug Error:', err);
     res.status(500).send('Server error');
   }
 };

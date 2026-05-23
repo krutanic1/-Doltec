@@ -280,6 +280,9 @@ app.use('/api/v1/leads', require('./routes/leadRoutes'));
 app.use('/api/v1/inquiries', require('./routes/inquiryRoutes'));
 app.use('/api/v1/listings', require('./routes/listingRoutes'));
 app.use('/api/v1/owner', require('./routes/ownerRoutes'));
+app.use('/api/v1/team', require('./routes/teamRoutes'));
+app.use('/api/v1/bookings', require('./routes/bookingRoutes'));
+app.use('/api/v1/campaigns', require('./routes/campaignRoutes'));
 
 // 404 + error handler should be the last middleware
 app.use(notFound);

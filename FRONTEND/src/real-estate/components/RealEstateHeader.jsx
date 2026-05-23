@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import headerLogo from '../../assets/headerlogo.png';
+import headerLogo from '../../assets/coni.jpg';
 
 const NAV = [
   { label: 'Buy',          to: '/real-estate/properties?intent=BUY' },

@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 
 const FeaturedBookingSchema = new mongoose.Schema({
-  orgId: { type: mongoose.Schema.Types.ObjectId, ref: 'Organization', required: true, index: true },
+  orgId: { type: mongoose.Schema.Types.ObjectId, ref: 'Organization', default: null, index: true },
   propertyId: { type: mongoose.Schema.Types.ObjectId, ref: 'Property', required: true, index: true },
   packageAssignmentId: { type: mongoose.Schema.Types.ObjectId, ref: 'PropertyPackageAssignment', default: null, index: true },
   slotType: { type: String, default: 'featured', index: true },

@@ -3,6 +3,7 @@ import { NavLink, useNavigate } from 'react-router-dom';
 import { SIDEBAR_ITEMS } from '../../config/navigation';
 import { getUserRole, hasPermission, getStoredUser } from '../../utils/access';
 import '../../re.css';
+import logoImg from '../../../assets/coni.jpg';
 
 const ICONS = {
   'layout-dashboard': 'M4 4h7v7H4V4Zm9 0h7v4h-7V4ZM4 13h7v7H4v-7Zm9 5v-5h7v5h-7Z',
@@ -63,14 +64,11 @@ export default function Sidebar() {
       {/* Brand section */}
       <div style={{ padding: '22px 20px 14px', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 18 }}>
-          <div style={{
-            width: 38, height: 38, borderRadius: 12,
-            background: 'linear-gradient(135deg, #3b5bdb, #2537a0)',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            color: '#fff', fontWeight: 900, fontSize: 16,
-            boxShadow: '0 4px 16px rgba(59,91,219,0.4)',
+          <img src={logoImg} alt="Doltec" style={{
+            width: 38, height: 38, borderRadius: 12, objectFit: 'cover',
+            boxShadow: '0 4px 16px rgba(0,0,0,0.4)',
             flexShrink: 0,
-          }}>D</div>
+          }} />
           <div>
             <div style={{ fontSize: 14, fontWeight: 900, color: '#fff', letterSpacing: '-0.02em' }}>Doltec Estates</div>
             <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.35)', textTransform: 'uppercase', letterSpacing: '0.16em', marginTop: 1 }}>{role.toLowerCase()} workspace</div>

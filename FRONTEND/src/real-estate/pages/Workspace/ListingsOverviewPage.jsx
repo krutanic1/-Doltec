@@ -8,6 +8,7 @@ import {
   bulkActionListings,
   fetchListingStats
 } from '../../services/listingsApi';
+import { createFeaturedBooking } from '../../services/bookingApi';
 
 const TIER_CFG = {
   PLAIN:    { label: 'Basic',    color: '#6b7494', bg: 'rgba(107,116,148,0.1)', border: 'rgba(107,116,148,0.2)', dot: '#9fa6b8' },
@@ -108,6 +109,17 @@ export default function ListingsOverviewPage() {
   };
   const handleTierUpgrade = async (id, targetTier) => {
     try { await upgradeListingTier(id, targetTier); await loadData(); setUpgradeModal({ open: false, listingId: null, currentTier: 'PLAIN', title: '' }); } catch (err) { alert(err?.response?.data?.message || err.message); }
+  };
+  const handleFeatureSlot = async (id, title) => {
+    if (window.confirm(`Book a Featured Slot (30 Days) for "${title}"?`)) {
+      try {
+        await createFeaturedBooking(id, 'homepage');
+        alert('Featured slot booked successfully! Your listing will be highlighted.');
+        loadData();
+      } catch (err) {
+        alert(err.response?.data?.message || 'Failed to book featured slot.');
+      }
+    }
   };
   const handleSoftDelete = async (id) => {
     if (window.confirm('Archive this property? It will be soft deleted from active listings.')) {
@@ -376,6 +388,20 @@ export default function ListingsOverviewPage() {
                             onMouseOut={e => { e.currentTarget.style.background = 'rgba(59,91,219,0.06)'; }}
                           >Upgrade</button>
 
+                          <button
+                            onClick={() => handleFeatureSlot(item._id, item.title)}
+                            style={{
+                              padding: '6px 14px',
+                              border: '1.5px solid rgba(250,162,25,0.2)',
+                              borderRadius: 8, background: 'rgba(250,162,25,0.06)',
+                              color: '#c47011', fontSize: 12, fontWeight: 700, cursor: 'pointer',
+                              transition: 'all 0.15s ease',
+                              fontFamily: 'inherit',
+                            }}
+                            onMouseOver={e => { e.currentTarget.style.background = 'rgba(250,162,25,0.12)'; }}
+                            onMouseOut={e => { e.currentTarget.style.background = 'rgba(250,162,25,0.06)'; }}
+                          >Feature</button>
+
                           <div style={{ position: 'relative' }}>
                             <button
                               onClick={() => setMenuOpenId(menuOpenId === item._id ? null : item._id)}
@@ -393,27 +419,27 @@ export default function ListingsOverviewPage() {
                             {menuOpenId === item._id && (
                               <div style={{
                                 position: 'absolute', right: 0, top: 38,
-                                background: '#fff',
-                                border: '1px solid rgba(226,230,240,0.9)',
-                                borderRadius: 14,
-                                boxShadow: '0 16px 40px rgba(11,15,26,0.14)',
-                                zIndex: 100, minWidth: 150,
+                                background: '#0f1629',
+                                border: '1px solid rgba(255,255,255,0.1)',
+                                borderRadius: 12,
+                                boxShadow: '0 16px 40px rgba(11,15,26,0.4)',
+                                zIndex: 9999, minWidth: 160,
                                 overflow: 'hidden',
-                                animation: 'slideUp 0.18s ease',
+                                animation: 'slideUp 0.15s ease',
                               }}>
                                 {[
-                                  { label: 'Set Active', action: () => { handleStatusChange(item._id, 'ACTIVE'); setMenuOpenId(null); }, color: '#0d9276' },
-                                  { label: 'Pause',     action: () => { handleStatusChange(item._id, 'PAUSED'); setMenuOpenId(null); }, color: '#e8890c' },
-                                  { label: 'Archive',   action: () => { handleSoftDelete(item._id); setMenuOpenId(null); }, color: '#f03e5e' },
-                                ].map(a => (
+                                  { label: 'Set Active', action: () => { handleStatusChange(item._id, 'ACTIVE'); setMenuOpenId(null); }, color: '#20c997' },
+                                  { label: 'Pause',     action: () => { handleStatusChange(item._id, 'PAUSED'); setMenuOpenId(null); }, color: '#fbbf5e' },
+                                  { label: 'Archive',   action: () => { handleSoftDelete(item._id); setMenuOpenId(null); }, color: '#ff8787' },
+                                ].map((a, idx) => (
                                   <button key={a.label} onClick={a.action} style={{
-                                    display: 'block', width: '100%', padding: '11px 16px',
-                                    background: 'none', border: 'none', textAlign: 'left',
+                                    display: 'block', width: '100%', padding: '12px 18px',
+                                    background: 'none', border: 'none', borderBottom: idx < 2 ? '1px solid rgba(255,255,255,0.06)' : 'none', textAlign: 'left',
                                     fontSize: 13, cursor: 'pointer', color: a.color,
                                     fontWeight: 700, transition: 'background 0.12s ease',
-                                    fontFamily: 'inherit',
+                                    fontFamily: 'inherit', letterSpacing: '0.02em'
                                   }}
-                                    onMouseOver={e => e.currentTarget.style.background = 'rgba(0,0,0,0.03)'}
+                                    onMouseOver={e => e.currentTarget.style.background = 'rgba(255,255,255,0.06)'}
                                     onMouseOut={e => e.currentTarget.style.background = 'none'}
                                   >{a.label}</button>
                                 ))}

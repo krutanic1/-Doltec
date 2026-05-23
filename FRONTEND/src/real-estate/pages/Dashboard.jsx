@@ -39,8 +39,8 @@ export default function Dashboard() {
       });
   }, [navigate, logout]);
 
-  const totalViews = items.reduce((acc, i) => acc + (i.views || 0), 0);
-  const totalLeads = items.reduce((acc, i) => acc + (i.leads?.length || i.leadsCount || 0), 0);
+  const totalViews = items.reduce((acc, i) => acc + (i.metrics?.views || 0), 0);
+  const totalLeads = items.reduce((acc, i) => acc + (i.leads?.length || i.leadsCount || i.metrics?.leads || 0), 0);
 
   const statValues = {
     active:  items.filter(i => i.status === 'APPROVED').length,

@@ -5,6 +5,7 @@
 import React, { useState, useEffect } from 'react';
 import { Outlet, Link, useNavigate, useLocation } from 'react-router-dom';
 import '../re.css';
+import logoImg from '../../assets/coni.jpg';
 
 const NAV_LINKS = [
   ['Buy',        '/real-estate?type=buy'],
@@ -62,13 +63,10 @@ function REHeader() {
       <div className="re-header-inner">
         {/* Logo */}
         <Link to="/real-estate" className="re-logo">
-          <div style={{
-            width: 34, height: 34, borderRadius: 10,
-            background: 'linear-gradient(135deg, #3b5bdb, #2537a0)',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            fontSize: 16, fontWeight: 900, color: '#fff',
-            boxShadow: '0 4px 12px rgba(59,91,219,0.4)',
-          }}>D</div>
+          <img src={logoImg} alt="Doltec" style={{
+            width: 34, height: 34, borderRadius: 10, objectFit: 'cover',
+            boxShadow: '0 4px 12px rgba(0,0,0,0.4)',
+          }} />
           <span className="re-logo-text">Doltec</span>
           <span className="re-logo-badge">Estates</span>
         </Link>
@@ -196,12 +194,9 @@ function REFooter() {
           {/* Brand */}
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16 }}>
-              <div style={{
-                width: 36, height: 36, borderRadius: 10,
-                background: 'linear-gradient(135deg, #3b5bdb, #2537a0)',
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                fontSize: 17, fontWeight: 900, color: '#fff',
-              }}>D</div>
+              <img src={logoImg} alt="Doltec" style={{
+                width: 36, height: 36, borderRadius: 10, objectFit: 'cover',
+              }} />
               <span className="re-footer-logo-text">Doltec Estates</span>
             </div>
             <p style={{ fontSize: 13, lineHeight: 1.85, color: 'rgba(255,255,255,0.45)', maxWidth: 220 }}>

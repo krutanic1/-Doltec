@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 
 const CampaignSchema = new mongoose.Schema({
-  orgId: { type: mongoose.Schema.Types.ObjectId, ref: 'Organization', required: true, index: true },
+  orgId: { type: mongoose.Schema.Types.ObjectId, ref: 'Organization', default: null, index: true },
   name: { type: String, required: true, index: true },
   type: { type: String, enum: ['organic', 'paid', 'featured', 'retargeting'], default: 'organic', index: true },
   status: { type: String, enum: ['draft', 'active', 'paused', 'completed', 'archived'], default: 'draft', index: true },

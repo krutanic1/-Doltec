@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import headerLogo from '../../assets/headerlogo.png';
+import headerLogo from '../../assets/coni.jpg';
 
 
 const COLUMNS = [
