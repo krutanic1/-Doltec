@@ -32,7 +32,7 @@ export default function Feature() {
     setLoading(true);
     setError('');
     try {
-      const res = await fetchFeaturedBookings({}, getAdminAuthConfig());
+      const res = await fetchFeaturedBookings({ status: 'pending' }, getAdminAuthConfig());
       setRequests(res.bookings || []);
     } catch (err) {
       setError(err?.response?.data?.message || err.message || 'Failed to load feature requests.');
@@ -84,8 +84,8 @@ export default function Feature() {
     <section style={{ maxWidth: 1180, margin: '80px auto', padding: '0 24px' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', gap: 16, flexWrap: 'wrap', alignItems: 'flex-start', marginBottom: 28 }}>
         <div>
-          <h1 style={{ fontSize: 34, fontWeight: 900, color: '#0f172a', margin: 0, letterSpacing: '-0.03em' }}>Feature Requests</h1>
-          <p style={{ color: '#64748b', fontSize: 14, fontWeight: 500, marginTop: 8 }}>Approve or reject listing feature requests before they go live.</p>
+          <h1 style={{ fontSize: 34, fontWeight: 900, color: '#0f172a', margin: 0, letterSpacing: '-0.03em' }}>Pending Feature Requests</h1>
+          <p style={{ color: '#64748b', fontSize: 14, fontWeight: 500, marginTop: 8 }}>Review only pending listing feature requests before they go live.</p>
         </div>
 
         <button
