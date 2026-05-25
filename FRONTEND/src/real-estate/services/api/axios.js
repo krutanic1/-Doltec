@@ -21,7 +21,11 @@ function processQueue(error, token = null) {
 instance.interceptors.request.use((config) => {
   const state = createAuthStore.getState();
   const token = state?.accessToken || localStorage.getItem('token') || Cookies.get('adminToken');
-  if (token) config.headers.Authorization = `Bearer ${token}`;
+  // Respect an explicit Authorization header passed per-request (e.g., admin pages)
+  if (!config.headers) config.headers = {};
+  if (!config.headers.Authorization && token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
   return config;
 });
 
