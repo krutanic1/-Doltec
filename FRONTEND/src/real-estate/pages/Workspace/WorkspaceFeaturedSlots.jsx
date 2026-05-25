@@ -25,21 +25,21 @@ export default function WorkspaceFeaturedSlots() {
     <div className="re-fade-in">
       <div style={{ marginBottom: 24 }}>
         <div className="re-eyebrow">Marketing & Promotions</div>
-        <h1 className="re-page-title">Featured Slot Bookings</h1>
-        <p className="re-page-subtitle">View and manage your currently active premium featured slots.</p>
+        <h1 className="re-page-title">Feature Requests</h1>
+        <p className="re-page-subtitle">Review pending feature submissions and track approved or rejected requests.</p>
       </div>
 
       <div className="re-panel">
         {loading ? (
           <div style={{ padding: '60px 24px', textAlign: 'center' }}>
             <div className="re-spinner re-spinner-dark" style={{ margin: '0 auto 16px' }} />
-            <p style={{ color: '#9fa6b8', fontSize: 14, fontWeight: 600 }}>Loading active slots…</p>
+            <p style={{ color: '#9fa6b8', fontSize: 14, fontWeight: 600 }}>Loading requests…</p>
           </div>
         ) : bookings.length === 0 ? (
           <div className="re-empty">
-            <h3 style={{ fontSize: 18, fontWeight: 800, color: '#0f1629', margin: '0 0 8px' }}>No Active Featured Slots</h3>
-            <p style={{ margin: '0 0 24px', color: '#9fa6b8', fontSize: 14 }}>You haven't promoted any listings yet.</p>
-            <Link to="/real-estate/workspace/listings/all" className="re-btn re-btn-primary">Go to Listings to Promote</Link>
+            <h3 style={{ fontSize: 18, fontWeight: 800, color: '#0f1629', margin: '0 0 8px' }}>No Feature Requests Yet</h3>
+            <p style={{ margin: '0 0 24px', color: '#9fa6b8', fontSize: 14 }}>Submit a listing for feature review and it will appear here.</p>
+            <Link to="/real-estate/workspace/listings/all" className="re-btn re-btn-primary">Go to Listings to Request Feature</Link>
           </div>
         ) : (
           <div className="re-table-wrap">
@@ -73,7 +73,7 @@ export default function WorkspaceFeaturedSlots() {
                     <td style={{ color: '#6b7494', fontSize: 13 }}>{new Date(b.startAt).toLocaleDateString()}</td>
                     <td style={{ color: '#6b7494', fontSize: 13 }}>{new Date(b.endAt).toLocaleDateString()}</td>
                     <td>
-                      <span className={`re-badge re-status-${b.status === 'active' ? 'active' : 'draft'}`}>{b.status}</span>
+                      <span className={`re-badge re-status-${b.status === 'active' ? 'active' : b.status === 'pending' ? 'pending' : 'rejected'}`}>{b.status}</span>
                     </td>
                   </tr>
                 ))}

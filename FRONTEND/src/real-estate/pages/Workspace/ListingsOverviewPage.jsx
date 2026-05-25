@@ -111,13 +111,13 @@ export default function ListingsOverviewPage() {
     try { await upgradeListingTier(id, targetTier); await loadData(); setUpgradeModal({ open: false, listingId: null, currentTier: 'PLAIN', title: '' }); } catch (err) { alert(err?.response?.data?.message || err.message); }
   };
   const handleFeatureSlot = async (id, title) => {
-    if (window.confirm(`Book a Featured Slot (30 Days) for "${title}"?`)) {
+    if (window.confirm(`Submit "${title}" for feature approval?`)) {
       try {
         await createFeaturedBooking(id, 'homepage');
-        alert('Featured slot booked successfully! Your listing will be highlighted.');
+        alert('Feature request submitted successfully. It will go live after admin approval.');
         loadData();
       } catch (err) {
-        alert(err.response?.data?.message || 'Failed to book featured slot.');
+        alert(err.response?.data?.message || 'Failed to submit feature request.');
       }
     }
   };

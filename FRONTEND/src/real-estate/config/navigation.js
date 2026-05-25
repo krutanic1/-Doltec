@@ -55,7 +55,7 @@ export const SIDEBAR_ITEMS = [
   { label: 'Messages', path: ROUTES.protected.workspace, icon: 'messages-square', permission: 'message:view', roles: ['ADMIN', 'SELLER', 'BUILDER', 'AGENT', 'OWNER'] },
   // { label: 'Workspace', path: ROUTES.protected.workspace, icon: 'layers-3', permission: 'workspace:view', roles: ['ADMIN', 'SELLER', 'BUILDER', 'AGENT', 'OWNER'] },
   { label: 'Admin Review', path: ROUTES.protected.admin, icon: 'shield-check', permission: 'property:moderate', roles: ['ADMIN'] },
-  { label: 'Featured Slots', path: ROUTES.protected.workspaceFeaturedSlots, icon: 'star', permission: 'property:list', roles: ['ADMIN', 'SELLER', 'BUILDER', 'AGENT', 'OWNER'] },
+  { label: 'Feature Requests', path: ROUTES.protected.workspaceFeaturedSlots, icon: 'star', permission: 'property:list', roles: ['ADMIN', 'SELLER', 'BUILDER', 'AGENT', 'OWNER'] },
   { label: 'Campaign Analytics', path: ROUTES.protected.campaignAnalytics, icon: 'chart-pie', permission: 'analytics:view', roles: ['ADMIN', 'SELLER', 'BUILDER', 'AGENT', 'OWNER'] },
   { label: 'Settings', path: ROUTES.protected.workspaceSettings, icon: 'settings-2', permission: 'account:manage', roles: ['ADMIN', 'SELLER', 'BUILDER', 'AGENT', 'OWNER'] },
 ];

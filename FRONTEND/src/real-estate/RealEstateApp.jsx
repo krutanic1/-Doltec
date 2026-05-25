@@ -137,7 +137,7 @@ export default function RealEstateApp() {
         />
         <Route
           path={toRelativePath(ROUTES.protected.workspaceFeaturedSlots)}
-          element={protectedShell(<WorkspaceFeaturedSlots />, { permission: 'property:list', roles: ['ADMIN', 'SELLER', 'BUILDER', 'AGENT', 'OWNER'] }, { title: 'Featured Slots', subtitle: 'Manage active featured slots.' })}
+          element={protectedShell(<WorkspaceFeaturedSlots />, { permission: 'property:list', roles: ['ADMIN', 'SELLER', 'BUILDER', 'AGENT', 'OWNER'] }, { title: 'Feature Requests', subtitle: 'Track submitted feature requests and their review status.' })}
         />
         <Route
           path={toRelativePath(ROUTES.protected.campaignAnalytics)}
