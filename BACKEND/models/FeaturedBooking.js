@@ -8,14 +8,17 @@ const FeaturedBookingSchema = new mongoose.Schema({
   startAt: { type: Date, required: true, index: true },
   endAt: { type: Date, required: true, index: true },
   placement: { type: String, default: 'homepage' },
-  status: { type: String, enum: ['booked', 'active', 'completed', 'cancelled'], default: 'booked', index: true },
+  status: { type: String, enum: ['pending', 'booked', 'active', 'completed', 'cancelled', 'rejected'], default: 'pending', index: true },
   bookedByUserId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null },
   campaignId: { type: mongoose.Schema.Types.ObjectId, ref: 'Campaign', default: null, index: true },
   costSnapshot: { type: mongoose.Schema.Types.Mixed, default: {} },
   createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null },
   updatedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null },
+  approvedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null },
+  approvedAt: { type: Date, default: null },
   cancelledAt: { type: Date, default: null, index: true },
   cancelledBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null },
+  reviewNote: { type: String, default: '' },
 }, { timestamps: true });
 
 FeaturedBookingSchema.index({ orgId: 1, status: 1, startAt: -1 });

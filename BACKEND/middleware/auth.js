@@ -17,7 +17,14 @@ module.exports = function (req, res, next) {
   try {
     const decoded = jwt.verify(token, process.env.JWT_ACCESS_SECRET || process.env.JWT_SECRET);
     console.log('[DEBUG AUTH] decoded token:', JSON.stringify(decoded));
-    req.user = decoded.user || decoded;
+    if (decoded?.user && typeof decoded.user === 'object') {
+      req.user = { ...decoded.user, role: decoded.user.role || decoded.role || decoded.posterType };
+    } else {
+      req.user = decoded;
+    }
+    if (decoded?.role && !req.role) {
+      req.role = decoded.role;
+    }
     next();
   } catch (err) {
     console.error('[DEBUG AUTH] jwt verification error:', err.message);

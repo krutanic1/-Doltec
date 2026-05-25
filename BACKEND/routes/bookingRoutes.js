@@ -9,5 +9,7 @@ const workspaceRoles = ['super_admin', 'agency_owner', 'manager', 'agent', 'supp
 
 router.get('/', auth, rbac({ roles: workspaceRoles }), bookingController.getFeaturedBookings);
 router.post('/book', auth, rbac({ roles: workspaceRoles }), bookingController.createFeaturedBooking);
+router.patch('/:id/approve', auth, rbac({ roles: ['ADMIN'] }), bookingController.approveFeaturedBooking);
+router.patch('/:id/reject', auth, rbac({ roles: ['ADMIN'] }), bookingController.rejectFeaturedBooking);
 
 module.exports = router;
