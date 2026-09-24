@@ -65,6 +65,7 @@ import UserManagement from './Admin/UserManagement';
 import CompanyOnboardList from './Admin/CompanyOnboardList';
 import ContactUsResponse from './Admin/ContactUsResponse';
 import Dashboard from './Admin/Dashboard';
+import Feature from './Admin/Feature';
 import ManageThoughts from './Admin/ManageThoughts';
 import UpdateLandingPage from './Admin/UpdateLandingPage';
 
@@ -169,6 +170,7 @@ const AppContent = () => {
     "/contactusresponse",
     "/companyonboardlist",
     "/adminrealestate",
+    "/feature",
 
   ];
   const hrHeader = [
@@ -316,6 +318,7 @@ const AppContent = () => {
           <Route path="/CompanyOnboardList" element={<AdminPrivateRoute><CompanyOnboardList/></AdminPrivateRoute>}/>
           <Route path="/ContactUsResponse" element={<AdminPrivateRoute><ContactUsResponse/></AdminPrivateRoute>}/>
           <Route path="/AdminRealEstate" element={<AdminPrivateRoute><AdminRealEstate/></AdminPrivateRoute>}/>
+          <Route path="/Feature" element={<AdminPrivateRoute><Feature/></AdminPrivateRoute>}/>
 
             {/* community */}
           <Route path="/CommunitySignup" element={<CommunitySignup/>} />
