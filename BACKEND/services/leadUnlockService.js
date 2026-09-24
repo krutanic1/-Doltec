@@ -32,13 +32,13 @@ class LeadUnlockService {
     }
 
     const owner = property.poster;
-    if (!owner) {
+    if (!owner && !property.isAdminPost) {
       const err = new Error('This property has no assigned owner or agent');
       err.statusCode = 400;
       throw err;
     }
 
-    const orgId = property.orgId || owner.orgId || null;
+    const orgId = property.orgId || (owner ? owner.orgId : null) || null;
 
     // 2. Prevent duplicate lead / Update existing lead
     let lead = await Lead.findOne({ propertyId, viewerUserId });
@@ -66,7 +66,8 @@ class LeadUnlockService {
       lead = await Lead.create({
         orgId,
         propertyId,
-        ownerId: owner._id,
+        ownerId: owner ? owner._id : null,
+        isAdminLead: !!property.isAdminPost,
         userId: viewerUserId, // backward compatibility
         viewerUserId,
         viewerName,

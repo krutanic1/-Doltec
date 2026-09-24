@@ -14,24 +14,24 @@ const Landingpage = () => {
     <div id="landingpage">
       <Hero />
       <HowItWorks />
-      <FeaturedRoles/>
-      <PlatformFeatures/>
-      <SuccessStories/>
-      <Resources/>
-      <CommunitySection/>
+      <FeaturedRoles />
+      <PlatformFeatures />
+      <SuccessStories />
+      <Resources />
+      <CommunitySection />
       {/* <DualCtaFooter/> */}
-    
+
 
       {/* Footer */}
       <div className="recrutment__footer">
-       <div className="whatsappicon">
-        <a
-          href="https://api.whatsapp.com/send?phone=918310626647&text=Hello%2C%20I%20would%20like%20to%20know%20more%20about%20Doltec%20%F0%9F%91%8B"
-          target="_blank"
-        >
-          <i className="fa fa-whatsapp"></i>
-        </a>
-      </div>
+        <div className="whatsappicon">
+          <a
+            href="https://api.whatsapp.com/send?phone=919324504318&text=Hello%2C%20I%20would%20like%20to%20know%20more%20about%20Doltec%20%F0%9F%91%8B"
+            target="_blank"
+          >
+            <i className="fa fa-whatsapp"></i>
+          </a>
+        </div>
         <div className="recruitment__footer__container">
           <div className="footer__heading">
             <svg
@@ -157,9 +157,9 @@ const Landingpage = () => {
               <li>
                 <Link to="Services">Services</Link>
               </li>
-               <li>
+              <li>
                 <Link to="community">Community</Link>
-               </li>
+              </li>
               <li>
                 <Link to="Overview">Overview</Link>
               </li>
@@ -175,13 +175,13 @@ const Landingpage = () => {
               <li>
                 <Link to="privacypolicy">Privacy Policy</Link>
               </li>
-               <li>
+              <li>
                 <Link to="About">About</Link>
               </li>
               <li>
                 <Link to="ContactUs">Contact Us</Link>
               </li>
-             
+
             </ul>
           </div>
         </div>

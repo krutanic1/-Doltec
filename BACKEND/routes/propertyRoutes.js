@@ -4,10 +4,13 @@ const propertyController = require('../controllers/propertyController');
 const leadUnlockController = require('../controllers/leadUnlockController');
 const auth = require('../middleware/auth');
 
+const adminAuth = require('../middleware/adminAuth');
+
 // @route   GET api/v1/properties
 // @desc    Get all properties (with filters)
 // @access  Public
 router.get('/', propertyController.getProperties);
+router.get('/admin', adminAuth, propertyController.getProperties);
 router.get('/cities', propertyController.getCities);
 router.get('/localities', propertyController.getLocalities);
 router.get('/saved', auth, propertyController.getSavedProperties);
@@ -25,7 +28,7 @@ router.delete('/:id/save', auth, propertyController.unsaveProperty);
 // @desc    Create a new property
 // @access  Private
 router.post('/', auth, propertyController.createProperty);
-router.patch('/:id/moderate', auth, propertyController.moderateProperty);
+router.patch('/:id/moderate', adminAuth, propertyController.moderateProperty);
 
 // Unlock Contact details for property (requires auth)
 router.post('/:propertyId/unlock-contact', auth, leadUnlockController.unlockContact);

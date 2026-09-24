@@ -6,7 +6,8 @@ const LeadSchema = new Schema({
   propertyId: { type: Schema.Types.ObjectId, ref: 'Property', required: true, index: true },
   
   // Owner of the property
-  ownerId: { type: Schema.Types.ObjectId, ref: 'User', required: true, index: true },
+  ownerId: { type: Schema.Types.ObjectId, ref: 'User', required: false, index: true },
+  isAdminLead: { type: Boolean, default: false },
   
   // Viewer/User details
   userId: { type: Schema.Types.ObjectId, ref: 'User', default: null }, // for backward compatibility

@@ -1,153 +1,94 @@
-import suryansh from "../assets/dev/suryanshsaxena.jpg";
-import danish from "../assets/dev/danish.jpg";
-import affan from "../assets/dev/affan.jpg";
-import aryan from "../assets/dev/aryan.png"
+import React from 'react';
+import '../Style/AboutNew.css';
+
 
 const About = () => {
   return (
-    <div id="about">
-      {/* Hero */}
-      <section className="about__hero">
-        <div className="about__content">
-          <h2>Powering the Future of Hiring</h2>
-          <p>
-            “At Doltec, we believe hiring should be intelligent, inclusive, and
-            instant. We're building the next-gen recruitment platform where
-            talent meets opportunity—seamlessly, efficiently, and at scale.”
-          </p>
-          {/* <button>Explore Our Platform</button> */}
-        </div>
-      </section>
+    <div className="about-wrapper">
 
-      {/* mission*/}
-      <section className="mission__statement">
-        <h2>Empowering Hiring Ecosystems</h2>
-        <p>
-          Our mission is to reimagine recruitment through technology,
-          transparency, and trust. We aim to simplify the hiring lifecycle for
-          both organizations and applicants, fostering meaningful connections
-          that drive careers and fuel business growth.
-        </p>
-      </section>
-
-      {/* vission*/}
-      <section className="vission__statement">
-        <h2>A Talent-Centric Tomorrow</h2>
-        <div className="vission__qoute">
+      {/* HERO SECTION */}
+      <section className="about-hero">
+        <div className="about-hero-overlay"></div>
+        <div className="about-hero-content">
+          <h1>Powering the Future of Work & Spaces</h1>
           <p>
-            "To bridge the gap between education and employment by empowering
-            students and recruiters with intelligent tools and equal access."
+            At Doltec, we believe hiring and acquiring should be intelligent, inclusive, and instant. We are building the next-generation platform where elite talent meets opportunity and real estate meets innovation—seamlessly and at scale.
           </p>
         </div>
       </section>
 
-      {/* Our story */}
-      <section className="our__story">
-        <h2>Built to Solve Real Hiring Challenges</h2>
-        <p>
-          Born out of frustration with traditional hiring processes, Doltec was
-          founded by industry veterans and technologists who saw the need for a
-          single, intelligent recruitment platform. From day one, we’ve focused
-          on removing friction and maximizing visibility for every stakeholder
-          in the hiring chain.
-        </p>
+      {/* MISSION & VISION */}
+      <section className="about-mission-vision">
+        <div className="about-mv-grid">
+          
+          <div className="about-mv-card">
+            <div className="about-mv-icon">
+              <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+            </div>
+            <h2>Our Mission</h2>
+            <p>
+              To reimagine the intersection of talent and technology. We aim to simplify the hiring lifecycle for both organizations and applicants, fostering meaningful connections that drive careers and fuel exponential business growth.
+            </p>
+          </div>
 
-        <div className="timeline__wrapper">
-          <div className="timeline__container">
-            {[
-              {
-                title: "Ideation",
-                description:
-                  "Identified key hiring bottlenecks and conceptualized a unified platform.",
-                icon: "🧠",
-              },
-              {
-                title: "Prototype Built",
-                description:
-                  "Developed an MVP focusing on ATS integration and candidate pipeline transparency.",
-                icon: "⚙️",
-              },
-              {
-                title: "Beta Launched",
-                description:
-                  "Piloted with early adopters from tech hiring teams across startups.",
-                icon: "🚀",
-              },
-              {
-                title: "Live Deployment",
-                description:
-                  "Expanded platform across enterprise-scale clients with full feature rollout.",
-                icon: "🌐",
-              },
-              {
-                title: "Future Vision",
-                description:
-                  "AI-driven matching and predictive hiring analytics in the roadmap.",
-                icon: "🔮",
-              },
-            ].map((milestone, index) => (
-              <div key={index} className="timeline__card">
-                <div className="timeline__icon">{milestone.icon}</div>
-                <h4>{milestone.title}</h4>
-                <p>{milestone.description}</p>
-              </div>
-            ))}
+          <div className="about-mv-card">
+            <div className="about-mv-icon">
+              <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+            </div>
+            <h2>Our Vision</h2>
+            <p>
+              To build a talent-centric tomorrow. We bridge the gap between education and employment by empowering professionals and recruiters with highly intelligent tools, equal access, and unparalleled transparency.
+            </p>
+          </div>
+
+        </div>
+      </section>
+
+      {/* OUR STORY / TIMELINE */}
+      <section className="about-story">
+        <div className="about-story-header">
+          <h2>Built to Solve Real Challenges</h2>
+          <p>
+            Born out of frustration with traditional fragmented processes, Doltec was founded by industry veterans who saw the need for a single, intelligent platform. From day one, we've focused on removing friction and maximizing visibility for every stakeholder.
+          </p>
+        </div>
+
+        <div className="about-timeline">
+          <div className="about-timeline-item">
+            <div className="about-timeline-number">01</div>
+            <h4>Ideation</h4>
+            <p>Identified key bottlenecks in hiring and real estate, conceptualizing a unified platform.</p>
+          </div>
+          
+          <div className="about-timeline-item">
+            <div className="about-timeline-number">02</div>
+            <h4>Prototype Built</h4>
+            <p>Developed our MVP focusing on deep integration and complete pipeline transparency.</p>
+          </div>
+
+          <div className="about-timeline-item">
+            <div className="about-timeline-number">03</div>
+            <h4>Beta Launched</h4>
+            <p>Piloted the technology with early adopters from top-tier tech hiring teams.</p>
+          </div>
+
+          <div className="about-timeline-item">
+            <div className="about-timeline-number">04</div>
+            <h4>Live Deployment</h4>
+            <p>Expanded the platform across enterprise-scale clients with a massive feature rollout.</p>
+          </div>
+
+          <div className="about-timeline-item">
+            <div className="about-timeline-number">05</div>
+            <h4>Future Vision</h4>
+            <p>Deploying AI-driven matching and predictive analytics directly into the roadmap.</p>
           </div>
         </div>
       </section>
 
-      {/* Our Team */}
-      <section className="our__team">
-        <h2>Meet the Team Behind Doltec</h2>
-        <p>
-          Our diverse team of engineers, designers, and hiring experts is united
-          by a common goal: to transform the way organizations connect with
-          talent. With backgrounds in technology, HR, and business, we bring a
-          wealth of experience and passion to our mission.
-        </p>
-
-        <div className="team__members">
-          {[
-            {
-              name: "Suryansh Saxena",
-              role: "",
-              image: `${suryansh}`,
-              linkedIn: "https://in.linkedin.com/in/suryansh-saxena",
-            },
-            {
-              name: "Danish Raza Akhtar",
-              role: "",
-              image: `${danish}`,
-              linkedIn: "https://in.linkedin.com/in/danish-raja-akhtar",
-            },
-            {
-              name: "Mohammad Afan R",
-              role: "",
-              image: `${affan}`,
-              linkedIn: "https://in.linkedin.com/in/mohammedafan",
-            },
-            {
-              name: "Aryan Chauhan",
-              role: "",
-              image: `${aryan}`,
-              linkedIn: "https://www.linkedin.com/in/aryan-ranjan-228a36289/?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=ios_app",
-            },
-
-          ].map((member, index) => (
-            <div key={index} className="team__member">
-              <img src={member.image} alt={member.name} />
-              <div className="member__info">
-                {/* <h4>{member.name}</h4> */}
-                <a href={member.linkedIn} target="blank">
-                  <h4>{member.name}</h4>
-                </a>
-              </div>
-            </div>
-          ))}
-        </div>
-      </section>
     </div>
   );
 };
 
 export default About;
+

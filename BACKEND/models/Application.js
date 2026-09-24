@@ -23,7 +23,8 @@ const ApplicationSchema = new mongoose.Schema({
   },
   hrId: {
     type: String,
-    required: true,
+    required: false,
+    default: "admin"
   },
   status: {
     type: String,

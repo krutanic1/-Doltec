@@ -57,6 +57,10 @@ import Adminlogin from './Admin/Adminlogin';
 import Createhr from './Admin/Createhr';
 import AssignedJob from './Admin/AssignedJob';
 import CompanyJobs from './Admin/CompanyJobs';
+import AdminJobPost from './Admin/AdminJobPost';
+import AdminJobResponses from './Admin/AdminJobResponses';
+import AdminPropertyPost from './Admin/AdminPropertyPost';
+import AdminPropertyResponses from './Admin/AdminPropertyResponses';
 import UserManagement from './Admin/UserManagement';
 import CompanyOnboardList from './Admin/CompanyOnboardList';
 import ContactUsResponse from './Admin/ContactUsResponse';
@@ -87,6 +91,9 @@ import Resources from './Pages/Resources';
 import AllJobsPage from './Pages/AllJobs';
 import Pricing from './Pages/Pricing';
 import RealEstateApp from './real-estate/RealEstateApp';
+import LandingPage from './Pages/LandingPage';
+import Consultancy from './Pages/Consultancy';
+import PublicNavbar from './Components/PublicNavbar';
 
 
 import Loginwithotp from './Students/Loginwithotp';
@@ -129,18 +136,11 @@ const AppContent = () => {
     "/mission",
     "/vission",
     "/project",
-    "/about",
     "/insight1",
     "/insight2",
     "/insight3",
     "/community",
-    "/contactus",
-    "/privacypolicy",
-    "/refundcancellationpolicy",
-    "/termsandconditions",
     "/resources",
-    "/alljobs",
-    "/pricing",
     // header intentionally hidden for real-estate app
 
   ];
@@ -160,6 +160,10 @@ const AppContent = () => {
     "/managethoughts",
     "/updatelandingpage",
     "/companyjobs",
+    "/adminjobpost",
+    "/adminjobresponses",
+    "/adminpropertypost",
+    "/adminpropertyresponses",
     "/assignedjobs",
     "/usermanagement",
     "/contactusresponse",
@@ -191,23 +195,40 @@ const AppContent = () => {
     "/communitydashboard",
     "/communityprivatechat",
     "/communityposts",
-  ];  
+  ];
 
+  // Public-facing pages that use the shared PublicNavbar
+  const publicNavbarRoutes = [
+    "/",
+    "/consultancy",
+    "/about",
+    "/contactus",
+    "/privacypolicy",
+    "/refundcancellationpolicy",
+    "/termsandconditions",
+    "/alljobs",
+    "/pricing",
+  ];
 
-   
+  const showPublicNavbar = publicNavbarRoutes.includes(location.pathname.toLowerCase())
+    || location.pathname.toLowerCase().startsWith('/real-estate');
+
   return (
     <div>
 
-        
+        {showPublicNavbar && <PublicNavbar />}
+
         {itHeader.includes(location.pathname.toLowerCase()) && (<Header/>)}
         {studentHeader.includes(location.pathname.toLowerCase()) && (<StudentHeader/>)}
         {adminHeader.includes(location.pathname.toLowerCase()) && (<AdminHeader/>)}
         {hrHeader.includes(location.pathname.toLowerCase()) && (<HRHeader/>)}
         {companyHeaderPaths.includes(location.pathname.toLowerCase()) && <CompanyHeader/>}
           {communityHeaderPaths.includes(location.pathname.toLowerCase()) && <CommunityHeader/>}
+
         <ScrollToTop/>
-        <Routes>
-          <Route path="/ITServices" element={<ITServices/>} />
+        <div style={{ paddingTop: adminHeader.includes(location.pathname.toLowerCase()) ? '80px' : '0' }}>
+          <Routes>
+            <Route path="/ITServices" element={<ITServices/>} />
           <Route path="/Overview" element={<WhatwedoOverview/>} />
           <Route path="/Industries" element={<WhatwedoIndustries/>} />
           <Route path="/Services" element={<WhatwedoServices/>} />
@@ -236,7 +257,9 @@ const AppContent = () => {
 
 
           {/* recruitment start */}
-          <Route path="/" element={<Recruitment/>} />
+          <Route path="/" element={<LandingPage/>} />
+          <Route path="/consultancy" element={<Consultancy/>} />
+          <Route path="/hiring-solutions" element={<Recruitment/>} />
 
           {/* Student */}
           <Route path="/StudentLogIn" element={<StudentLogIn/>} />
@@ -284,6 +307,10 @@ const AppContent = () => {
           <Route path="/ManageThoughts" element={<AdminPrivateRoute><ManageThoughts/></AdminPrivateRoute>} />
           <Route path="/UpdateLandingPage" element={<AdminPrivateRoute><UpdateLandingPage/></AdminPrivateRoute>}/>
           <Route path="/CompanyJobs" element={<AdminPrivateRoute><CompanyJobs/></AdminPrivateRoute>}/>
+          <Route path="/AdminJobPost" element={<AdminPrivateRoute><AdminJobPost/></AdminPrivateRoute>}/>
+          <Route path="/AdminJobResponses" element={<AdminPrivateRoute><AdminJobResponses/></AdminPrivateRoute>}/>
+          <Route path="/AdminPropertyPost" element={<AdminPrivateRoute><AdminPropertyPost/></AdminPrivateRoute>}/>
+          <Route path="/AdminPropertyResponses" element={<AdminPrivateRoute><AdminPropertyResponses/></AdminPrivateRoute>}/>
           <Route path="/AssignedJobs" element={<AdminPrivateRoute><AssignedJob/></AdminPrivateRoute>}/>
           <Route path="/UserManagement" element={<AdminPrivateRoute><UserManagement/></AdminPrivateRoute>}/>
           <Route path="/CompanyOnboardList" element={<AdminPrivateRoute><CompanyOnboardList/></AdminPrivateRoute>}/>
@@ -297,8 +324,9 @@ const AppContent = () => {
           <Route path="/CommunityPrivateChat" element={<CommunityPrivateRoute><CommunityPrivateChat/></CommunityPrivateRoute>} />
           <Route path="/CommunityPosts" element={<CommunityPrivateRoute><CommunityPosts/></CommunityPrivateRoute>} />
 
-        </Routes>
-        {!location.pathname.toLowerCase().startsWith('/real-estate') && <Footer />} 
+          </Routes>
+          {!location.pathname.toLowerCase().startsWith('/real-estate') && location.pathname !== '/' && !adminHeader.includes(location.pathname.toLowerCase()) && <Footer />} 
+        </div>
     </div>
   )
 }

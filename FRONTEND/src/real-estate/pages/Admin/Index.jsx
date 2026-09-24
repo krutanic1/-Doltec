@@ -17,7 +17,7 @@ export default function AdminIndex() {
 
   const load = (currentFilter = statusFilter, currentPage = page) => {
     setLoading(true);
-    api.get('/properties', { params: { status: currentFilter, page: currentPage, limit } })
+    api.get('/properties/admin', { params: { status: currentFilter, page: currentPage, limit } })
       .then((res) => {
         // If server returns paginated object
         if (res.data && res.data.properties) {

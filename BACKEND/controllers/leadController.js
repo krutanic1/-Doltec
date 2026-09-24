@@ -15,6 +15,8 @@ exports.create = async (req, res) => {
 
     const lead = await Lead.create({
       propertyId,
+      ownerId: property.poster || null,
+      isAdminLead: !!property.isAdminPost,
       userId: req.user?.id || null,
       name,
       email,

@@ -186,6 +186,92 @@ function REHeader() {
   );
 }
 
+function RENavStrip() {
+  const location = useLocation();
+  const nav = useNavigate();
+
+  const tabs = [
+    { label: 'Buy',         to: '/real-estate?type=buy' },
+    { label: 'Rent',        to: '/real-estate?type=rent' },
+    { label: 'New Launch',  to: '/real-estate?type=new-launch' },
+    { label: 'Commercial',  to: '/real-estate?type=commercial' },
+    { label: 'Workspace',   to: '/real-estate/workspace' },
+  ];
+
+  const user = (() => {
+    try { return JSON.parse(localStorage.getItem('user') || 'null'); } catch { return null; }
+  })();
+
+  return (
+    <div style={{
+      background: '#fff',
+      borderBottom: '1px solid #f1f5f9',
+      padding: '0 clamp(16px, 4vw, 40px)',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      gap: 16,
+      flexWrap: 'wrap',
+    }}>
+      {/* Category Tabs */}
+      <div style={{ display: 'flex', gap: 4 }}>
+        {tabs.map(({ label, to }) => {
+          const base = to.split('?')[0];
+          const isActive = location.pathname === base && (base !== '/real-estate' || location.search.includes(to.split('?')[1] || ''));
+          return (
+            <button
+              key={label}
+              onClick={() => nav(to)}
+              style={{
+                padding: '14px 18px',
+                background: 'none',
+                border: 'none',
+                borderBottom: isActive ? '2px solid #f59e0b' : '2px solid transparent',
+                color: isActive ? '#0B1F3A' : '#64748b',
+                fontWeight: isActive ? 700 : 500,
+                fontSize: 14,
+                cursor: 'pointer',
+                fontFamily: 'inherit',
+                transition: 'all 0.18s',
+                whiteSpace: 'nowrap',
+              }}
+              onMouseOver={e => { if (!isActive) e.currentTarget.style.color = '#0B1F3A'; }}
+              onMouseOut={e => { if (!isActive) e.currentTarget.style.color = '#64748b'; }}
+            >
+              {label}
+            </button>
+          );
+        })}
+      </div>
+
+      {/* Right side CTA */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+        {user ? (
+          <button
+            onClick={() => nav('/real-estate/dashboard')}
+            style={{ padding: '8px 18px', borderRadius: 8, border: '1px solid #e2e8f0', background: '#f8fafc', color: '#0B1F3A', fontWeight: 600, fontSize: 13, cursor: 'pointer', fontFamily: 'inherit' }}
+          >
+            My Dashboard
+          </button>
+        ) : (
+          <button
+            onClick={() => nav('/real-estate/auth/login')}
+            style={{ padding: '8px 18px', borderRadius: 8, border: '1px solid #e2e8f0', background: '#f8fafc', color: '#0B1F3A', fontWeight: 600, fontSize: 13, cursor: 'pointer', fontFamily: 'inherit' }}
+          >
+            Sign In
+          </button>
+        )}
+        <button
+          onClick={() => nav('/real-estate/post-property')}
+          style={{ padding: '8px 20px', borderRadius: 8, background: '#f59e0b', border: 'none', color: '#fff', fontWeight: 700, fontSize: 13, cursor: 'pointer', fontFamily: 'inherit' }}
+        >
+          + Post Property
+        </button>
+      </div>
+    </div>
+  );
+}
+
 function REFooter() {
   return (
     <footer className="re-footer">
@@ -237,9 +323,10 @@ function REFooter() {
 export default function RealEstateLayout() {
   return (
     <div className="re-module" style={{ minHeight: '100vh', overflowX: 'hidden' }}>
-      <REHeader />
+      <RENavStrip />
       <Outlet />
       <REFooter />
     </div>
   );
 }
+

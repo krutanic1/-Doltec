@@ -1,7 +1,6 @@
 @import "tailwindcss";
-@source "./real-estate/**/*.{js,jsx,ts,tsx}";
-@source "./Pages/**/*.{js,jsx,ts,tsx}";
-@source "./Components/**/*.{js,jsx,ts,tsx}";
+@source "./**/*.{js,jsx,ts,tsx}";
+
 
 
 *{

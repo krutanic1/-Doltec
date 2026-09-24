@@ -222,9 +222,7 @@ const Joblist = () => {
         key={index}
         className="job__titleandlocation"
       >
-        <div className="company__logo">
-          <img src={job.companyLogoUrl || "/default-logo.png"} alt="logo" />
-        </div>
+
         <div className="job__name">
           <strong>{job.jobTitle}</strong>
           <p>{job.city}</p>

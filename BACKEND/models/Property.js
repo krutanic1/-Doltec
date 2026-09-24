@@ -14,7 +14,8 @@ const PropertySchema = new mongoose.Schema({
   propertyType: { type: String, required: true },
   
   status: { type: String, enum: ['DRAFT', 'PENDING', 'APPROVED', 'ACTIVE', 'PAUSED', 'EXPIRED', 'REJECTED', 'ARCHIVED'], default: 'DRAFT' },
-  poster: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+  poster: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: false }, // Made optional for Admin
+  isAdminPost: { type: Boolean, default: false },
   
   // Listings Module Additions
   tier: { type: String, enum: ['PLAIN', 'BASIC', 'PLATINUM', 'PREMIUM'], default: 'PLAIN', index: true },

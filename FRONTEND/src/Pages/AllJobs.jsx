@@ -122,7 +122,6 @@ export default function AllJobsPage() {
           <div className="filter-group">
             <label>Job Type:</label>
             <select
-              style={{ backgroundColor: "black" }}
               value={selectedJobType}
               onChange={(e) => setSelectedJobType(e.target.value)}
             >
@@ -138,7 +137,6 @@ export default function AllJobsPage() {
           <div className="filter-group">
             <label>Location:</label>
             <select
-              style={{ backgroundColor: "black" }}
               value={selectedLocation}
               onChange={(e) => setSelectedLocation(e.target.value)}
             >
@@ -187,12 +185,6 @@ export default function AllJobsPage() {
                         <p className="company">
                           {job.companyName} | {job.jobType}
                         </p>
-                      </div>
-                      <div className="company-logo">
-                        <img
-                          src={job.companyLogoUrl || "/default-logo.png"}
-                          alt="logo"
-                        />
                       </div>
                     </div>
                     <p>

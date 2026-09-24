@@ -6,6 +6,8 @@ const Adminlogin = require("../models/Adminlogin");
 const Createhr = require("../models/Createhr");
 const ContactUs = require("../models/ContactUs");
 const CompanyPostedJob = require("../models/CompanyPostedJob");
+const Application = require("../models/Application");
+const Property = require("../models/Property");
 const jwt = require("jsonwebtoken");
 require("dotenv").config();
 const { connectDB } = require("../db");
@@ -188,6 +190,40 @@ router.get("/getcontactus", async (req, res) => {
   }
 });
 
+// Admin direct job post
+router.post("/post-job", async (req, res) => {
+  try {
+    const jobData = req.body;
+    
+    // We store the typed companyName directly into companyId
+    // so that the fallback in the GET route picks it up.
+    jobData.companyId = req.body.companyName || "Doltec Admin";
+    jobData.postedBy = "admin";
+    jobData.hrId = "admin"; // to bypass HR requirements and route responses to Admin
+    
+    const requiredFields = [
+      "jobTitle", "city", "location", "jobType", "jobTiming", "workingDays",
+      "jobDescription", "desiredSkills", "experience", "noofposition", "applicationDeadline"
+    ];
+    for (let field of requiredFields) {
+      if (!jobData[field]) {
+        return res.status(400).json({ message: `Missing required field: ${field}` });
+      }
+    }
+    
+    if (!jobData.salary || !jobData.salary.minSalary || !jobData.salary.maxSalary) {
+      return res.status(400).json({ message: "Min and Max salary are required" });
+    }
+
+    const newJob = new CompanyPostedJob(jobData);
+    const savedJob = await newJob.save();
+    res.status(201).json(savedJob);
+  } catch (error) {
+    console.error("error in admin job post:", error);
+    res.status(500).json({ message: "Server error", error: error.message });
+  }
+});
+
 // fetching all jobs with company name by performing  aggregate join operation
 router.get("/company-all-jobs", async (req, res) => {
   try {
@@ -208,7 +244,7 @@ router.get("/company-all-jobs", async (req, res) => {
       },
       {
         $project: {
-          companyName: { $ifNull: ["$company.companyName", "Unknown Company"] },
+          companyName: { $ifNull: ["$company.companyName", "$companyId"] },
           companyLogoUrl: { $ifNull: ["$company.companyLogoUrl", ""] },
           companyId: 1,
           jobTitle: 1,
@@ -298,6 +334,92 @@ router.put('/company/:id', async (req, res) => {
     res.json({ message: 'Company updated successfully', data: updatedCompany });
   } catch (err) {
     res.status(500).json({ message: 'Error updating company', error: err.message });
+  }
+});
+
+// Get applications for jobs posted by Admin
+router.get("/admin-job-responses", async (req, res) => {
+  try {
+    const applications = await Application.find({ hrId: "admin" })
+      .populate({
+        path: "jobId",
+        select: "jobTitle companyId companyName postedBy",
+      })
+      .populate("userId", "fullname email phone")
+      .populate("resumeId");
+    res.json(applications);
+  } catch (error) {
+    console.error("Error fetching admin job responses:", error);
+    res.status(500).json({ error: "Server error" });
+  }
+});
+
+const cloudinary = require("../middleware/cloudinary");
+
+// Admin direct property post
+router.post("/admin-post-property", async (req, res) => {
+  try {
+    let propertyData;
+    try {
+      propertyData = typeof req.body.data === 'string' ? JSON.parse(req.body.data) : req.body;
+    } catch (e) {
+      return res.status(400).json({ msg: 'Invalid JSON data format', error: e.message });
+    }
+
+    propertyData.isAdminPost = true;
+    propertyData.status = 'ACTIVE'; // Auto-approve admin posts
+    propertyData.media = [];
+
+    // Process file uploads if provided
+    if (req.files && req.files.images) {
+      const imgCount = Array.isArray(req.files.images) ? req.files.images.length : 1;
+      if (imgCount > 10) return res.status(400).json({ msg: 'Maximum 10 images allowed' });
+
+      const imagesToUpload = Array.isArray(req.files.images) ? req.files.images : [req.files.images];
+      
+      for (const image of imagesToUpload) {
+        if (!image.mimetype.startsWith('image/')) {
+          return res.status(400).json({ msg: 'Only image files are allowed' });
+        }
+        try {
+          const result = await cloudinary.uploader.upload(image.tempFilePath, {
+            folder: "doltec_properties",
+          });
+          propertyData.media.push({ url: result.secure_url, publicId: result.public_id, isHero: propertyData.media.length === 0 });
+        } catch (uploadErr) {
+          console.error('Cloudinary Upload Error:', uploadErr);
+          return res.status(500).json({ msg: 'Failed to upload images', error: uploadErr.message });
+        }
+      }
+    }
+
+    // Generate a unique slug based on title and timestamp
+    const baseSlug = propertyData.title ? propertyData.title.toLowerCase().replace(/[^a-z0-9]+/g, '-') : 'admin-property';
+    propertyData.slug = `${baseSlug}-${Date.now()}`;
+
+    const newProperty = new Property(propertyData);
+    const savedProperty = await newProperty.save();
+    res.status(201).json(savedProperty);
+  } catch (error) {
+    console.error("Error in admin property post:", error);
+    res.status(500).json({ message: "Server error", error: error.message });
+  }
+});
+
+// Get all admin property responses (leads for admin-posted properties)
+router.get("/admin-property-responses", async (req, res) => {
+  try {
+    const Lead = require("../models/Lead");
+    
+    // Find all leads that are marked as admin leads
+    const leads = await Lead.find({ isAdminLead: true })
+      .populate('propertyId', 'title city category')
+      .sort({ createdAt: -1 });
+      
+    res.status(200).json(leads);
+  } catch (error) {
+    console.error("Error fetching admin property responses:", error);
+    res.status(500).json({ error: "Server error" });
   }
 });
 

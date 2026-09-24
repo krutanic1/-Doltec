@@ -41,10 +41,12 @@ exports.getProperties = async (req, res) => {
     } = req.query;
 
     const query = {};
-    if (req.query.status && req.query.status !== 'ALL') {
-      query.status = req.query.status;
-    } else if (!req.query.status) {
+    if (req.role !== 'admin') {
       query.status = 'APPROVED';
+    } else {
+      if (req.query.status && req.query.status !== 'ALL') {
+        query.status = req.query.status;
+      }
     }
 
     // Search and Location

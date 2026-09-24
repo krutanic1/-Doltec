@@ -154,6 +154,89 @@ const AdminHeader = () => {
             </g>
           </svg>
         </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginLeft: 'auto' }}>
+          {/* Admin Property Responses */}
+          <button
+            onClick={() => navigate('/AdminPropertyResponses')}
+            style={{
+              display: 'flex', alignItems: 'center', gap: 7,
+              padding: '8px 16px',
+              background: '#fff',
+              color: '#0B1F3A',
+              border: '1px solid #0B1F3A',
+              borderRadius: '6px',
+              fontSize: '14px',
+              fontWeight: '500',
+              cursor: 'pointer',
+              transition: 'all 0.2s',
+            }}
+          >
+            📋 Property Responses
+          </button>
+          {/* Admin Job Responses */}
+          <button
+            onClick={() => navigate('/AdminJobResponses')}
+            style={{
+              display: 'flex', alignItems: 'center', gap: 7,
+              padding: '8px 16px',
+              background: '#fff',
+              color: '#0B1F3A',
+              border: '1px solid #0B1F3A',
+              borderRadius: '6px',
+              fontSize: '14px',
+              fontWeight: '500',
+              cursor: 'pointer',
+              transition: 'all 0.2s',
+            }}
+          >
+            📋 Job Responses
+          </button>
+          {/* Post a Job */}
+          <button
+            onClick={() => navigate('/AdminJobPost')}
+            style={{
+              display: 'flex', alignItems: 'center', gap: 7,
+
+              padding: '8px 16px',
+              background: 'linear-gradient(135deg, #1a3a6b, #0B1F3A)',
+              color: '#fff',
+              border: '1px solid rgba(255,255,255,0.15)',
+              borderRadius: 10,
+              cursor: 'pointer',
+              fontFamily: 'inherit',
+              fontWeight: 700,
+              fontSize: 13,
+              whiteSpace: 'nowrap',
+              transition: 'opacity 0.2s',
+            }}
+            onMouseOver={e => e.currentTarget.style.opacity = '0.85'}
+            onMouseOut={e => e.currentTarget.style.opacity = '1'}
+          >
+            💼 Post a Job
+          </button>
+          {/* Post Real Estate */}
+          <button
+            onClick={() => navigate('/AdminPropertyPost')}
+            style={{
+              display: 'flex', alignItems: 'center', gap: 7,
+              padding: '8px 16px',
+              background: 'linear-gradient(135deg, #f59e0b, #d97706)',
+              color: '#fff',
+              border: 'none',
+              borderRadius: 10,
+              cursor: 'pointer',
+              fontFamily: 'inherit',
+              fontWeight: 700,
+              fontSize: 13,
+              whiteSpace: 'nowrap',
+              transition: 'opacity 0.2s',
+            }}
+            onMouseOver={e => e.currentTarget.style.opacity = '0.85'}
+            onMouseOut={e => e.currentTarget.style.opacity = '1'}
+          >
+            🏠 Post Property
+          </button>
+        </div>
         <div className="menu-icon" onClick={toggleSidebar}>
           ☰
         </div>

@@ -23,7 +23,7 @@ const jobSchema = new mongoose.Schema({
   hrName: { type: String, default: null },
   assignedToHr: { type: Boolean, default: false },
   jobPostedOn: { type: Date, default: Date.now },
-
+  postedBy: { type: String, default: "company" }, // can be "company" or "admin"
 });
 
 const CompanyPostedJob = mongoose.model("CompanyPostedJob", jobSchema);
