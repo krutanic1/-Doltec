@@ -39,3 +39,5 @@ tmp/
 .DS_Store
 .idea/
 Thumbs.db
+.vercel
+.env*.local
