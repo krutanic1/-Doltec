@@ -2,7 +2,6 @@ import { Link, useLocation } from "react-router-dom";
 const Footer = () => {
   const location = useLocation();
   const noHeaderFooterRoutes = [
-    "/",
     "/Home",
     "/chooseaplan",
     "/Joblist",

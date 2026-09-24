@@ -328,7 +328,7 @@ const AppContent = () => {
           <Route path="/CommunityPosts" element={<CommunityPrivateRoute><CommunityPosts/></CommunityPrivateRoute>} />
 
           </Routes>
-          {!location.pathname.toLowerCase().startsWith('/real-estate') && location.pathname !== '/' && !adminHeader.includes(location.pathname.toLowerCase()) && <Footer />} 
+          {!location.pathname.toLowerCase().startsWith('/real-estate') && !adminHeader.includes(location.pathname.toLowerCase()) && <Footer />} 
         </div>
     </div>
   )
