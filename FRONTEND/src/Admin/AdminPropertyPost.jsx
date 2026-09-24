@@ -8,6 +8,7 @@ const formFields = [
   { name: "city", label: "City", type: "text" },
   { name: "locality", label: "Locality", type: "text" },
   { name: "price", label: "Price (INR)", type: "number" },
+  { name: "intent", label: "Listing Type", type: "select", options: ['BUY', 'RENT'] },
   { name: "category", label: "Category", type: "select", options: ['RESIDENTIAL', 'COMMERCIAL', 'PLOTS_LAND', 'PROJECTS', 'NEW_LAUNCH'] },
   { name: "propertyType", label: "Property Type (e.g., Apartment, Villa)", type: "text" },
   { name: "bhk", label: "BHK (e.g., 2, 3, 4)", type: "text", isFeature: true },
@@ -22,6 +23,7 @@ const AdminPropertyPost = () => {
     city: "",
     locality: "",
     price: "",
+    intent: "BUY",
     category: "RESIDENTIAL",
     propertyType: "",
     bhk: "",
@@ -65,6 +67,12 @@ const AdminPropertyPost = () => {
       category: details.category,
       propertyType: details.propertyType,
       tier: details.tier,
+      filters: {
+        intent: details.intent,
+        segment: details.category,
+        propertyType: details.propertyType,
+        bhk: details.bhk,
+      },
       features: {
         bhk: details.bhk,
         areaSqFt: Number(details.areaSqFt) || 0,

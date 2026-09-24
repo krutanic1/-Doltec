@@ -168,7 +168,7 @@ const LandingPage = () => {
           
           <div className="lp-audience-grid-neon">
             {/* Neon Card 1: Hiring */}
-            <Link to="/hiring-solutions" className="lp-neon-card">
+            <Link to="/consultancy" className="lp-neon-card">
               <div className="lp-neon-icon">
                 <svg viewBox="0 0 100 100" className="lp-svg-neon">
                   {/* Outer glowing ring (Lime) */}
@@ -186,7 +186,7 @@ const LandingPage = () => {
             </Link>
             
             {/* Neon Card 2: Businesses */}
-            <Link to="/ITServices" className="lp-neon-card">
+            <Link to="/consultancy" className="lp-neon-card">
               <div className="lp-neon-icon">
                 <svg viewBox="0 0 100 100" className="lp-svg-neon">
                   {/* Outer rounded square (Lime) */}

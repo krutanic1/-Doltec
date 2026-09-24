@@ -214,8 +214,21 @@ function RENavStrip() {
       flexWrap: 'wrap',
     }}>
       {/* Category Tabs */}
-      <div style={{ display: 'flex', gap: 4 }}>
-        {tabs.map(({ label, to }) => {
+      <div className="re-nav-tabs-container">
+        <style>{`
+          .re-nav-tabs-container { flex: 1 1 100%; overflow: hidden; max-width: 100%; }
+          .re-nav-tabs::-webkit-scrollbar { display: none; }
+          @media (min-width: 768px) {
+            .re-nav-tabs-container { flex: 1 1 auto; width: auto; }
+            .re-nav-strip-right { justify-content: flex-end; }
+          }
+          @media (max-width: 768px) {
+            .re-nav-strip-right { width: 100%; justify-content: flex-start; margin-top: 4px; }
+            .re-nav-tabs { padding-bottom: 4px; }
+          }
+        `}</style>
+        <div className="re-nav-tabs" style={{ display: 'flex', gap: 4, overflowX: 'auto', scrollbarWidth: 'none', WebkitOverflowScrolling: 'touch' }}>
+          {tabs.map(({ label, to }) => {
           const base = to.split('?')[0];
           const isActive = location.pathname === base && (base !== '/real-estate' || location.search.includes(to.split('?')[1] || ''));
           return (
@@ -242,10 +255,11 @@ function RENavStrip() {
             </button>
           );
         })}
+        </div>
       </div>
 
       {/* Right side CTA */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+      <div className="re-nav-strip-right" style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
         {user ? (
           <button
             onClick={() => nav('/real-estate/dashboard')}
