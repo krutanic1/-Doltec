@@ -2,6 +2,7 @@ import React from 'react';
 
 const BADGE_MAP = {
   APPROVED:  { label: 'Approved', bg: '#d1fae5', color: '#065f46', dot: '#10b981' },
+  ACTIVE:    { label: 'Active',   bg: '#d1fae5', color: '#065f46', dot: '#10b981' },
   PENDING:   { label: 'Pending',  bg: '#fef3c7', color: '#92400e', dot: '#f59e0b' },
   DRAFT:     { label: 'Draft',    bg: '#f1f5f9', color: '#475569', dot: '#94a3b8' },
   REJECTED:  { label: 'Rejected', bg: '#fee2e2', color: '#991b1b', dot: '#ef4444' },

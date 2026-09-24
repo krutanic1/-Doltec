@@ -367,7 +367,7 @@ router.post("/admin-post-property", async (req, res) => {
     }
 
     propertyData.isAdminPost = true;
-    propertyData.status = 'ACTIVE'; // Auto-approve admin posts
+    propertyData.status = 'APPROVED'; // Auto-approve admin posts
     propertyData.media = [];
 
     // Process file uploads if provided
